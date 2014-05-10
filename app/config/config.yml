@@ -49,8 +49,10 @@ twig:
     debug:                     "%kernel.debug%"
     strict_variables:          "%kernel.debug%"
 
-bc_bootstrap:
+braincrafted_bootstrap:
     less_filter: lessphp
+    assets_dir:  %kernel.root_dir%/../vendor/twitter/bootstrap
+    jquery_path: %kernel.root_dir%/../vendor/jquery/jquery/jquery-1.9.1.js
     
 # Assetic Configuration
 assetic:
