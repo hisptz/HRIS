@@ -50,10 +50,9 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
+                <th>Organisationunit</th>
                 <th>Datasetname</th>
-                <th>Datasetuid</th>
                 <th>Hosturl</th>
-                <th>Username</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -62,10 +61,9 @@
             <tr>
                 <td><a href="{{ path('dhisdataconnection_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
                 <td>{{ entity.name }}</td>
+                <td>{{ entity.parentOrganisationunit.longname }}</td>
                 <td>{{ entity.datasetName }}</td>
-                <td>{{ entity.datasetUid }}</td>
                 <td>{{ entity.hostUrl }}</td>
-                <td>{{ entity.username }}</td>
                 <td>
                 <ul class="inline">
                     <li>
