@@ -404,7 +404,7 @@ class DHISDataConnectionController extends Controller
 <dataValueSet xmlns=\"http://dhis2.org/schema/dxf/2.0\">";
 
         $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($id);
-        $xmlFile = "/tmp/hrhis_data.xml";
+        $xmlFile = "/tmp/hrhis_data_".str_replace(' ','_',$entity->getParentOrganisationunit()).".xml";
         file_put_contents($xmlFile,$this->xmlContents);
 
         /*
@@ -483,7 +483,7 @@ class DHISDataConnectionController extends Controller
             $instanceCount = $this->array_value_recursive('count',$this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery));
             $dhisUid=$entity->getParentOrganisationunit()->getDhisUid();
             if(!empty($dhisUid) && ($instanceCount>0)) {
-                $this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+                //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
                 file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
             }
             unset($dhisUid);
@@ -583,7 +583,7 @@ class DHISDataConnectionController extends Controller
                 $instanceCount = $this->array_value_recursive('count',$this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery));
                 //Only send non-zero data
                 if($instanceCount>0) {
-                    $this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+                    //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
                     file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
                 }
                 unset($dhisUid);
