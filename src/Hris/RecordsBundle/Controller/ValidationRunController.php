@@ -73,15 +73,25 @@ class ValidationRunController extends Controller
             $forms = $validationValues['forms'];
             $selectedValidations = $validationValues['validations'];
 
-            //print_r($organisationunitid);
 
             //$organisationunitLevel=$validationValues['organisationunitLevel'];
-            //$withLowerLevels = $validationValues['withLowerLevels'];
+            $withLowerLevels = $validationValues['withLowerLevels'];
+
 
             //getting the Organisationunit object
             $entityManager = $this->getDoctrine()->getManager();
-            $organisationUnitObject = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('longname'=>'Ministry Of Health'));
+            $organisationUnitObject = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('longname'=> (string)$organisationunitid));
 
+            //Checking if the user what to print data for unit under the selected one.
+            if ($withLowerLevels == 1){
+                $orgunitChildren = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->getAllChildren($organisationUnitObject);
+
+                foreach($orgunitChildren as $key => $unit){
+                    $orgunitIds[] = $unit[0]['id'];;
+                }
+            }else{
+                $orgunitIds = array(1=>$organisationUnitObject->getId());
+            }
 
             //getting the forms object
             foreach($forms as $key=>$formObjects){
@@ -107,6 +117,7 @@ class ValidationRunController extends Controller
               */
 
             $leftExpTitle = '';
+            $validationFault = null;
             $rightExpTitle = '';
             foreach ($selectedValidations as $keyValue => $validation) {
 
@@ -165,9 +176,6 @@ class ValidationRunController extends Controller
             }
 
 
-
-            $orgunitIds = array(1=>$organisationUnitObject->getId());
-
             $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
             $hrhisValues = $queryBuilder->select('record')
                 ->from('HrisRecordsBundle:Record', 'record')
@@ -219,6 +227,9 @@ class ValidationRunController extends Controller
                              */
 
                             $tempField = $entityManager->getRepository('HrisFormBundle:Field')->findOneBy(array('uid' => $field));
+                            if(empty($tempField)){
+                                continue;
+                            }
                             $param = "#{" . $tempField->getName() . "}";
 
 
@@ -300,6 +311,7 @@ class ValidationRunController extends Controller
                      * Doing comparison of the sides
                      */
                     $operator = $validation->getOperator();
+
                     switch ($operator) {
                         case '==':
                             if ($leftHandValue == $rightHandValue) {
