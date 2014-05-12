@@ -404,14 +404,198 @@ class DHISDataConnectionController extends Controller
 <dataValueSet xmlns=\"http://dhis2.org/schema/dxf/2.0\">";
 
         $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($id);
-        $organisationunits = $this->getDoctrine()->getManager()->getRepository('HrisOrganisationunitBundle:Organisationunit')->findBy(array('id'=>$entity->getParentOrganisationunit()->getId()));
+        $xmlFile = "/tmp/hrhis_data_".str_replace(' ','_',$entity->getParentOrganisationunit()).".xml";
+        file_put_contents($xmlFile,$this->xmlContents);
 
-        $this->aggregateLowerOrganisationunits($organisationunits);
+        /*
+         * Aggregate data for the parent organisationunit
+         */
+        // Aggregate data for each orgunit in the current level.
+        $em = $this->getDoctrine()->getManager();
+        $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($this->dhisConnectionId);
+        /*
+         * Initializing query for dhis dataset calculation
+         */
+        // Get Standard Resource table name
+        $resourceTableName = str_replace(' ','_',trim(strtolower( ResourceTable::getStandardResourceTableName())));
+        $resourceTableAlias="ResourceTable";
+
+        //@todo create join clause to only go through orgunit with dhisUid
+
+        $fromClause=" FROM $resourceTableName $resourceTableAlias ";
+
+        $organisationunitLevelsWhereClause = " $resourceTableAlias.organisationunit_id=".$entity->getParentOrganisationunit()->getId()." ";
+
+        // Query for Options to exclude from reports
+        $fieldOptionsToSkip = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
+        //filter the records with exclude report tag
+        foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
+            if(empty($fieldOptionsToSkipQuery)) {
+                $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+            }else {
+                $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+            }
+        }
+
+        // Dataelement field option relation
+        $dataelementFieldOptionRelation = $entity->getDataelementFieldOptionRelation();
+        foreach($dataelementFieldOptionRelation as $dataelementFieldOptionKey=>$dataelementFieldOptionValue) {
+            // Formulate Query for calculating field option
+            $columnFieldOptionGroup = $dataelementFieldOptionValue->getColumnFieldOptionGroup();
+            $rowFieldOptionGroup = $dataelementFieldOptionValue->getRowFieldOptionGroup();
+
+            $seriesFieldName=$rowFieldOptionGroup->getName();
+
+            //Column Query construction
+            $queryColumnNames[] = str_replace('-','_',str_replace(' ','',$columnFieldOptionGroup->getName()));
+            $categoryColumnFieldNames[] = $columnFieldOptionGroup->getField()->getName();
+            $categoryRowFieldName = $columnFieldOptionGroup->getField()->getName();
+            $columnWhereClause = NULL;
+
+            foreach($columnFieldOptionGroup->getFieldOption() as $columnFieldOptionKey=>$columnFieldOption) {
+                $operator = $columnFieldOptionGroup->getOperator();
+                if(empty($operator)) $operator = "OR";
+                $categoryColumnFieldOptionValue=str_replace('-','_',$columnFieldOption->getValue());
+                $categoryColumnFieldName=$columnFieldOption->getField()->getName();
+                $categoryColumnResourceTableName=$resourceTableAlias;
+                if(!empty($columnWhereClause)) {
+                    $columnWhereClause = $columnWhereClause." ".strtoupper($operator)." $categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
+                }else {
+                    $columnWhereClause = "$categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
+                }
+
+            }
+            $rowWhereClause = NULL;
+            foreach($rowFieldOptionGroup->getFieldOption() as $rowFieldOptionKey=>$rowFieldOption) {
+                $operator = $rowFieldOptionGroup->getOperator();
+                if(empty($operator)) $operator = "OR";
+                $categoryRowFieldOptionValue=str_replace('-','_',$rowFieldOption->getValue());
+                $categoryRowFieldName=$rowFieldOption->getField()->getName();
+                $categoryRowResourceTableName=$resourceTableAlias;
+                if(!empty($rowWhereClause)) {
+                    $rowWhereClause = $rowWhereClause." ".strtoupper($operator)." $categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
+                }else {
+                    $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
+                }
+            }
+
+            $selectQuery="SELECT COUNT(DISTINCT(instance)) $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" );
+            $instanceCount = $this->array_value_recursive('count',$this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery));
+            $dhisUid=$entity->getParentOrganisationunit()->getDhisUid();
+            if(!empty($dhisUid) && ($instanceCount>0)) {
+                //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+                file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
+            }
+            unset($dhisUid);
+        }
+
+        /*
+         * Aggregate organisationunit for all the children
+         */
+        $queryBuilder = $em->createQueryBuilder();
+        $allOrganisationunitsChildren = $queryBuilder->select('organisationunit')
+            ->from('HrisOrganisationunitBundle:Organisationunit','organisationunit')
+            ->join('organisationunit.organisationunitStructure','organisationunitStructure')
+            ->join('organisationunitStructure.level','level')
+            ->andWhere('
+                        (
+                            level.level >= :organisationunitLevel
+                            AND organisationunitStructure.level'.$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel().'Organisationunit=:levelOrganisationunit
+                        ) AND organisationunit.dhisUid is not null'
+            )
+            ->setParameters(array(
+                'levelOrganisationunit'=>$entity->getParentOrganisationunit(),
+                'organisationunitLevel'=>$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel()
+            ))
+            ->getQuery()->getResult();
+
+        foreach($allOrganisationunitsChildren as $organisationunitKey=>$organisationunit) {
+            // Aggregate data for each orgunit in the current level.
+            $em = $this->getDoctrine()->getManager();
+            $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($this->dhisConnectionId);
+            /*
+             * Initializing query for dhis dataset calculation
+             */
+            // Get Standard Resource table name
+            $resourceTableName = str_replace(' ','_',trim(strtolower( ResourceTable::getStandardResourceTableName())));
+            $resourceTableAlias="ResourceTable";
+
+            //@todo create join clause to only go through orgunit with dhisUid
+
+            $fromClause=" FROM $resourceTableName $resourceTableAlias ";
+
+            $organisationunitLevelsWhereClause = " $resourceTableAlias.organisationunit_id=".$organisationunit->getId()." ";
+
+            // Query for Options to exclude from reports
+            $fieldOptionsToSkip = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
+            //filter the records with exclude report tag
+            foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
+                if(empty($fieldOptionsToSkipQuery)) {
+                    $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+                }else {
+                    $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+                }
+            }
+
+            // Dataelement field option relation
+            $dataelementFieldOptionRelation = $entity->getDataelementFieldOptionRelation();
+            foreach($dataelementFieldOptionRelation as $dataelementFieldOptionKey=>$dataelementFieldOptionValue) {
+                // Formulate Query for calculating field option
+                $columnFieldOptionGroup = $dataelementFieldOptionValue->getColumnFieldOptionGroup();
+                $rowFieldOptionGroup = $dataelementFieldOptionValue->getRowFieldOptionGroup();
+
+                $seriesFieldName=$rowFieldOptionGroup->getName();
+
+                //Column Query construction
+                $queryColumnNames[] = str_replace('-','_',str_replace(' ','',$columnFieldOptionGroup->getName()));
+                $categoryColumnFieldNames[] = $columnFieldOptionGroup->getField()->getName();
+                $categoryRowFieldName = $columnFieldOptionGroup->getField()->getName();
+                $columnWhereClause = NULL;
+
+                foreach($columnFieldOptionGroup->getFieldOption() as $columnFieldOptionKey=>$columnFieldOption) {
+                    $operator = $columnFieldOptionGroup->getOperator();
+                    if(empty($operator)) $operator = "OR";
+                    $categoryColumnFieldOptionValue=str_replace('-','_',$columnFieldOption->getValue());
+                    $categoryColumnFieldName=$columnFieldOption->getField()->getName();
+                    $categoryColumnResourceTableName=$resourceTableAlias;
+                    if(!empty($columnWhereClause)) {
+                        $columnWhereClause = $columnWhereClause." ".strtoupper($operator)." $categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
+                    }else {
+                        $columnWhereClause = "$categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
+                    }
+
+                }
+                $rowWhereClause = NULL;
+                foreach($rowFieldOptionGroup->getFieldOption() as $rowFieldOptionKey=>$rowFieldOption) {
+                    $operator = $rowFieldOptionGroup->getOperator();
+                    if(empty($operator)) $operator = "OR";
+                    $categoryRowFieldOptionValue=str_replace('-','_',$rowFieldOption->getValue());
+                    $categoryRowFieldName=$rowFieldOption->getField()->getName();
+                    $categoryRowResourceTableName=$resourceTableAlias;
+                    if(!empty($rowWhereClause)) {
+                        $rowWhereClause = $rowWhereClause." ".strtoupper($operator)." $categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
+                    }else {
+                        $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
+                    }
+                }
+
+                $selectQuery="SELECT COUNT(DISTINCT(instance)) $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" );
+                $instanceCount = $this->array_value_recursive('count',$this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery));
+                //Only send non-zero data
+                if($instanceCount>0) {
+                    //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+                    file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
+                }
+                unset($dhisUid);
+            }
+        }
 
         $this->xmlContents = $this->xmlContents.'</dataValueSet>';
+        file_put_contents($xmlFile,'</dataValueSet>',FILE_APPEND);
 
 
         // Initializing export file
+        $outputFile =
         $fileSystem = new Filesystem();
         $exportFileName = "Export_".date("Y_m_d_His").".zip";
         $exportArchive = new ZipArchive();
@@ -426,6 +610,23 @@ class DHISDataConnectionController extends Controller
         unlink("/tmp/".$exportFileName);
 
         $result = $this->xmlContents;
+
+//        /*
+//         * Send data through web api
+//         */
+//        $additionalHeaders = '';
+//        $process = curl_init($entity-> getHostUrl().'/api/dataValueSets');
+//        //curl_setopt($process, CURLOPT_POST, true);
+//        curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
+//        curl_setopt($process, CURLOPT_HTTPHEADER, array('Content-Type: application/xml', $additionalHeaders));
+//        curl_setopt($process, CURLOPT_USERPWD, $entity -> getUsername() . ":" . $entity -> getPassword());
+//        curl_setopt($process, CURLOPT_POST, 1);
+//        curl_setopt($process, CURLOPT_POSTFIELDS, $exportFileName);
+//        curl_setopt($process, CURLOPT_TIMEOUT, 30);
+//
+//        $return = curl_exec($process);
+//        curl_close($process);
+
         return array(
             'result'      => $result,
         );
@@ -459,109 +660,6 @@ class DHISDataConnectionController extends Controller
         $val = array();
         array_walk_recursive($arr, function($v, $k) use($key, &$val){if($k == $key) array_push($val, $v);});
         return count($val) > 1 ? $val : array_pop($val);
-    }
-
-    /**
-     * Recursive Function to navigate tree structure starting from selected parent while
-     * creating export file with aggregated values in the process.
-     * @param array $parentOrganisatinunits
-     */
-    public function aggregateLowerOrganisationunits($parentOrganisatinunits) {
-        if ( sizeof($parentOrganisatinunits) > 0 ) {
-
-            /*
-             * Fetch the grand children if exists
-            */
-            foreach($parentOrganisatinunits as $key=>$organisationunit) {
-                $parentOrganisationunitIds[] = $organisationunit->getId();
-                // Aggregate data for each orgunit in the current level.
-                $em = $this->getDoctrine()->getManager();
-                $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($this->dhisConnectionId);
-                /*
-                 * Initializing query for dhis dataset calculation
-                 */
-                // Get Standard Resource table name
-                $resourceTableName = str_replace(' ','_',trim(strtolower( ResourceTable::getStandardResourceTableName())));
-                $resourceTableAlias="ResourceTable";
-
-                //@todo create join clause to only go through orgunit with dhisUid
-
-                $fromClause=" FROM $resourceTableName $resourceTableAlias ";
-
-                $organisationunitLevelsWhereClause = " $resourceTableAlias.organisationunit_id=".$organisationunit->getId()." ";
-
-                // Query for Options to exclude from reports
-                $fieldOptionsToSkip = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
-                //filter the records with exclude report tag
-                foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
-                    if(empty($fieldOptionsToSkipQuery)) {
-                        $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-                    }else {
-                        $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-                    }
-                }
-                $xmlContents = "<?xml version='1.0' encoding='UTF-8'?><dataValueSet xmlns=\"http://dhis2.org/schema/dxf/2.0\">";
-
-                // Dataelement field option relation
-                $dataelementFieldOptionRelation = $entity->getDataelementFieldOptionRelation();
-                foreach($dataelementFieldOptionRelation as $dataelementFieldOptionKey=>$dataelementFieldOptionValue) {
-                    // Formulate Query for calculating field option
-                    $columnFieldOptionGroup = $dataelementFieldOptionValue->getColumnFieldOptionGroup();
-                    $rowFieldOptionGroup = $dataelementFieldOptionValue->getRowFieldOptionGroup();
-
-                    $seriesFieldName=$rowFieldOptionGroup->getName();
-
-                    //Column Query construction
-                    $queryColumnNames[] = str_replace('-','_',str_replace(' ','',$columnFieldOptionGroup->getName()));
-                    $categoryColumnFieldNames[] = $columnFieldOptionGroup->getField()->getName();
-                    $categoryRowFieldName = $columnFieldOptionGroup->getField()->getName();
-                    $columnWhereClause = NULL;
-
-                    foreach($columnFieldOptionGroup->getFieldOption() as $columnFieldOptionKey=>$columnFieldOption) {
-                        $operator = $columnFieldOptionGroup->getOperator();
-                        if(empty($operator)) $operator = "OR";
-                        $categoryColumnFieldOptionValue=str_replace('-','_',$columnFieldOption->getValue());
-                        $categoryColumnFieldName=$columnFieldOption->getField()->getName();
-                        $categoryColumnResourceTableName=$resourceTableAlias;
-                        if(!empty($columnWhereClause)) {
-                            $columnWhereClause = $columnWhereClause." ".strtoupper($operator)." $categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
-                        }else {
-                            $columnWhereClause = "$categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
-                        }
-
-                    }
-                    $rowWhereClause = NULL;
-                    foreach($rowFieldOptionGroup->getFieldOption() as $rowFieldOptionKey=>$rowFieldOption) {
-                        $operator = $rowFieldOptionGroup->getOperator();
-                        if(empty($operator)) $operator = "OR";
-                        $categoryRowFieldOptionValue=str_replace('-','_',$rowFieldOption->getValue());
-                        $categoryRowFieldName=$rowFieldOption->getField()->getName();
-                        $categoryRowResourceTableName=$resourceTableAlias;
-                        if(!empty($rowWhereClause)) {
-                            $rowWhereClause = $rowWhereClause." ".strtoupper($operator)." $categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
-                        }else {
-                            $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
-                        }
-                    }
-
-                    $selectQuery="SELECT COUNT(DISTINCT(instance)) $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" );
-                    $instanceCount = $this->array_value_recursive('count',$this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery));
-                    $dhisUid=$organisationunit->getDhisUid();
-                    if(!empty($dhisUid)) $this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
-                    unset($dhisUid);
-                }
-            }
-            // Fetch grand childrens for the selected orgunits
-            $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
-            $childrenOrgunits = $queryBuilder->select('organisationunit')
-                ->from('HrisOrganisationunitBundle:Organisationunit','organisationunit')
-                ->innerJoin('organisationunit.parent','parent')
-                ->where($queryBuilder->expr()->in('parent.id',$parentOrganisationunitIds))
-                ->orderBy('parent.id','ASC')
-                ->addOrderBy('organisationunit.longname','ASC')
-                ->getQuery()->getResult();
-            if( ! empty($childrenOrgunits) ) {$this->aggregateLowerOrganisationunits($childrenOrgunits);}
-        }
     }
 
     /**
