@@ -69,7 +69,7 @@
             </tr>
             <tr>
                 <th>Lastlogin</th>
-                <td>{{ entity.lastLogin|date('Y-m-d H:i:s') }}</td>
+                <td>{% if entity.lastLogin %}{{ entity.lastLogin|date('Y-m-d H:i:s') }}{% else %}<em>Never Logged In</em>{% endif %}</td>
             </tr>
             <tr>
                 <th>Locked</th>
