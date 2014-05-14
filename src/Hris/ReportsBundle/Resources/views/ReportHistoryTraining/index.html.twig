@@ -4,6 +4,7 @@
     {{ parent() }}
     <script type="text/javascript" language="javascript" src="{{ asset('commons/js/jquery.validate.js') }}"></script>
     <script type="text/javascript" language="javascript" src="{{ asset('commons/js/ext-all.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
     <script type="text/javascript">
         var treeplaceholder="treeplaceholder";
         var inputboxname="hris_reportsbundle_reporthistorytrainingtype[organisationunit]";
@@ -53,18 +54,34 @@
 
             });
         });
+        $( ".date" ).datepicker( {
+            changeMonth: true,
+            changeYear: true,
+            showOn: "both",
+            buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+            buttonImageOnly: true,
+            dateFormat: "dd/mm/yy",
+            showAnim: "clip",
+            maxDate: "+0D",
+            yearRange:'c-60:c+60'
+        });
         $( document ).ready(function() {
             // validate signup form on keyup and submit
             $("#historytrainingForm").validate({ ignore:[] });
             var reportType='#hris_reportsbundle_reporthistorytrainingtype_reportType';
             var forms='#hris_reportsbundle_reporthistorytrainingtype_forms';
             var fields='#hris_reportsbundle_reporthistorytrainingtype_fields';
+            var startdate="#hris_reportsbundle_reporthistorytrainingtype_startdate";
+            var enddate="#hris_reportsbundle_reporthistorytrainingtype_enddate";
             var graphTypeId='#hris_reportsbundle_reporthistorytrainingtype_graphType';
             var fieldsUrl = '{{ path('report_formfields',{'_format':'json'}) }}';
 
             // Disable fields and forms
             $(forms).attr('disabled', 'true');
             $(fields).attr('disabled', 'true');
+            $(startdate).attr('disabled', 'true');
+            $(enddate).attr('disabled', 'true');
+
 
             // On Selecting Report Type, enable Forms
             $(reportType).on('change', function() {
@@ -78,6 +95,23 @@
                     $(fields).removeAttr('disabled');
                 }else{
                     $(fields).attr('disabled', 'true');
+                }
+                if( $(reportType).val() == 'training' && $(forms).val() != '') {
+                    $(startdate).removeAttr('disabled');
+                    $(enddate).removeAttr('disabled');
+                }else{
+                    $(startdate).attr('disabled', 'true');
+                    $(enddate).attr('disabled', 'true');
+                }
+            });
+
+            //Check startdate should always be less than end date
+            $(enddate).on('change', function(){
+                var startdateValue = $(startdate).val();
+                var enddateValue = $(enddate).val();
+                if( Date.parse(startdateValue) > Date.parse(enddateValue) ){
+                    alert("End date can not be before startdate. Please enter correct value");
+                    $(enddate).val("");
                 }
             });
 
@@ -107,6 +141,8 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" type="text/css" media="all" href="{{ asset('commons/css/ext-standard.css') }}">
+    <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
+    <link rel="stylesheet" href="{{ asset('commons/css/jquery-ui.css') }}" />
 {% endblock stylesheets %}
 
 {% block right_content -%}
@@ -126,8 +162,11 @@
     {{ form_row( historytrainingForm.forms ) }}
 
     {{ form_row( historytrainingForm.fields ) }}
+    {{ form_row( historytrainingForm.startdate ) }}
+    {{ form_row( historytrainingForm.enddate ) }}
 
     {{ form_end(historytrainingForm) }}
+
 
 
 {% endblock %}
