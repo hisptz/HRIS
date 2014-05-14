@@ -534,7 +534,7 @@ class ReportAggregationController extends Controller
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
         // create the response
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment;filename='.$title.'.xls');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(" ","_",$title).'.xls');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
         //$response->sendHeaders();
@@ -785,7 +785,7 @@ class ReportAggregationController extends Controller
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment;filename='.$title.'.xls');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(" ","_",$title).'.xls');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
         //$response->sendHeaders();
