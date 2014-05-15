@@ -117,21 +117,152 @@
     <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
     <link rel="stylesheet" href="{{ asset('commons/css/jquery-ui.css') }}" />
     <link rel="stylesheet" type="text/css" media="all" href="{{ asset('commons/css/multi-select.css') }}">
-    <style type="text/css">
-        #ms-hris_userbundle_usertype_roles {
-            width:890px;
-        }
-    </style>
 {% endblock stylesheets %}
 
 {% block right_content -%}
     <h1><i class="icon-edit icon-largest" title="Edit"></i><small>User edit</small></h1>
 
     <form class="form-horizontal" action="{{ path('user_update', { 'id': entity.id }) }}" method="post" class="fos_user_registration_register" id="fos_user_registration_register" {{ form_enctype(edit_form) }}>
+        <div class="control-group">
+            {{ form_label( edit_form.organisationunit,'Select Organisationunit', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                <div id="treeplaceholder"></div>
+                {{ form_errors( edit_form.organisationunit ) }}
+                {{ form_errors( edit_form.organisationunit ) }}
+                {{ form_widget( edit_form.organisationunit ) }}
+            </div>
+        </div>
+        <br/>
+        <div class="control-group">
+            {{ form_label( edit_form.email,'Email', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.email ) }}
+                {{ form_widget( edit_form.email ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.plainPassword.first,'Password', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.plainPassword.first ) }}
+                {{ form_widget( edit_form.plainPassword.first ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.plainPassword.second,'Repeat Password', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.plainPassword.second ) }}
+                {{ form_widget( edit_form.plainPassword.second ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.phonenumber,'Phone number', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.phonenumber ) }}
+                {{ form_widget( edit_form.phonenumber ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.jobTitle,'Job Title', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.jobTitle ) }}
+                {{ form_widget( edit_form.jobTitle ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.firstName,'First Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.firstName ) }}
+                {{ form_widget( edit_form.firstName ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.middleName,'Middle Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.middleName ) }}
+                {{ form_widget( edit_form.middleName ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.surname,'Surname', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.surname ) }}
+                {{ form_widget( edit_form.surname ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.form,'Select Forms', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.form ) }}
+                {{ form_widget( edit_form.form ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.enabled,'Account Enabled', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.enabled ) }}
+                {{ form_widget( edit_form.enabled ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.locked,'Account Locked', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.locked ) }}
+                {{ form_widget( edit_form.locked ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.locked,'Account Locked', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.locked ) }}
+                {{ form_widget( edit_form.locked ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.credentialsExpired,'Credentials Expired', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.credentialsExpired ) }}
+                {{ form_widget( edit_form.credentialsExpired ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.expiresAt,'Account Expires at', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.expiresAt ) }}
+                {{ form_widget( edit_form.expiresAt ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.credentialsExpireAt,'Credentials Expires at', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.credentialsExpireAt ) }}
+                {{ form_widget( edit_form.credentialsExpireAt ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.roles,'User Roles', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.roles ) }}
+                {{ form_widget( edit_form.roles ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.groups,'Group Memberships', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.groups ) }}
+                {{ form_widget( edit_form.groups ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.expired,'Account Expired', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.expired ) }}
+                {{ form_widget( edit_form.expired ) }}
+            </div>
+        </div>
+
+
+
         <input type="hidden" name="_method" value="PUT" />
-        {{ form_label( edit_form.organisationunit ) }}
-        {{ form_errors( edit_form.organisationunit ) }}
-        {{ form_widget( edit_form.organisationunit ) }}
         <div id="treeplaceholder"></div>
         {{ form_widget(edit_form) }}
         <br/>
