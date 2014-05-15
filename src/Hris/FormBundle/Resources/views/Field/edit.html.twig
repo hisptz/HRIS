@@ -45,8 +45,107 @@
 {% block right_content -%}
     <h1><i class="icon-edit icon-largest" title="Edit"></i><small>Field edit</small></h1>
 
-    <form action="{{ path('field_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+    <form class="form-horizontal action="{{ path('field_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
         <input type="hidden" name="_method" value="PUT" />
+        <div class="control-group">
+            {{ form_label( edit_form.name,'Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.name ) }}
+                {{ form_widget( edit_form.name ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.dataType,'Data Type', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.dataType ) }}
+                {{ form_widget( edit_form.dataType ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.inputType,'Input Type', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.inputType ) }}
+                {{ form_widget( edit_form.inputType ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.caption,'Caption', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.caption ) }}
+                {{ form_widget( edit_form.caption ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.description,'Description', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.description ) }}
+                {{ form_widget( edit_form.description ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.compulsory,'Compulsory in Data Entry', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.compulsory ) }}
+                {{ form_widget( edit_form.compulsory ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.isUnique,'Captures unique record', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.isUnique ) }}
+                {{ form_widget( edit_form.isUnique ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.hashistory,'Has History data', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.hashistory ) }}
+                {{ form_widget( edit_form.hashistory ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.hastarget,'Has Indicator Target', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.hastarget ) }}
+                {{ form_widget( edit_form.hastarget ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.skipInReport,'Ignore/Skip in Reports', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.skipInReport ) }}
+                {{ form_widget( edit_form.skipInReport ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.isCalculated,'Deduced through calculation', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.isCalculated ) }}
+                {{ form_widget( edit_form.isCalculated ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.fieldrelation,'Has Relation to other fields', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.fieldrelation ) }}
+                {{ form_widget( edit_form.fieldrelation ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.calculatedExpression,'Relations to other fields', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.calculatedExpression ) }}
+                {{ form_widget( edit_form.calculatedExpression ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.childField,'Child Fields', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.childField ) }}
+                {{ form_widget( edit_form.childField ) }}
+            </div>
+        </div>
+
         {{ form_widget(edit_form) }}
         <br/>
         <ul class="record_actions inline" style="float:left;">

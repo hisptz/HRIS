@@ -33,6 +33,7 @@
                             });
                 }
             });
+            $( 'input[required="required"],select[required="required"]').closest(".control-group").children("label").prepend('<em class="required-asterisk">*</em>');
         });
     </script>
 {% endblock javascripts %}
@@ -45,8 +46,106 @@
 {% block right_content -%}
     <h1><small>Field creation</small></h1>
 
-    <form action="{{ path('field_create') }}" method="post" {{ form_enctype(form) }}>
-        {{ form_widget(form) }}
+    <form class="form-horizontal action="{{ path('field_create') }}" method="post" {{ form_enctype(form) }}>
+    <div class="control-group">
+        {{ form_label( form.name,'Name', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.name ) }}
+            {{ form_widget( form.name ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.dataType,'Data Type', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.dataType ) }}
+            {{ form_widget( form.dataType ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.inputType,'Input Type', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.inputType ) }}
+            {{ form_widget( form.inputType ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.caption,'Caption', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.caption ) }}
+            {{ form_widget( form.caption ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.description,'Description', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.description ) }}
+            {{ form_widget( form.description ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.compulsory,'Compulsory in Data Entry', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.compulsory ) }}
+            {{ form_widget( form.compulsory ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.isUnique,'Captures unique record', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.isUnique ) }}
+            {{ form_widget( form.isUnique ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.hashistory,'Has History data', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.hashistory ) }}
+            {{ form_widget( form.hashistory ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.hastarget,'Has Indicator Target', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.hastarget ) }}
+            {{ form_widget( form.hastarget ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.skipInReport,'Ignore/Skip in Reports', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.skipInReport ) }}
+            {{ form_widget( form.skipInReport ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.isCalculated,'Deduced through calculation', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.isCalculated ) }}
+            {{ form_widget( form.isCalculated ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.fieldrelation,'Has Relation to other fields', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.fieldrelation ) }}
+            {{ form_widget( form.fieldrelation ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.calculatedExpression,'Relations to other fields', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.calculatedExpression ) }}
+            {{ form_widget( form.calculatedExpression ) }}
+        </div>
+    </div>
+    <div class="control-group">
+        {{ form_label( form.childField,'Child Fields', {'label_attr': {'class': 'control-label'} } ) }}
+        <div class="controls">
+            {{ form_errors( form.childField ) }}
+            {{ form_widget( form.childField ) }}
+        </div>
+    </div>
+    {{ form_widget(form) }}
         <br/>
         <ul class="record_actions inline" style="float:left;">
             <li>
