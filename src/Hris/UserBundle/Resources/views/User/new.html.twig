@@ -101,11 +101,136 @@
 
 {% block right_content %}
     <h1><small>User creation</small></h1>
-    <form action="{{ path('user_create') }}" {{ form_enctype(form) }} method="POST" class="fos_user_registration_register" id="fos_user_registration_register">
-        {{ form_label( form.organisationunit ) }}
-        {{ form_errors( form.organisationunit ) }}
-        {{ form_widget( form.organisationunit ) }}
-        <div id="treeplaceholder"></div>
+    <form class="form-horizontal fos_user_registration_register" action="{{ path('user_create') }}" {{ form_enctype(form) }} method="POST" id="fos_user_registration_register">
+        <div class="control-group">
+            {{ form_label( form.organisationunit,'Select Organisationunit', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                <div id="treeplaceholder"></div>
+                {{ form_errors( form.organisationunit ) }}
+                {{ form_errors( form.organisationunit ) }}
+                {{ form_widget( form.organisationunit ) }}
+            </div>
+        </div>
+        <br/>
+        <div class="control-group">
+            {{ form_label( form.username,'Username', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.username ) }}
+                {{ form_widget( form.username ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.email,'Email', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.email ) }}
+                {{ form_widget( form.email ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.plainPassword.first,'Password', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.plainPassword.first ) }}
+                {{ form_widget( form.plainPassword.first ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.plainPassword.second,'Repeat Password', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.plainPassword.second ) }}
+                {{ form_widget( form.plainPassword.second ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.phonenumber,'Phone number', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.phonenumber ) }}
+                {{ form_widget( form.phonenumber ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.jobTitle,'Job Title', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.jobTitle ) }}
+                {{ form_widget( form.jobTitle ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.firstName,'First Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.firstName ) }}
+                {{ form_widget( form.firstName ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.middleName,'Middle Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.middleName ) }}
+                {{ form_widget( form.middleName ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.surname,'Surname', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.surname ) }}
+                {{ form_widget( form.surname ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.form,'Select Forms', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.form ) }}
+                {{ form_widget( form.form ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.enabled,'Account Enabled', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.enabled ) }}
+                {{ form_widget( form.enabled ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.locked,'Account Locked', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.locked ) }}
+                {{ form_widget( form.locked ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.locked,'Account Locked', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.locked ) }}
+                {{ form_widget( form.locked ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.expiresAt,'Account Expires at', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.expiresAt ) }}
+                {{ form_widget( form.expiresAt ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.credentialsExpireAt,'Credentials Expires at', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.credentialsExpireAt ) }}
+                {{ form_widget( form.credentialsExpireAt ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.roles,'User Roles', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.roles ) }}
+                {{ form_widget( form.roles ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.groups,'Group Memberships', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.groups ) }}
+                {{ form_widget( form.groups ) }}
+            </div>
+        </div>
         {{ form_widget(form) }}
         <br/>
         <ul class="record_actions inline" style="float:left;">
