@@ -9,6 +9,7 @@
                 selectableHeader: "<div class=''>Avaiable Fields</div>",
                 selectionHeader: "<div class=''>Selected Fields</div>"
             });
+            $( 'input[required="required"],select[required="required"]').closest(".control-group").children("label").prepend('<em class="required-asterisk">*</em>');
         });
     </script>
 {% endblock javascripts %}
@@ -21,7 +22,28 @@
 {% block right_content -%}
     <h1><i class="icon-edit icon-largest" title="Edit"></i><small>FieldGroup edit</small></h1>
 
-    <form action="{{ path('fieldgroup_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+    <form class="form-horizontal action="{{ path('fieldgroup_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+        <div class="control-group">
+            {{ form_label( edit_form.name,'Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.name ) }}
+                {{ form_widget( edit_form.name ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.description,'Description', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.description ) }}
+                {{ form_widget( edit_form.description ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( edit_form.field,'Member Fields', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( edit_form.field ) }}
+                {{ form_widget( edit_form.field ) }}
+            </div>
+        </div>
         <input type="hidden" name="_method" value="PUT" />
         {{ form_widget(edit_form) }}
         <br/>

@@ -33,6 +33,7 @@
                             });
                 }
             });
+            $( 'input[required="required"],select[required="required"]').closest(".control-group").children("label").prepend('<em class="required-asterisk">*</em>');
         });
     </script>
 {% endblock javascripts %}
