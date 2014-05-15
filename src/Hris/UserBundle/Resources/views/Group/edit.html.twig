@@ -54,8 +54,30 @@
 {% block right_content -%}
     <h1><i class="icon-edit icon-largest" title="Edit"></i><small>Group edit</small></h1>
 
-    <form id="fos_user_group_form" action="{{ path('user_group_edit', { 'id': group.id }) }}" method="POST" {{ form_enctype(form) }}>
+    <form class="form-horizontal id="fos_user_group_form" action="{{ path('user_group_edit', { 'id': group.id }) }}" method="POST" {{ form_enctype(form) }}>
         <input type="hidden" name="_method" value="PUT" />
+        <div class="control-group">
+            {{ form_label( form.name,'Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.name ) }}
+                {{ form_widget( form.name ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.description,'Description', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.description ) }}
+                {{ form_widget( form.description ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.roles,'User Roles', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.roles ) }}
+                {{ form_widget( form.roles ) }}
+            </div>
+        </div>
+        {{ form_errors( form ) }}
         {{ form_widget(form) }}
         <br/>
         <ul class="record_actions inline" style="float:left;">

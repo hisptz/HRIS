@@ -55,7 +55,28 @@
 
     <h1><small>User Group creation</small></h1>
 
-    <form id="fos_user_group_form" action="{{ path('user_group_new') }}" method="POST" {{ form_enctype(form) }}>
+    <form class="form-horizontal fos_user_registration_register" id="fos_user_group_form" action="{{ path('user_group_new') }}" method="POST" {{ form_enctype(form) }}>
+        <div class="control-group">
+            {{ form_label( form.name,'Name', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.name ) }}
+                {{ form_widget( form.name ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.description,'Description', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.description ) }}
+                {{ form_widget( form.description ) }}
+            </div>
+        </div>
+        <div class="control-group">
+            {{ form_label( form.roles,'User Roles', {'label_attr': {'class': 'control-label'} } ) }}
+            <div class="controls">
+                {{ form_errors( form.roles ) }}
+                {{ form_widget( form.roles ) }}
+            </div>
+        </div>
         {{ form_errors( form ) }}
         {{ form_widget(form) }}
         <br/>
