@@ -146,7 +146,7 @@ class ReportOrganisationunitCompletenessController extends Controller
         $excelService = $this->get('phpexcel')->createPHPExcelObject();
         $excelService->getProperties()->setCreator("HRHIS3")
             ->setLastModifiedBy("HRHIS3")
-            ->setTitle($this->title)
+            ->setTitle(str_replace(' ','_',$this->title))
             ->setSubject("Office 2005 XLSX Test Document")
             ->setDescription("Test document for Office 2005 XLSX, generated using PHP classes.")
             ->setKeywords("office 2005 openxml php")
@@ -466,7 +466,7 @@ class ReportOrganisationunitCompletenessController extends Controller
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment;filename='.$this->title.'.xls');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(' ','_',$this->title).'.xls');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
         //$response->sendHeaders();
