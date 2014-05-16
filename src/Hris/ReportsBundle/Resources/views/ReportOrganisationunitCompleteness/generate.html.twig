@@ -11,7 +11,26 @@
     {% endif %}
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.records_list').dataTable( {
+            var eventFired = function ( type ) {
+                {% if is_granted('ROLE_ORGANISATIONUNITCOMPLETENESS_AJAXUPDATE') or is_granted('ROLE_SUPER_USER') %}
+                    {# Editable expected figures #}
+                    $(".dblclick").editable("{{ path('organisationunitcompleteness_ajaxupdate') }}", {
+                        {# indicator : "<img src='{{ asset('commons/images/indicator.gif') }}'>", #}
+                        tooltip   : "Doubleclick to edit...",
+                        event     : "dblclick",
+                        style  : "inherit",
+                        callback : function(value, settings) {
+                            console.log(this);
+                            console.log(value);
+                            console.log(settings);
+                        }
+                    });
+                {% endif %}
+            }
+            $('.records_list')
+                    .on( 'order.dt',  function () { eventFired( 'Order' ); } )
+                    .on( 'search.dt', function () { eventFired( 'Search' ); } )
+                    .dataTable( {
                 "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
                 "oTableTools": {
                     "aButtons": [
@@ -26,22 +45,25 @@
                 "oLanguage": {
                     "sLengthMenu": "_MENU_ records per page"
                 },
+                {% if is_granted('ROLE_ORGANISATIONUNITCOMPLETENESS_AJAXUPDATE') or is_granted('ROLE_SUPER_USER') %}
+                    "fnInitComplete": function(oSettings, json) {
+                        {# Editable expected figures #}
+                        $(".dblclick").editable("{{ path('organisationunitcompleteness_ajaxupdate') }}", {
+                            {# indicator : "<img src='{{ asset('commons/images/indicator.gif') }}'>", #}
+                            tooltip   : "Doubleclick to edit...",
+                            event     : "dblclick",
+                            style  : "inherit",
+                            callback : function(value, settings) {
+                                console.log(this);
+                                console.log(value);
+                                console.log(settings);
+                            }
+                        });
+                    },
+                {% endif %}
                 "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
             } );
-            {% if is_granted('ROLE_ORGANISATIONUNITCOMPLETENESS_AJAXUPDATE') or is_granted('ROLE_SUPER_USER') %}
-                {# Editable expected figures #}
-                $(".dblclick").editable("{{ path('organisationunitcompleteness_ajaxupdate') }}", {
-                    {# indicator : "<img src='{{ asset('commons/images/indicator.gif') }}'>", #}
-                    tooltip   : "Doubleclick to edit...",
-                    event     : "dblclick",
-                    style  : "inherit",
-                    callback : function(value, settings) {
-                        console.log(this);
-                        console.log(value);
-                        console.log(settings);
-                    }
-                });
-            {% endif %}
+
         } );
     </script>
     
@@ -50,6 +72,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+    {#<link rel="stylesheet" href="{{ asset('commons/css/jquery.dataTables.min.css') }}" />#}
 {% endblock stylesheets %}
 
 {% block right_content -%}
