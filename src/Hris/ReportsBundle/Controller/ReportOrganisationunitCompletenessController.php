@@ -111,7 +111,7 @@ class ReportOrganisationunitCompletenessController extends Controller
             'recordInstances'=>$this->recordInstances,
             'parent'=>$this->parent,
             'lowerLevels'=> $this->lowerLevels,
-            'selectedLevel'=>$this->organisationunit->getOrganisationunitStructure()->getLevel(),
+            'selectedLevel'=>$this->organisationunitLevel,
         );
     }
 
@@ -519,7 +519,7 @@ class ReportOrganisationunitCompletenessController extends Controller
             'recordInstances'=>$this->recordInstances,
             'parent'=>$this->parent,
             'lowerLevels' => $this->lowerLevels,
-            'selectedLevel'=>$this->organisationunit->getOrganisationunitStructure()->getLevel(),
+            'selectedLevel'=>$this->organisationunitLevel,
         );
     }
     

@@ -166,17 +166,17 @@
 
                                 {% for lowerLevel in lowerLevels %}
 
-                                    {% if selectedLevel.getLevel() - lowerLevel.level == 0 %}
+                                    {% if lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 0 %}
                                         {{ childOrganisationunit.getLongname() }}
-                                    {% elseif  lowerLevel.level - selectedLevel.getLevel() == 1 %}
+                                    {% elseif  lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 1 %}
                                         {{ childOrganisationunit.getParent().getLongname() }}
-                                    {% elseif lowerLevel.level - selectedLevel.getLevel() == 2 %}
+                                    {% elseif lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 2 %}
                                         {{ childOrganisationunit.getParent().getParent().getLongname() }}
-                                    {% elseif  lowerLevel.level - selectedLevel.getLevel() == 3 %}
+                                    {% elseif  lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 3 %}
                                         {{ childOrganisationunit.getParent().getParent().getParent().getLongname() }}
-                                    {% elseif lowerLevel.level - selectedLevel.getLevel() == 4 %}
+                                    {% elseif lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 4 %}
                                         {{ childOrganisationunit.getParent().getParent().getParent().getParent().getLongname() }}
-                                    {% elseif  lowerLevel.level - selectedLevel.getLevel() == 5 %}
+                                    {% elseif  lowerLevel.level - rootNodeOrganisationunit.organisationunitStructure.getLevel().getLevel() == 5 %}
                                         {{ childOrganisationunit.getParent().getParent().getParent().getParent().getParent().getLongname() }}
                                     {% endif %}
                                     >
@@ -287,7 +287,7 @@
                 Download to Excel
             </a>
         {% else %}
-            <a class="btn" href="{{ path('report_organisationunit_completeness_download', { 'organisationunitId': rootNodeOrganisationunit.id, 'formids':formIds,'organisationunitLevel': level.id } ) }}">
+            <a class="btn" href="{{ path('report_organisationunit_completeness_download', { 'organisationunitId': rootNodeOrganisationunit.id, 'formids':formIds,'organisationunitLevel': selectedLevel.id } ) }}">
                 Download to Excel
             </a>
         {% endif %}
