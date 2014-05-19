@@ -37,7 +37,7 @@ twig:
             fos_message_provider:   "@fos_message.provider"
         # Place Global Variables here, and they will be available in all Twig Templetes.
             project: "Human Resource for Health Information System"
-            project_code: "HRHIS3"
+            project_code: "HRHIS"
             project_site: "https://github.com/hrisproject/hris"
             version: "3.0"
             copyright: "Human Resource Information System 2012"
