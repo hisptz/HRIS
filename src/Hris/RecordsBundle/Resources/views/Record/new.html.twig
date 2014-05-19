@@ -54,7 +54,7 @@
     <form action="{{ path('record_create') }}" method="post">
         {% if entryLevel %}
             Duty Post
-            <select name="orgunitParent" onchange="getunits(this)" required>
+            <select name="orgunitParent" onchange="getunits(this, '{{ project_code | lower | raw }}')" required>
                 <option value="">
                     --
                 </option>
