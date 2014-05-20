@@ -340,7 +340,7 @@ function changeRelatedFieldOptions(field_uid) {
 
     //getting all the field Combos
 
-    var openRequest = localDatabase.indexedDB.open("hrhis");
+    var openRequest = localDatabase.indexedDB.open("hrhis3");
 
     openRequest.onsuccess = function () {
 
@@ -393,7 +393,7 @@ function isUnique(field_uid) {
 
     //getting all the field Combos
 
-    var openRequest = localDatabase.indexedDB.open("hrhis");
+    var openRequest = localDatabase.indexedDB.open("hrhis3");
 
     openRequest.onsuccess = function () {
 
@@ -434,13 +434,13 @@ function isUnique(field_uid) {
 
 }
 
-function getunits(parent){
+function getunits(parent, databaseName){
 
     var parentUid = $(parent).val();
 
     //getting all the field Combos
 
-    var openRequest = localDatabase.indexedDB.open('hrhis');
+    var openRequest = localDatabase.indexedDB.open(databaseName);
 
     openRequest.onsuccess = function () {
 
