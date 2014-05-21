@@ -61,7 +61,7 @@ class ImportFromExcelCommand extends ContainerAwareCommand
             ->setDescription('Import records from excel document for columns existing in the database')
             ->addArgument('file',InputArgument::OPTIONAL,'Path of Excel File to Import')
             ->addArgument('form',InputArgument::OPTIONAL,'Data Entry Form Name')
-            ->addArgument('organisationUnit',InputArgument::OPTIONAL, 'Name of organization unit to store data on')
+            ->addArgument('organisationunit',InputArgument::OPTIONAL, 'Name of organization unit to store data on')
             ->setHelp(<<<EOT
 The <info>hris:records:import</info> command imports data from excel sheet into the database for columns existing in database
 
@@ -76,14 +76,15 @@ EOT
 
         $filePath = $input->getArgument('file');
         $dataEntryFormName = $input->getArgument('form');
+        $organisationunitName = $input->getArgument('organisationunit');
 
         $em = $this->getContainer()->get('doctrine');
 
-        $formEntity = $em->getRepository('HrisFormBundle:Form')->findOneBy(array('name'=>"Hospital Employee Form"));
+        $formEntity = $em->getRepository('HrisFormBundle:Form')->findOneBy(array('name'=>$dataEntryFormName));
 
         $fields = $formEntity->getSimpleField();
 
-        $phpExcelObject = $this->getContainer()->get('phpexcel')->createPHPExcelObject("/tmp/MNH_STAFF.xls");
+        $phpExcelObject = $this->getContainer()->get('phpexcel')->createPHPExcelObject($filePath);
         $objWorksheet = $phpExcelObject->getActiveSheet();
         $i=0;
         $fieldUIDs = array();
@@ -112,7 +113,7 @@ EOT
         $dataValueArray = array();
         $j = 1;
         foreach ($objWorksheet->getRowIterator() as $row) {
-            if($j > 1 && $j < 7){
+            //if($j > 1 && $j < 7){
                 $cellIterator = $row->getCellIterator();
                 $k = 1;
                 $instancestring= "";
@@ -174,7 +175,7 @@ EOT
 
                 //for employer
                        $dataValueArray["5289e934a59a6"] = "528a0ae3249d2";
-                $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('longname' => "Muhimbili National Hospital"));
+                $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('longname' => $organisationunitName));
                 $entity = new Record();
                 $entity->setValue($dataValueArray);
                 $entity->setForm($formEntity);
@@ -190,7 +191,7 @@ EOT
                 $em->getManager()->flush();
 
             }
-            $j++;
+            //$j++;
         }
 
 
