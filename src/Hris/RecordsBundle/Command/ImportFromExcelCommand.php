@@ -127,7 +127,7 @@ EOT
                     }
                     $cellIntVal = intval($cell->getValue());
                     if(isset($fieldObjects[$k]) && !empty($fieldObjects[$k])) {
-                        if($fieldObjects[$k]->getDataType()->getName() == "Date" && !empty($cell->getValue()) && $cellIntVal!=0 ){
+                        if($fieldObjects[$k]->getDataType()->getName() == "Date" && $cellIntVal!=0 ){
 
                             $year=substr($cell->getValue(),0,4);
                             $month=substr($cell->getValue(),4,2);
@@ -193,7 +193,7 @@ EOT
 
             }
             //$j++;
-        }
+        //}
 
 
     }
