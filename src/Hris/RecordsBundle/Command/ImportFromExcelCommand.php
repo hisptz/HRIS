@@ -125,9 +125,10 @@ EOT
                     if($k==5){
                         $instancestring.=$cell->getValue().uniqid();
                     }
-
+                    $cellIntVal = intval($cell->getValue());
                     if(isset($fieldObjects[$k]) && !empty($fieldObjects[$k])) {
-                        if($fieldObjects[$k]->getDataType()->getName() == "Date" && !empty($cell->getValue()) && intval($cell->getValue()) !=0){
+                        if($fieldObjects[$k]->getDataType()->getName() == "Date" && !empty($cell->getValue()) && $cellIntVal!=0 ){
+
                             $year=substr($cell->getValue(),0,4);
                             $month=substr($cell->getValue(),4,2);
                             $days=substr($cell->getValue(),6,2);
