@@ -531,7 +531,23 @@ class ReportOrganisationunitCompletenessController extends Controller
         $selectedParentStructure = $this->getDoctrine()->getManager()->getRepository('HrisOrganisationunitBundle:OrganisationunitStructure')->findOneBy(array('organisationunit'=>$this->organisationunit));
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
+        if(!empty($sameLevel)) $this->sameLevel = True;
+
+        $em = $this->getDoctrine()->getManager();
+        $this->organisationunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('id'=>$this->organisationunit));
+        $lowestLevel = $queryBuilder->select('MAX(organisationunitLevel.level)')->from('HrisOrganisationunitBundle:OrganisationunitLevel','organisationunitLevel')->getQuery()->getSingleScalarResult();
+        $levelBelowSelected = $this->organisationunit->getOrganisationunitStructure()->getLevel()->getLevel()+1;
+        if($levelBelowSelected > $lowestLevel) {
+            $this->organisationunitLevel = $this->organisationunit->getOrganisationunitStructure()->getLevel();
+            $this->sameLevel = True;
+        }else {
+            $this->organisationunitLevel = $this->getDoctrine()->getManager()->getRepository('HrisOrganisationunitBundle:OrganisationunitLevel')->findOneBy(array('level' => ($this->organisationunit->getOrganisationunitStructure()->getLevel()->getLevel()+1) ));
+        }
+
+
+
         // Fetching higher level headings[level<= levelPrefereed] excluding highest level
+        $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
         $this->lowerLevels = $queryBuilder->select('DISTINCT(organisationunitLevel.level),organisationunitLevel.name')
             ->from('HrisOrganisationunitBundle:OrganisationunitLevel','organisationunitLevel')
             ->where($queryBuilder->expr()->lt('organisationunitLevel.level',':lowerLevel'))

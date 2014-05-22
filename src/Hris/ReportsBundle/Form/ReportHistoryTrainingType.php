@@ -94,7 +94,7 @@ class ReportHistoryTrainingType extends AbstractType
                     new NotBlank(),
                 )
             ))
-            ->add('startdate','date',array(
+            /*->add('startdate','date',array(
                 'required'=>false,
                 'widget' => 'single_text',
                 'format' => 'dd/MM/yyyy',
@@ -105,7 +105,7 @@ class ReportHistoryTrainingType extends AbstractType
                 'widget' => 'single_text',
                 'format' => 'dd/MM/yyyy',
                 'attr' => array('class' => 'date')
-            ))
+            ))*/
             ->add('Generate Report','submit',array(
                 'attr' => array('class' => 'btn'),
             ))

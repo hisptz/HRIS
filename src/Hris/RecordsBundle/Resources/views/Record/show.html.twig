@@ -17,7 +17,7 @@
                                     {{ optionMap[ entity.getValue( field.uid ) ] }}
                                 {% endif %}
                             {% elseif field.getInputType == 'Date' %}
-                                {{ entity.getValue( field.uid ) | date('d/m/Y') }}
+                                {% if entity.getValue( field.uid ) %}{{ entity.getValue( field.uid ) | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}
                             {% else %}
                                 {{ entity.getValue( field.uid ) }}
                             {% endif %}
@@ -45,13 +45,13 @@
                         {% if history.field.getInputType == 'Select' %}
                             {{ history.history }}
                         {% elseif history.field.getInputType == 'Date' %}
-                            {{ history.history | date('d/m/Y') }}
+                            {% if history.history %}{{ history.history | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}
                         {% else %}
                             {{ history.history }}
                         {% endif %}
                     </td>
                     <td>{{ history.reason }}</td>
-                    <td>{{ history.startdate | date('d/m/Y') }}</td>
+                    <td>{% if history.startdate %}{{ history.startdate | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -74,8 +74,8 @@
                     <td>{{ training.coursename }}</td>
                     <td>{{ training.courselocation }}</td>
                     <td>{{ training.sponsor }}</td>
-                    <td>{{ training.startdate | date('d/m/Y') }}</td>
-                    <td>{{ training.enddate | date('d/m/Y') }}</td>
+                    <td>{% if training.startdate %}{{ training.startdate | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}</td>
+                    <td>{% if training.enddate %}{{ training.enddate | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}</td>
                 </tr>
             {% endfor %}
             </tbody>
