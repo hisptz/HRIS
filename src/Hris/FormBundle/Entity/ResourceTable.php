@@ -789,7 +789,11 @@ class ResourceTable
 
                                 }else{
                                     if(!empty($dataValue[$valueKey])) {
-                                        $displayValue = new \DateTime($dataValue[$valueKey]['date'],new \DateTimeZone ($dataValue[$valueKey]['timezone']));
+                                        if(isset($dataValue[$valueKey]['timezone']) && !empty($dataValue[$valueKey]['timezone'])) {
+                                            $displayValue = new \DateTime($dataValue[$valueKey]['date'],new \DateTimeZone ($dataValue[$valueKey]['timezone']));
+                                        }else {
+                                            $displayValue = new \DateTime($dataValue[$valueKey]['date'],new \DateTimeZone ("Africa/Dar_es_Salaam"));
+                                        }
                                         $dataArray[$field->getName()] = trim($displayValue->format('Y-m-d')); //working on date format fix
                                         //$dataArray[$field->getName().'_day'] = trim($displayValue->format('l'));
                                         //$dataArray[$field->getName().'_month_number'] = trim($displayValue->format('m'));
