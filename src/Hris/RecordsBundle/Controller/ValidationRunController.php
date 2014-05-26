@@ -264,10 +264,11 @@ class ValidationRunController extends Controller
                             /*
                              * getting and replacing the left hand expression column
                              */
-                            //echo $getLeftExpression;echo " ";echo $param; echo " ";exit;
+                            //echo $getLeftExpression." - ";echo $param; echo " <br>";
                             //$testValue=(strstr($getLeftExpression, $param));
 
                             if (strstr($getLeftExpression, $param)) {
+
                                 if (is_array($value)) {
                                     $validationDateFormatLeft = round(((strtotime(date("Y-m-d")) - strtotime($value['date'])) / (365 * 60 * 60 * 24)), 1);
                                     $getLeftExpression = str_replace($param, $validationDateFormatLeft, $getLeftExpression);
@@ -399,7 +400,7 @@ class ValidationRunController extends Controller
 
 
         foreach ($getValidation as $item => $value) {
-            $validationReport = $validationFault[$value->getId()];
+            @@$validationReport = $validationFault[$value->getId()];
             $validationNames[] = $value->getName();
             $counter = 0;
             foreach ($validationTitle[$value->getId()] as $key => $validate_title) {
