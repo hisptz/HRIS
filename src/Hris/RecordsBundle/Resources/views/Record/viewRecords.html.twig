@@ -61,7 +61,13 @@
                         <td>{{ record | calculateFieldExpression(visibleField.getCalculatedExpression,formFields) }}</td>
                     {% else %}
                         {% if visibleField.getInputType == 'Select' %}
-                            <td>{{ optionMap[ record.getValue( visibleField.uid ) ] }}</td>
+                            <td>
+                                {% if record.getValue( visibleField.uid ) in optionMap | keys %}
+                                    {{ optionMap[ record.getValue( visibleField.uid ) ] }}
+                                {% else %}
+
+                                {% endif %}
+                            </td>
                         {% elseif visibleField.getInputType == 'Date' %}
                             <td>{{ record.getValue( visibleField.uid ) | date('d/m/Y') }}</td>
                         {% else %}

@@ -68,6 +68,28 @@ class FieldController extends Controller
         );
     }
 
+    /**
+     * Lists all Field API entities.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_FIELD_LIST,ROLE_USER")
+     * @Route("/api/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_field")
+     * @Route("/api/list/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_field_list")
+     * @Method("GET")
+     * @Template()
+     */
+    public function indexAPIAction($_format="json")
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entities = $this->getDoctrine()->getManager()->createQuery('SELECT field FROM HrisFormBundle:Field field')->getArrayResult();
+
+        $jsonEntities = json_encode($entities);
+
+        return array(
+            'entities' => $jsonEntities,
+        );
+    }
+
 
     /**
      * Creates a new Field entity.
@@ -113,6 +135,27 @@ class FieldController extends Controller
         return array(
             'entity' => $entity,
             'form'   => $form->createView(),
+        );
+    }
+
+    /**
+     * Finds and displays a Field entity.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_FIELD_SHOW,ROLE_USER")
+     * @Route("/api/relatedOptions/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, requirements={"id"="\w+"}, name="api_field_show")
+     * @Method("GET")
+     * @Template()
+     */
+    public function showRelatedOptionsAPIAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $selectQuery = 'SELECT  parent_field.uid as parent_fielduid,parent_field.name as parent_fieldname,parent_fieldoption.uid parent_fieldoptionuid,parent_fieldoption.value as parent_fieldoptionvalue,child_field.uid as child_fielduid,child_field.name as child_fieldname,child_fieldoption.uid child_fieldoptionuid,child_fieldoption.value as child_fieldoptionvalue FROM hris_fieldoption_children INNER JOIN hris_fieldoption parent_fieldoption ON parent_fieldoption.id=hris_fieldoption_children.parent_fieldoption INNER JOIN hris_fieldoption child_fieldoption ON child_fieldoption.id=hris_fieldoption_children.child_fieldoption INNER JOIN hris_field parent_field ON parent_field.id=parent_fieldoption.field_id INNER JOIN hris_field child_field ON child_field.id=child_fieldoption.field_id ORDER BY parent_field.name, parent_fieldoption.value, child_field.name, child_fieldoption.value';
+
+        $entityRelations = $this->getDoctrine()->getManager()->getConnection()->fetchAll($selectQuery);
+
+        return array(
+            'entities'      => json_encode($entityRelations),
         );
     }
 

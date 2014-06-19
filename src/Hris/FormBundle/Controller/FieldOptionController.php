@@ -43,6 +43,44 @@ use JMS\SecurityExtraBundle\Annotation\Secure;
 class FieldOptionController extends Controller
 {
 
+
+    /**
+     * Lists all FieldAPIOption entities.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_FIELDOPTION_LIST,ROLE_USER")
+     * @Route("/api/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption")
+     * @Route("/api/list/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption_list")
+     * @Route("/api/{fieldid}/field/{_format}", requirements={"fieldid"="\d+","_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption_byfield")
+     * @Route("/api/list/{fieldid}/field/{_format}", requirements={"fieldid"="\d+","_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption_list_byfield")
+     * @Method("GET")
+     * @Template()
+     */
+    public function indexAPIAction($fieldid=NULL,$_format)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $uid = $this->getRequest()->query->get('uid');
+
+        if(empty($fieldid)) {
+            if(!empty($uid)) {
+                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' ORDER BY fieldOption.value")->getArrayResult();
+            }else {
+                $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption ORDER BY fieldOption.value')->getArrayResult();
+            }
+        }elseif( !empty($uid) ) {
+            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='.$uid.' ORDER BY fieldOption.value')->getArrayResult();
+        }else {
+            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.id='.$fieldid.' ORDER BY fieldOption.value')->getArrayResult();
+        }
+
+        $jsonEntities = json_encode($entities);
+
+        return array(
+            'entities' => $jsonEntities,
+        );
+    }
+
+
     /**
      * Lists all FieldOption entities.
      *

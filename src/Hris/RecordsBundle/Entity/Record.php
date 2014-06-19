@@ -562,11 +562,13 @@ class Record
     public function getValue($uid=NULL,$format=NULL)
     {
         if(!empty($uid)) {
-            if(gettype($this->value[$uid])=="array") {
+            if(!empty($this->value[$uid]) && gettype($this->value[$uid])=="array") {
                 $output = new \DateTime($this->value[$uid]['date'],new \DateTimeZone($this->value[$uid]['timezone']));
                 if(!empty($format)) $output = $output->format($format);
-            }else {
+            }elseif(!empty($this->value[$uid])) {
                 $output = $this->value[$uid];
+            }else{
+                $output = $this->value;
             }
         }else {
             $output = $this->value;

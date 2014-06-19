@@ -14,10 +14,18 @@
                         {% else %}
                             {% if field.getInputType == 'Select' %}
                                 {% if field.uid in entity.getValue|keys %}
-                                    {{ optionMap[ entity.getValue( field.uid ) ] }}
+                                    {% if entity.getValue( field.uid ) in optionMap | keys %}
+                                        {{ optionMap[ entity.getValue( field.uid ) ] }}
+                                    {% else %}
+
+                                    {% endif %}
                                 {% endif %}
                             {% elseif field.getInputType == 'Date' %}
-                                {% if entity.getValue( field.uid ) %}{{ entity.getValue( field.uid ) | date('d/m/Y') }}{% else %}<em>-</em>{% endif %}
+                                {% if entity.getValue( field.uid ) %}
+                                    {{ entity.getValue( field.uid ) |date('Y-m-d') }}
+                                {% else %}
+                                    <em>-</em>
+                                {% endif %}
                             {% else %}
                                 {{ entity.getValue( field.uid ) }}
                             {% endif %}

@@ -205,84 +205,6 @@ class RecordController extends Controller
      */
     public function formlistAction($channel)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        /*
-        * checking browser version
-        */
-
-        /*$u_agent = $_SERVER['HTTP_USER_AGENT'];
-        $ub = '';
-        if(preg_match('/Firefox/i',$u_agent))
-        {
-            print $ub = "firefox";
-        }
-        elseif(preg_match('/Chrome/i',$u_agent))
-        {
-            print $ub = "chrome";
-        }else{
-            print 'This browser is not supported';
-        }*/
-
-        $browsers = array("firefox", "chrome");
-
-        $this->Agent = strtolower($_SERVER['HTTP_USER_AGENT']);
-
-        $rightBrowser = false;
-        $browserName = '';
-
-        foreach($browsers as $browser)
-        {
-            if (preg_match("#($browser)[/ ]?([0-9.]*)#", $this->Agent, $match))
-            {
-
-                switch($match[1]){
-                    case 'chrome':
-                        if ((int) $match[2] >= 25){
-                            $rightBrowser = true;
-                            break;
-                        }else{
-                            $browserName = 'Chrome';
-                        }
-                        break;
-                    case 'firefox':
-                        if ((int) $match[2] >= 25){
-                            $rightBrowser = true;
-                            break;
-                        }else{
-                            $browserName = 'Firefox';
-                        }
-                        break;
-                }
-            }
-        }
-
-        if ($rightBrowser == false){
-            if($browserName != ''){
-                $message = 'You are using an old version of '. $browserName .', which is not suported. <a href="http://www.google.com/chrome/eula.html?system=true&standalone=1">click here to download chrome</a> and <a href="https://download.mozilla.org/?product=firefox-27.0&os=win&lang=en-US"> here for Firefox</a>';
-            }else{
-                $message = 'You are using a browser which is not suported <a href="http://www.google.com/chrome/eula.html?system=true&standalone=1">click here to download chrome</a> and <a href="https://download.mozilla.org/?product=firefox-27.0&os=win&lang=en-US"> here for Firefox</a>';
-            }
-            return array(
-                'entities' => '',
-                'column_names' => '',
-                'table_names' => '',
-                'table_name' => '',
-                'data_values' => '',
-                'field_column_names' => '',
-                'field_table_name' => '',
-                'field_values' => '',
-                'field_option_values' => '',
-                'field_option_table_name' => '',
-                'option_associations_values' => '',
-                'option_associations_table' => '',
-                'organisation_Values' => '',
-                'organisation_unit_table' => '',
-                'message' => $message,
-                'channel'=>'',
-            );
-        }
-
         /*
          * Getting the Form Metadata and Values
          */
@@ -294,114 +216,8 @@ class RecordController extends Controller
             ->andWhere("user.username='".$this->getUser()."'")
             ->getQuery()->getArrayResult();
 
-        $form_Column_Names = json_encode($em->getClassMetadata('HrisFormBundle:Form')->getFieldNames());
-        $form_Table_Name = json_encode($em->getClassMetadata('HrisFormBundle:Form')->getTableName());
-        $dataValues = json_encode($entities);
-
-        $tables = $em->getMetadataFactory()->getAllMetadata();
-        foreach($tables as $classMetadata) {
-            $tableArray[] = $classMetadata->table['name'];
-        }
-
-        /*
-        * Getting the Field Metadata and Values
-        */
-        $field_entities = $em->getRepository( 'HrisFormBundle:Field' )
-            ->createQueryBuilder('f')
-            ->select('f', 'd', 'i')
-            ->join('f.dataType', 'd')
-            ->join('f.inputType', 'i')
-            ->getQuery()
-            ->getArrayResult();
-
-        $field_Column_Names = json_encode($em->getClassMetadata('HrisFormBundle:Field')->getFieldNames());
-        $filed_Table_Name = json_encode($em->getClassMetadata('HrisFormBundle:Field')->getTableName());
-        $filed_Values = json_encode($field_entities);
-
-        /*
-        * Getting the Field Options Metadata and Values
-        */
-        $field_Option_entities = $em->getRepository( 'HrisFormBundle:FieldOption' )
-            ->createQueryBuilder('o')
-            ->select('o', 'f')
-            ->join('o.field', 'f')
-            ->orderBy('o.value')
-            ->getQuery()
-            ->getArrayResult();
-        //var_dump($field_Option_entities);
-
-        $field_Option_Values = json_encode($field_Option_entities);
-        $filed_Option_Table_Name = json_encode($em->getClassMetadata('HrisFormBundle:FieldOption')->getTableName());
-
-        /*
-        * Getting the Organisation Unit Metadata and Values
-        */
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-
-        if ($user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getDataentrylevel()){
-        $orgUnit = $em->getRepository( 'HrisOrganisationunitBundle:Organisationunit' )
-            ->createQueryBuilder('o')
-            ->select('o', 'p')
-            ->join('o.parent', 'p')
-            ->where('o.uid = :uid')
-            ->orWhere('o.parent = :parent')
-            ->setParameters(array('uid' => $user->getOrganisationunit()->getUid(), 'parent' => $user->getOrganisationunit()))
-            ->orderBy('o.longname')
-            ->getQuery()
-            ->getArrayResult();
-
-        }else{
-            $orgUnit = $em->getRepository( 'HrisOrganisationunitBundle:Organisationunit' )
-                ->createQueryBuilder('o')
-                ->select('o')
-                ->where('o.uid = :uid')
-                ->setParameters(array('uid' => $user->getOrganisationunit()->getUid()))
-                ->getQuery()
-                ->getArrayResult();
-        }
-        $orgunit_Values = json_encode($orgUnit);
-        $orgunit_table = json_encode($em->getClassMetadata('HrisOrganisationunitBundle:Organisationunit')->getTableName());
-
-        /*
-         * Field Options Associations
-         */
-
-        $field_Options = $em->getRepository( 'HrisFormBundle:FieldOption' )
-        ->createQueryBuilder('option')
-        ->select('option', 'field')
-        ->join('option.field', 'field')
-        ->getQuery()->getResult();
-
-        $id = 1;
-        $fieldOptionAssocitiontablename = "field_option_association";
-        foreach($field_Options as $key => $fieldOption){
-            $option_associations =  $fieldOption->getChildFieldOption();
-            if (!empty($option_associations) ){
-                foreach($option_associations as $keyoption => $option){
-                    //print "<br><br>the reference Key ". $fieldOption->getValue()." the referenced Field ".$option->getValue()." the reference Field ". $fieldOption->getField()->getName(). " the associate field ".$option->getField()->getName();
-                    $fieldOptions[] = array( 'id' => $id++,'fieldoption'=>$fieldOption->getUid(), 'fielduid' => $fieldOption->getField()->getUid(), 'fieldoptionref' => $option->getValue(), 'fieldoptionrefuid' => $option->getUid(), 'fieldref'=>$option->getField()->getUid() );
-                }
-            }
-        }
-
-        //var_dump($fieldOptions);
-
         return array(
             'entities' => $entities,
-            'column_names' => $form_Column_Names,
-            'table_names' => json_encode($tableArray),
-            'table_name' => $form_Table_Name,
-            'data_values' => $dataValues,
-            'field_column_names' => $field_Column_Names,
-            'field_table_name' => $filed_Table_Name,
-            'field_values' => $filed_Values,
-            'field_option_values' => $field_Option_Values,
-            'field_option_table_name' => $filed_Option_Table_Name,
-            'option_associations_values' => json_encode($fieldOptions),
-            'option_associations_table' => $fieldOptionAssocitiontablename,
-            'organisation_Values' => $orgunit_Values,
-            'organisation_unit_table' => $orgunit_table,
             'channel'=>$channel,
             'message'=>'',
 
@@ -442,14 +258,14 @@ class RecordController extends Controller
         $entity  = new Record();
         //$record = $this->createForm(new RecordType(), $entity);
         //$record->bind($request);
+        $message = '';
 
-        $formId = (int) $this->get('request')->request->get('formId');
-
+        $formId = $this->getRequest()->get('formid');
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $onrgunitParent = $this->get('request')->request->get('orgunitParent');
-        $orunitUid = $this->get('request')->request->get('unit');
+        $orunitUid = $this->get('request')->request->get('selectedOrganisationunit');
 
         if ( $orunitUid != null ){
             $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('uid' => $orunitUid));
@@ -458,23 +274,24 @@ class RecordController extends Controller
         }
 
         $form = $em->getRepository('HrisFormBundle:Form')->find($formId);
+
         $uniqueFields = $form->getUniqueRecordFields();
         $fields = $form->getSimpleField();
 
         $instance = '';
         foreach($uniqueFields as $key => $field_unique){
-            $instance .= $this->get('request')->request->get($field_unique->getName());
+            $instance .= $this->getRequest()->get($field_unique->getName());
+            if($field_unique->getDataType()->getName()!="Date") $message .=$this->getRequest()->get($field_unique->getName()). " ";
         }
+        $message.="saved successfully";
 
 
         foreach ($fields as $key => $field){
             $recordValue = $this->get('request')->request->get($field->getName());
 
             if($field->getDataType()->getName() == "Date" && $recordValue != null){
-
                 $recordValue = DateTime::createFromFormat('d/m/Y', $recordValue)->format('Y-m-d');
                 $recordValue = new \DateTime($recordValue);
-
             }
 
             /**
@@ -505,7 +322,7 @@ class RecordController extends Controller
         $em->persist($entity);
         $em->flush();
 
-        return $this->redirect($this->generateUrl('record_new', array('id' => $form->getId())));
+        return $this->redirect($this->generateUrl('record_new', array('id' => $form->getId(),'message'=>$message)));
 
     }
 
@@ -523,50 +340,28 @@ class RecordController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $formEntity = $em->getRepository('HrisFormBundle:Form')->find($id);
-        $tableName = json_encode($em->getClassMetadata('HrisFormBundle:Form')->getTableName());
-
-        $fields = $formEntity->getSimpleField();
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $orgUnit = $em->getRepository( 'HrisOrganisationunitBundle:Organisationunit' )
-            ->createQueryBuilder('o')
-            ->select('o')
-            ->where('o.uid = :uid')
-            ->setParameters(array('uid' => $user->getOrganisationunit()->getUid()))
-            ->orderBy('o.longname')
-            ->getQuery()
-            ->getArrayResult();
-
         $isEntryLevel = $user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getDataentrylevel();
-        $selectFields = array();
-        $key = NULL;
-
-        foreach ($fields as $key => $field){
-            if($field->getInputType()->getName() == 'Select'){
-                $selectFields[] = $field->getUid();
-            }
-        }
         // Workaround to send message when user is redirected from one data entry page to another.
-        $message = NULL;
-        $referer = $this->get('request')->headers->get('referer');
-        $host = $this->get('request')->headers->get('host');
-        if( empty($referer) ) {
-            $message = NULL;
-        }elseif(($referer== "http://".$host.$this->generateUrl('record_new', array('id' => $id))) || ($referer== "https://".$host.$this->generateUrl('record_new', array('id' => $id))) ) {
-            $message = "Data Was Saved successfully.";
-        }
+        $message = $this->getRequest()->get('message');
+        $organisationunitLevels = $this->getDoctrine()->getManager()->createQueryBuilder()
+                    ->select('organisationunitLevel')
+                    ->from('HrisOrganisationunitBundle:organisationunitLevel','organisationunitLevel')
+                    ->where('organisationunitLevel.level>'.$user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel())
+                    ->andWhere('organisationunitLevel.level>'.$user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel())
+                    ->orderBy('organisationunitLevel.level','ASC')
+                    ->orderBy('organisationunitLevel.name','ASC')
+                    ->getQuery()->getResult();
 
         return array(
-
-            'uid' => $formEntity->getUid(),
-            'title' => $formEntity->getTitle(),
-            'id' => $formEntity->getId(),
-            'table_name' => $tableName,
-            'fields' => json_encode($selectFields),
-            'entryLevel' => $isEntryLevel,
-            'organisation_unit' => array_shift($orgUnit),
+            'formEntity' => $formEntity,
             'message'=>$message,
+            'isEntryLevel'=>$isEntryLevel,
+            'user'=>$user,
+            'message'=>$message,
+            'organisationunitLevels'=>$organisationunitLevels,
         );
     }
 

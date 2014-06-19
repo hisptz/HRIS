@@ -86,15 +86,16 @@
                 {% block content %}
                     <div class="container-fluid" style="margin-top:10px;">
                         <div class="row-fluid">
-                            <div class="span2">
+                            <div class="span2" id="left_contents">
                                 {% block left_content %}
                                     <!--Sidebar content-->
                                     {{ knp_menu_render('HrisUserBundle:MainBuilder:build',{'template':':Menu:knp_menu.html.twig'}) }}
                                 {% endblock left_content %}
                             </div>
 
-                            <div class="span9" style="padding-left:15px;">
-                                {% block message_alert %}{% endblock message_alert %}
+                            <div class="span9" style="padding-left:15px;" id="right_contents">
+                                <div id="globalMessage">{% block message_alert %}{% endblock message_alert %}</div>
+                                <div id="messageArea"></div>
                                 {% block right_content %}
                                 {% endblock right_content %}
                             </div>
