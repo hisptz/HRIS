@@ -461,11 +461,18 @@ class ReportAggregationController extends Controller
             $excelService->getActiveSheet()->mergeCells('A2:D2');
 
             //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:D4')->applyFromArray($header_format);
+            //identify total options to write
+            $last_Column = 'B';
+            $fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo));
+            for($i=1;$i<=count($fieldOptions);$i++){
+                $last_Column++;
+            }
+
+            $excelService->getActiveSheet()->getStyle('A4:'.$last_Column.'4')->applyFromArray($header_format);
             $excelService->setActiveSheetIndex(0)
                 ->setCellValue($column++.$row, 'SN')
                 ->setCellValue($column++.$row, $fields->getCaption());
-            $fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo));
+
 
             foreach ($fieldOptions as $fieldOption) {
                 $excelService->setActiveSheetIndex(0)->setCellValue($column++.$row, $fieldOption->getValue());
@@ -479,9 +486,9 @@ class ReportAggregationController extends Controller
 
                 //format of the row
                 if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':D'.$row)->applyFromArray($text_format1);
+                    $excelService->getActiveSheet()->getStyle($column.$row.':'.$last_Column.$row)->applyFromArray($text_format1);
                 else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':D'.$row)->applyFromArray($text_format2);
+                    $excelService->getActiveSheet()->getStyle($column.$row.':'.$last_Column.$row)->applyFromArray($text_format2);
                 $excelService->setActiveSheetIndex(0)
                     ->setCellValue($column++.$row, $i++)
                     ->setCellValue($column++.$row, $key);
