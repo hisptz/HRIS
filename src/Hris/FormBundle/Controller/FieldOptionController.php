@@ -53,8 +53,9 @@ class FieldOptionController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function indexAPIAction($fieldid=NULL,$_format)
+    public function indexAPIAction($_format)
     {
+        $fieldid = NULL;
         $em = $this->getDoctrine()->getManager();
 
         $uid = $this->getRequest()->query->get('uid');
