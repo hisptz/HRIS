@@ -50,8 +50,6 @@ class FieldOptionController extends Controller
      * @Secure(roles="ROLE_SUPER_USER,ROLE_FIELDOPTION_LIST,ROLE_USER")
      * @Route("/api/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption")
      * @Route("/api/list/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="api_fieldoption_list")
-     * @Route("/api/{fieldid}/field/{_format}", requirements={"fieldid"="\d+","_format"="yml|xml|json"}, defaults={"_format"="json","fieldid"=""}, name="api_fieldoption_byfield")
-     * @Route("/api/list/{fieldid}/field/{_format}", requirements={"fieldid"="\d+","_format"="yml|xml|json"}, defaults={"_format"="json","fieldid"=""}, name="api_fieldoption_list_byfield")
      * @Method("GET")
      * @Template()
      */
