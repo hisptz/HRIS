@@ -5,6 +5,10 @@
 
     <table class="record_properties table table-striped table-bordered table-hover">
         <tbody>
+            <tr>
+                <th>Duty Post/Workstation</th>
+                <td>{{ entity.getOrganisationunit().getLongname() }}</td>
+            </tr>
             {% for field in entity.getForm.getSimpleField %}
                 <tr>
                     <th>{{ field.caption }}</th>
@@ -22,7 +26,7 @@
                                 {% endif %}
                             {% elseif field.getInputType == 'Date' %}
                                 {% if entity.getValue( field.uid ) %}
-                                    {{ entity.getValue( field.uid ) |date('Y-m-d') }}
+                                    {{ entity.getValue( field.uid ) |date('d/m/Y') }}
                                 {% else %}
                                     <em>-</em>
                                 {% endif %}

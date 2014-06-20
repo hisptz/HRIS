@@ -63,14 +63,14 @@ class FieldOptionController extends Controller
 
         if(empty($fieldid)) {
             if(!empty($uid)) {
-                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' ORDER BY fieldOption.value")->getArrayResult();
+                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' ORDER BY fieldOption.value")->getArrayResult();
             }else {
-                $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption ORDER BY fieldOption.value')->getArrayResult();
+                $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field ORDER BY fieldOption.value')->getArrayResult();
             }
         }elseif( !empty($uid) ) {
-            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='.$uid.' ORDER BY fieldOption.value')->getArrayResult();
+            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='.$uid.' ORDER BY fieldOption.value')->getArrayResult();
         }else {
-            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.id='.$fieldid.' ORDER BY fieldOption.value')->getArrayResult();
+            $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field ORDER BY fieldOption.value')->getArrayResult();
         }
 
         $jsonEntities = json_encode($entities);

@@ -424,78 +424,40 @@ class RecordController extends Controller
      */
     public function editAction($id)
     {
+        $message = NULL;
         $em = $this->getDoctrine()->getManager();
-
         $entity = $em->getRepository('HrisRecordsBundle:Record')->find($id);
-
         $formEntity = $entity->getForm();
-        $tableName = json_encode($em->getClassMetadata('HrisFormBundle:Form')->getTableName());
-
-        $fields = $formEntity->getSimpleField();
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        //Getting the Object of User Organisation unit
-        $orgUnit = $em->getRepository( 'HrisOrganisationunitBundle:Organisationunit' )
-            ->createQueryBuilder('o')
-            ->select('o')
-            ->where('o.uid = :uid')
-            ->setParameters(array('uid' => $user->getOrganisationunit()->getUid()))
-            ->getQuery()
-            ->getArrayResult();
-
-        //Getting the Object of User Organisation unit
-        $selectedOrgunit = $em->getRepository( 'HrisOrganisationunitBundle:Organisationunit' )
-            ->createQueryBuilder('o')
-            ->select('o')
-            ->where('o.uid = :uid')
-            ->setParameters(array('uid' => $entity->getOrganisationunit()->getUid()))
-            ->getQuery()
-            ->getArrayResult();
 
         $isEntryLevel = $user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getDataentrylevel();
+        // Workaround to send message when user is redirected from one data entry page to another.
+        $message = $this->getRequest()->get('message');
+        $organisationunitLevels = $this->getDoctrine()->getManager()->createQueryBuilder()
+            ->select('organisationunitLevel')
+            ->from('HrisOrganisationunitBundle:organisationunitLevel','organisationunitLevel')
+            ->where('organisationunitLevel.level>'.$user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel())
+            ->andWhere('organisationunitLevel.level>'.$user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel())
+            ->orderBy('organisationunitLevel.level','ASC')
+            ->orderBy('organisationunitLevel.name','ASC')
+            ->getQuery()->getResult();
 
-        $orgUnitChildren = "";
-        if($isEntryLevel){
-            $orgUnitParent = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($user->getOrganisationunit()->getId());
-            $orgUnitChildren = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->getAllChildren($orgUnitParent);
-        }
-
-        //getting fields with Select combo
-        $selectFields = array();
-        $key = NULL;
-        foreach ($fields as $key => $field){
-            if($field->getInputType()->getName() == 'Select'){
-                $selectFields[] = $field->getUid();
-            }
-        }
-
-        //getting all other fields
-        $otherFields = array();
-        $key = NULL;
-        reset($fields);
-        foreach ($fields as $key => $field){
-            if($field->getInputType()->getName() != 'Select'){
-                $otherFields[] = $field->getUid();
-            }
-        }
-
-        //var_dump($entity->getValue());die();
+        $organisationunits = $this->getDoctrine()->getManager()->createQuery("SELECT organisationunit
+                                                        FROM HrisOrganisationunitBundle:Organisationunit organisationunit
+                                                        WHERE organisationunit.parent=:parentid
+                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        ORDER BY organisationunit.longname ASC")->setParameter('parentid',$user->getOrganisationunit()->getId())->getResult();
 
         return array(
-
-            'formUid' => $formEntity->getUid(),
-            'title' => $formEntity->getTitle(),
-            'id' => $formEntity->getId(),
-            'table_name' => $tableName,
-            'fields' => json_encode($selectFields),
-            'otherFields' => json_encode($otherFields),
+            'formEntity'=>$formEntity,
             'entryLevel' => $isEntryLevel,
-            'organisation_unit_children' => json_encode($orgUnitChildren),
-            'organisation_unit' => array_shift($orgUnit),
-            'dataValues'=> json_encode($entity->getValue()),
-            'selectedUnit'=> json_encode($selectedOrgunit),
-            'instance'=>$entity->getInstance(),
+            'entity'=>$entity,
+            'user'=>$user,
+            'message'=>$message,
+            'organisationunitLevels'=>$organisationunitLevels,
+            'organisationunits'=>$organisationunits,
         );
     }
 
@@ -513,11 +475,11 @@ class RecordController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $instance = $this->get('request')->request->get('instance');
+        $instance = $this->getRequest()->get('instance');
 
         $entity = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('instance' => $instance ));
 
-        $formId = (int) $this->get('request')->request->get('formId');
+        $formId = (int) $this->getRequest()->get('formid');
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -531,6 +493,7 @@ class RecordController extends Controller
         }
 
         $form = $em->getRepository('HrisFormBundle:Form')->find($formId);
+
         $uniqueFields = $form->getUniqueRecordFields();
         $fields = $form->getSimpleField();
 

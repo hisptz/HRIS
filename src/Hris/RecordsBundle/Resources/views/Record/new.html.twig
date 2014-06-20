@@ -104,7 +104,7 @@
                     $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Error Occurred!</strong> Unable to get all options, please check your network connection</small></div>');
                 });
             });
-            $("#dataEntryForm").validate({ ignore:[] });
+            $("#dataEntryForm").validate({ ignore:".date" });
         });
         $( ".date" ).datepicker( {
             changeMonth: true,
