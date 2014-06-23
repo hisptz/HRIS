@@ -20,9 +20,8 @@
 
         $( document ).ready(function() {
             var fields='#hris_recordsbundle_historytype_field';
-            var fieldOptionUrl = '{{ path('history_historyfieldption', {'_format':'json'}) }}';
             var fieldOptionNames='hris_recordsbundle_historytype_history';
-            var fieldOptionSection='#historyFieldSection';
+            window.fieldOptionSection='#historyFieldSection';
             //var orgunitTransfer
 
 
@@ -30,30 +29,54 @@
                 $("#hris_recordsbundle_historytype_field option[value="+ removeField['id'] +"]").remove();
             });
 
-            //$("#hris_recordsbundle_historytype_field").append(new Option('', '' ));
-
             $(fields).on('change', function() {
                 // Empty FieldOptionSection contents
-                $( fieldOptionSection ).empty();
-                // Fetch fieldOptionTargets based on selected fields
-                postData = {
-                    'fieldid': $('#hris_recordsbundle_historytype_field').val()
-                };
-                $.post(fieldOptionUrl,postData , function( fieldOptions ){
-                    $(fieldOptionSection).find('option').remove();
-                    if (jQuery.isEmptyObject(fieldOptions)){
-                        $(fieldOptionSection).prepend('<h1><small>Field Has No Options</small></h1>');
-                    }else {
+                $( window.fieldOptionSection ).empty();
 
-                        $(fieldOptionSection).prepend('<select name="hris_recordsbundle_history[history]" id="hris_recordsbundle_history_history"> </select>');
+                //Automate filtering of option by field option relations
+                var fieldOptionRelationUrl = "{{ path('api_field_show', { '_format': 'json'}) }}";
+                // Getting get field option relations
+                var getFields = $.getJSON( fieldOptionRelationUrl, function( jsonObject ) {
+                    window.fieldOptionRelations=jsonObject;
+                }).done(function(){
+                    // Use it to trigger loading all field options when no related option is found
+                    window.foundRelatedFields = 'false';
+                    //Get uids of fields and field option from record to filtering related options
+                    window.recordValues = $.parseJSON( '{{ record.getValue() |json_encode() | raw }}' );
+                    var selectedField = $("#hris_recordsbundle_historytype_field").val();
+                    $(window.fieldOptionSection).prepend('<select name="hris_recordsbundle_history[history]" id="hris_recordsbundle_history_history"> </select>');
+                    $(window.fieldOptionSection).prepend('<label for="hris_recordsbundle_history_history">History</label>');
+                    $.each( window.fieldOptionRelations, function( fieldKey, field ) {
+                        //If selected field has related field options and record value for parent field has field options existing in relation the append on history type
+                        if(field['child_fieldid']==selectedField && window.recordValues[field['parent_fielduid']]==field['parent_fieldoptionuid'] ) {
+                            window.foundRelatedFields='true';//Prepare trigger to append all field options when no related option is found
+                            $("#hris_recordsbundle_history_history").append(new Option(field['child_fieldoptionvalue'], field['child_fieldoptionuid']));
+                        }
+                    });
 
-                        $(fieldOptionSection).prepend('<label for="hris_recordsbundle_history_history">History</label>');
-                        // Loop accross the field options constructing history options
-                         $.each(fieldOptions, function(historyFieldOptionIndex, historyFieldOption) {
-                             $("#hris_recordsbundle_history_history").append(new Option(historyFieldOption['name'], historyFieldOption['uid']));
-                         });
+                    // Default to old way of appending fields options without considering relation
+                    if(window.foundRelatedFields=='false') {
+                        // Fetch fieldOptionTargets based on selected fields
+                        var fieldOptionUrl = '{{ path('history_historyfieldption', {'_format':'json'}) }}';
+                        postData = {
+                            'fieldid': $('#hris_recordsbundle_historytype_field').val()
+                        };
+                        $.post(fieldOptionUrl,postData , function( fieldOptions ){
+                            $(window.fieldOptionSection).find('option').remove();
+                            if (jQuery.isEmptyObject(fieldOptions)){
+                                $( window.fieldOptionSection ).empty();
+                                $(window.fieldOptionSection).prepend('<h1><small>Field Has No Options</small></h1>');
+                            }else {
+                                // Loop accross the field options constructing history options
+                                $.each(fieldOptions, function(historyFieldOptionIndex, historyFieldOption) {
+                                    $("#hris_recordsbundle_history_history").append(new Option(historyFieldOption['name'], historyFieldOption['uid']));
+                                });
+                            }
+                        });
                     }
+                }).error(function(){
                 });
+
             });
         });
     </script>
