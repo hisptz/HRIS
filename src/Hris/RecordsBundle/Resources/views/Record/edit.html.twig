@@ -111,7 +111,7 @@
                         }else {
                             $('#'+fieldKey).val(fieldValue);
                             if($.type(fieldValue) == "object") {
-                                $('#'+fieldKey).val($.datepicker.formatDate('dd/mm/yy', new Date(fieldValue.date)));
+                                $('#'+fieldKey).val( $.datepicker.formatDate( "dd/mm/yy", new Date( $.datepicker.parseDate("yy-mm-dd",fieldValue.date) ) ) );
                             };
                         }
                     });
