@@ -105,6 +105,7 @@
                 });
             });
             $("#dataEntryForm").validate({ ignore:".date" });
+            $( "#organisationUnit" ).change(function() {$('#selectedOrganisationunit').val( $('#organisationUnit').val() );});
         });
         $( ".date" ).datepicker( {
             changeMonth: true,

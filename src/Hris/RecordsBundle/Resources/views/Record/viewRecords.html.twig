@@ -37,6 +37,18 @@
 {% block right_content -%}
 <div class="container">
     <h1><small>{{ title }}</small></h1>
+    <ul class="record_actions inline">
+        <li>
+            <a href="{{ path('record_new', { 'id': formid }) }}" class="btn">
+                Add Record
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('record_form_list') }}" class="btn">
+                Back to Forms
+            </a>
+        </li>
+    </ul>
 
     <table class="records_list dataTable table table-striped table-bordered table-hover">
         <thead>

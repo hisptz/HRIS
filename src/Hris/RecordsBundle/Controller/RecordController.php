@@ -191,6 +191,7 @@ class RecordController extends Controller
             'optionMap'=>$fieldOptionMap,
             'userForms'=>$userForms,
             'delete_forms' => $delete_forms,
+            'formid'=>$formid,
         );
     }
 
@@ -483,8 +484,8 @@ class RecordController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $onrgunitParent = $this->get('request')->request->get('orgunitParent');
-        $orunitUid = $this->get('request')->request->get('unit');
+        $onrgunitParent = $this->getRequest()->get('orgunitParent');
+        $orunitUid = $this->getRequest()->get('selectedOrganisationunit');
 
         if ( $orunitUid != null ){
             $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('uid' => $orunitUid));

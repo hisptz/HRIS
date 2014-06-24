@@ -65,7 +65,7 @@
                     }else {
                         $(organisationunitsTagId).append(new Option('--[Select Duty post]--', '',true,true));
                         $.each(organisationunits, function(organisationunitIndex, organisationunit) {
-                            $(organisationunitsTagId).append(new Option(organisationunit['longname'], organisationunit['id']));
+                            $(organisationunitsTagId).append(new Option(organisationunit['longname'], organisationunit['uid']));
                         });
                     }
                 }).done(function(){
@@ -121,6 +121,7 @@
                 });
             });
             $("#dataEntryForm").validate({ ignore:[] });
+            $( "#organisationUnit" ).change(function() {$('#selectedOrganisationunit').val( $('#organisationUnit').val() );});
         });
         $( ".date" ).datepicker( {
             changeMonth: true,
@@ -169,12 +170,12 @@
             <em style="font-style: normal;min-width:350px;">Select Workstation/Facility</em>
             {% if entity.getOrganisationunit().getUid()==user.getOrganisationunit().getUid() %}
                 <select name="organisationUnit" id="organisationUnit" disabled="disabled">
-                    <option value="{{ user.getOrganisationunit().getId() }}">{{ user.getOrganisationunit().getLongname() }}</option>
+                    <option value="{{ user.getOrganisationunit().getUid() }}">{{ user.getOrganisationunit().getLongname() }}</option>
                 </select>
             {% else %}
                 <select name="organisationUnit" id="organisationUnit">
                     {% for organisationunit in organisationunits %}
-                        <option {% if entity.getOrganisationunit().getUid()==organisationunit.getUid() %} selected="selected" {% endif %} value="{{ organisationunit.getId() }}">{{ organisationunit.getLongname() }}</option>
+                        <option {% if entity.getOrganisationunit().getUid()==organisationunit.getUid() %} selected="selected" {% endif %} value="{{ organisationunit.getUid() }}">{{ organisationunit.getLongname() }}</option>
                     {% endfor %}
                 </select>
             {% endif %}

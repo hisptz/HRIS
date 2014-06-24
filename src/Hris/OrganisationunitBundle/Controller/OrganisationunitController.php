@@ -412,7 +412,7 @@ class OrganisationunitController extends Controller
             if(empty($organisationunit))
             $organisationunit =  $this->getDoctrine()->getManager()->createQuery('SELECT organisationunit FROM HrisOrganisationunitBundle:Organisationunit organisationunit WHERE organisationunit.parent IS NULL')->getSingleResult();
 
-            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.longname,
+            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.uid,organisationunit.longname,
                                                         (
                                                             SELECT COUNT(lowerOrganisationunit.id)
                                                             FROM HrisOrganisationunitBundle:Organisationunit lowerOrganisationunit
@@ -431,7 +431,7 @@ class OrganisationunitController extends Controller
             }
         }else {
             // Leaf organisationunits called
-            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.longname,
+            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.uid,organisationunit.longname,
                                                         (
                                                             SELECT COUNT(lowerOrganisationunit.id)
                                                             FROM HrisOrganisationunitBundle:Organisationunit lowerOrganisationunit
@@ -455,6 +455,7 @@ class OrganisationunitController extends Controller
                 // Entity has children
                 $organisationunitTreeNodes[] = Array(
                     'id' => $entity['id'],
+                    'uid'=> $entity['uid'],
                     'longname' => $entity['longname'],
                     'cls' => 'folder'
                 );
@@ -462,6 +463,7 @@ class OrganisationunitController extends Controller
                 // Entity has no children
                 $organisationunitTreeNodes[] = Array(
                     'id' => $entity['id'],
+                    'uid'=> $entity['uid'],
                     'longname' => $entity['longname'],
                     'cls' => 'file',
                     'leaf' => true,
