@@ -101,9 +101,15 @@
             </a>
         </li>
         <li>
-            <a href="{{ path('record_edit', { 'id': entity.id }) }}" class="btn">
+            <a href="{{ path('record_edit', { 'id': entity.id }) }}" class="btn"><i class="icon-edit icon-large" title="Edit"></i>
                 Edit
             </a>
+        </li>
+        <li>
+            <a class="btn" href="{{ path('history_list_byrecord', { 'recordid': entity.id }) }}"><i class="icon-list icon-large" title="History"></i> History</a>
+        </li>
+        <li>
+            <a class="btn" href="{{ path('training_list_byrecord', { 'recordid': entity.id }) }}"><i class="icon-folder-open icon-large" title="In service Training"></i> Training</a>
         </li>
         <li>
 

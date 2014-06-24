@@ -108,7 +108,7 @@ class HistoryController extends Controller
                     $record = $this->getDoctrine()->getManager()->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
 
                     //If History Set to update record
-                    if($historyFormData['updaterecord']){
+                    if(isset($historyFormData['updaterecord']) && $historyFormData['updaterecord']){
 
                         //Get Previous value before updating
                         $recordOrgUnit = $record->getOrganisationunit();
@@ -140,7 +140,7 @@ class HistoryController extends Controller
                     $field = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:Field')->findOneBy(array('id'=>$historyFormData['field']));
 
                     //If History Set to update record
-                    if($historyFormData['updaterecord']){
+                    if(isset($historyFormData['updaterecord']) && $historyFormData['updaterecord']){
 
                         $recordValue = $record->getValue();
                         //Get Previous value before updating
