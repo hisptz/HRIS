@@ -50,7 +50,7 @@
             var organisationunitsTagId='#organisationUnit';
             $(organisationunitsTagId).find('option').remove();
             if($('#level').val()==userLevelUid) {
-                $(organisationunitsTagId).append(new Option("{{ user.getOrganisationunit().getLongname() }}", "{{ user.getOrganisationunit().getId() }}"));
+                $(organisationunitsTagId).append(new Option("{{ user.getOrganisationunit().getLongname() }}", "{{ user.getOrganisationunit().getUid() }}"));
                 $(organisationunitsTagId).attr('disabled','disabled');
                 $('#selectedOrganisationunit').val( "{{ user.getOrganisationunit().getUid() }}" );
             }else {
@@ -64,7 +64,7 @@
                     }else {
                         $(organisationunitsTagId).append(new Option('--[Select Duty post]--', '',true,true));
                         $.each(organisationunits, function(organisationunitIndex, organisationunit) {
-                            $(organisationunitsTagId).append(new Option(organisationunit['longname'], organisationunit['id']));
+                            $(organisationunitsTagId).append(new Option(organisationunit['longname'], organisationunit['uid']));
                         });
                     }
                 }).done(function(){
@@ -154,7 +154,7 @@
             <br />
             <em style="font-style: normal;min-width:350px;">Select Workstation/Facility</em>
             <select name="organisationUnit" id="organisationUnit" disabled="disabled">
-                <option value="{{ user.getOrganisationunit().getId() }}">{{ user.getOrganisationunit().getLongname() }}</option>
+                <option value="{{ user.getOrganisationunit().getUid() }}">{{ user.getOrganisationunit().getLongname() }}</option>
             </select>
             <input name="selectedOrganisationunit" id="selectedOrganisationunit" type="hidden" required="required" value="{{ user.getOrganisationunit().getUid() }}">
             <div id="htmlForm">
