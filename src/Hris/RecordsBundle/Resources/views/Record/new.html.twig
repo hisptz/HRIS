@@ -104,7 +104,43 @@
                     $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Error Occurred!</strong> Unable to get all options, please check your network connection</small></div>');
                 });
             });
-            $("#dataEntryForm").validate({ ignore:".date" });
+            $( "#dataEntryForm" ).submit(function( event ) {
+                //if($( "#dataEntryForm").valid()) {
+                    window.uniqueValuesString='';
+                    $.each( $('#dataEntryForm').find(".unique_field"), function( key, value ) {
+                        window.uniqueValuesString = window.uniqueValuesString + value.id+'='+ $.trim($('#'+value.id).val())+'&';
+                    });
+
+                window.uniqueValuesString = window.uniqueValuesString + 'unique_5289e934ab062'+'='+$('#5289e934ab062').val()+'&' + 'unique_5289e934b2b33'+'='+$('#5289e934b2b33').val()+'&' + 'unique_5289e934c02a1'+'='+$('#5289e934c02a1').val()+'&' + 'unique_5289e934a140e'+'='+$('#5289e934a140e').val()+'&';
+                //console.log(window.uniqueValuesString.replace(/&+$/,''));
+
+
+                console.log(window.uniqueValuesString.replace(/&+$/,''));
+                    window.recordUnique='';
+                    $.get( "{{ path('record_checkuniqueness', { '_format': 'json'}) }}"+'?'+window.uniqueValuesString.replace(/&+$/,''), function( data ) {
+                        window.recordUnique=data;
+                    }).done(function(){
+                        if( window.recordUnique==true ) {
+                            //Record is unique
+                            console.log('Record is unique');
+                            $('#loadingMessage').remove();
+                            event.preventDefault();
+                        }else {
+                            //Record with similar id exists
+                            $('#loadingMessage').remove();
+                            $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Warning!!</strong> Record with similar checknumber of filenumber exists</small></div>');
+                            console.log('Record exists');
+                            event.preventDefault();
+                        }
+                    }).fail(function(){
+                        console.log('Failed to check record uniqueness');
+                        event.preventDefault();
+                    });
+                //}`
+            });
+            $("#dataEntryForm").validate({
+                ignore:".date"
+            });
             $( "#organisationUnit" ).change(function() {$('#selectedOrganisationunit').val( $('#organisationUnit').val() );});
         });
         $( ".date" ).datepicker( {

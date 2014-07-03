@@ -545,6 +545,60 @@ class RecordController extends Controller
     }
 
     /**
+     * Check uniqueness of record
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_CREATE,ROLE_RECORD_UPDATE,ROLE_RECORD_SHOW")
+     * @Route("/checkUniqueness/{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="record_checkuniqueness")
+     * @Method("GET")
+     * @Template()
+     */
+    public function checkUniquenessAction(Request $request,$_format)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+
+        $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
+
+        $recordsResults = $queryBuilder->select('record')->from('HrisRecordsBundle:Record','record');
+
+        $uniquenessVariables = $this->getRequest()->query->all();
+        $incr=0;
+        foreach($uniquenessVariables as $fieldUid=>$fieldValue) {
+            $valuePattern = '';
+            unset($valuePattern);
+            $incr++;
+            if(!empty($fieldValue)) {
+                $valuePattern[$fieldUid] = $fieldValue;
+                $json = json_encode($valuePattern);
+                $pattern = str_replace("{", "", $json);
+                $pattern = str_replace("}", "", $pattern);
+                if(!preg_match('[unique_]', $fieldUid)) {
+                    // Takes care of individuallly unique fields
+                    $recordsResults->orWhere("record.value LIKE '%$pattern%' ");
+
+                }else {
+                    // Takes care of collectively fields
+
+                }
+            }
+
+        }
+
+
+        $output = $recordsResults->setMaxResults(1)->getQuery()->getResult();
+        //@todo implement stating what's unique and what's not
+        if(empty($output)) {
+            $message="true";
+        }else {
+            $message="false";
+        }
+        return array(
+            'message'=>$message
+        );
+
+    }
+
+    /**
      * Deletes a Record entity.
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_DELETE")
