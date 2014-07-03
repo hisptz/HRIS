@@ -217,6 +217,7 @@ class UserController extends Controller
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find User entity.');
         }
+        $message = '';
 
         $editForm = $this->createForm(new UserType(), $entity,array('em'=>$this->getDoctrine()->getManager()));
         $deleteForm = $this->createDeleteForm($id);
@@ -225,6 +226,7 @@ class UserController extends Controller
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'message' => $message,
         );
     }
 
@@ -251,16 +253,24 @@ class UserController extends Controller
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
+            //@workaround for when password is not persisted
+            $userRequest = $request->request->get('hris_userbundle_usertype') ;
+            if(!empty($userRequest['plainPassword']['first']) && !empty($userRequest['plainPassword']['second']) && $userRequest['plainPassword']['first']==$userRequest['plainPassword']['second']) {
+                $entity->setPlainPassword($userRequest['plainPassword']['first']);
+            }
             $em->persist($entity);
             $em->flush();
 
             return $this->redirect($this->generateUrl('user_list'));
+        }else {
+            $message = $editForm->getErrors();
         }
 
         return array(
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'message' => $message,
         );
     }
 
