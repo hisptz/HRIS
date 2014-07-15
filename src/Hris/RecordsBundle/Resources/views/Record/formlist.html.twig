@@ -22,6 +22,8 @@
                 <h1><small>Data Entry Forms</small></h1>
             {% elseif channel=='updaterecords' %}
                 <h1><small>View Records</small></h1>
+            {% elseif channel=='leaverecords' %}
+                <h1><small>View Records</small></h1>
             {% endif %}
 
             <table class="records_list dataTable table table-striped table-bordered table-hover">
@@ -36,8 +38,10 @@
                     <tr>
                         {% if channel=="dataentry" %}
                             <td><a href="{{ path('record_new', { 'id': entity.id }) }}">{{ entity.title }}</a></td>
-                        {% else %}
-                        <td><a href="{{ path('record_viewrecords', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='updaterecords' %}
+                            <td><a href="{{ path('record_viewrecords', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='leaverecords' %}
+                            <td><a href="{{ path('leave_viewrecords', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
                         {% endif %}
                         <td>
                         <ul class="inline">

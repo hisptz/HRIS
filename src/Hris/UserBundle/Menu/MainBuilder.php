@@ -36,6 +36,7 @@ use Hris\RecordsBundle\Event\ConfigureMenuEvent as RecordsConfigureMenuEvent;
 use Hris\ReportsBundle\Event\ConfigureMenuEvent as ReportsConfigureMenuEvent;
 use Hris\ImportExportBundle\Event\ConfigureMenuEvent as ImportExportConfigureMenuEvent;
 use Hris\HelpCentreBundle\Event\ConfigureMenuEvent as HelpCentreConfigureMenuEvent;
+use Hris\LeaveBundle\Event\ConfigureMenuEvent as LeaveConfigureMenuEvent;
 
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerAware;
@@ -136,6 +137,10 @@ class MainBuilder extends ContainerAware
         ){
             $this->container->get('event_dispatcher')->dispatch(ReportsConfigureMenuEvent::CONFIGURE, new ReportsConfigureMenuEvent($factory, $menu));
         }
+
+        //leave module
+       $this->container->get('event_dispatcher')->dispatch(LeaveConfigureMenuEvent::CONFIGURE, new LeaveConfigureMenuEvent($factory, $menu));
+
         // ImportExport Bundle
         if(
             $securityContext->isGranted('ROLE_IMPORTEXPORT_BUNDLE_VIEW') ||

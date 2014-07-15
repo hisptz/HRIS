@@ -29,6 +29,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 use Hris\OrganisationunitBundle\Entity\Organisationunit;
 use Hris\FormBundle\Entity\Form;
+use Hris\LeaveBundle\Entity\Leave;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -139,6 +140,14 @@ class Record
      * @ORM\OrderBy({"history" = "ASC"})
      */
     private $history;
+
+    /**
+     * @var Leave $leave
+     *
+     * @ORM\OneToMany(targetEntity="Hris\LeaveBundle\Entity\Leave", mappedBy="record",cascade={"ALL"})
+     * @ORM\OrderBy({"startdate" = "ASC"})
+     */
+    private $leave;
 
     /**
      * @var boolean $hastraining
@@ -391,6 +400,39 @@ class Record
     public function getHistory()
     {
         return $this->history;
+    }
+
+    /**
+     * Add leave
+     *
+     * @param Leave $leave
+     * @return Leave
+     */
+    public function addLeave(Leave $leave)
+    {
+        $this->leave[$leave->getId()] = $leave;
+
+        return $this;
+    }
+
+    /**
+     * Remove leave
+     *
+     * @param Leave $leave
+     */
+    public function removeLeave(Leave $leave)
+    {
+        $this->leave->removeElement($leave);
+    }
+
+    /**
+     * Get leave
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLeave()
+    {
+        return $this->leave;
     }
 
     /**

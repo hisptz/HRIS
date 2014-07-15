@@ -15,10 +15,26 @@
             dateFormat: "dd/mm/yy",
             showAnim: "clip",
             maxDate: "+0D",
+            yearRange:'c-60:c+60',
+            onClose: function( selectedDate ) {
+                $( ".enddate" ).datepicker( "option", "minDate", selectedDate );
+            }
+        });
+
+        $( ".enddate" ).datepicker( {
+            changeMonth: true,
+            changeYear: true,
+            showOn: "both",
+            buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+            buttonImageOnly: true,
+            dateFormat: "dd/mm/yy",
+            showAnim: "clip",
             yearRange:'c-60:c+60'
         });
 
         $( document ).ready(function() {
+            $("#hris_recordsbundle_historytype_enddate").parent().hide();
+            $("#hris_recordsbundle_historytype_entitled_payment").parent().hide();
             var fields='#hris_recordsbundle_historytype_field';
             var fieldOptionNames='hris_recordsbundle_historytype_history';
             window.fieldOptionSection='#historyFieldSection';
@@ -71,6 +87,7 @@
                                 $.each(fieldOptions, function(historyFieldOptionIndex, historyFieldOption) {
                                     $("#hris_recordsbundle_history_history").append(new Option(historyFieldOption['name'], historyFieldOption['uid']));
                                 });
+                                check_if_is_leave();
                             }
                         });
                     }
@@ -79,6 +96,21 @@
 
             });
         });
+
+        function check_if_is_leave(){
+            $("#hris_recordsbundle_history_history").change(function(){
+                var value = $("#hris_recordsbundle_history_history option:selected").text();
+                var leave = value.toLowerCase();
+                if(leave.indexOf("leave") > -1){
+                    $("#hris_recordsbundle_historytype_enddate").parent().fadeIn();
+                    $("#hris_recordsbundle_historytype_entitled_payment").parent().fadeIn();
+                }else{
+                    $("#hris_recordsbundle_historytype_enddate").parent().fadeOut();
+                    $("#hris_recordsbundle_historytype_entitled_payment").parent().fadeOut();
+                }
+            })
+
+        }
     </script>
 {% endblock javascripts %}
 
@@ -99,8 +131,9 @@
     <div id="historyFieldSection">History<br/><br/></div>
 
     {{ form_row( form.startdate ) }}
+    {{ form_row( form.enddate ) }}
+    {{ form_row( form.entitled_payment ) }}
     {{ form_row( form.reason ) }}
-
     {{ form_row( form.updaterecord ) }}
 
     <ul class="record_actions inline" style="..." >

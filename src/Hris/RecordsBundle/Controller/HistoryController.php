@@ -492,8 +492,8 @@ class HistoryController extends Controller
             foreach($fieldOptions as $fieldOptionKey => $fieldOption) {
                 if(!isset($fieldOptionTargetNodes[$fieldOption->getId()])) {
                     $fieldOptionTargetNodes[] = Array(
-                        'name' => $fieldOption->getValue(),
-                        'uid' => $fieldOption->getUid()
+                        'name'          => $fieldOption->getValue(),
+                        'uid'           => $fieldOption->getUid(),
                     );
                 }
             }

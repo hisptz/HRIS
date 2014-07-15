@@ -201,6 +201,7 @@ class RecordController extends Controller
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_LISTFORMS")
      * @Route("/formlist/dataentry", defaults={"channel"="dataentry"}, name="record_form_list")
      * @Route("/formlist/updaterecords", defaults={"channel"="updaterecords"}, name="record_form_list_updaterecords")
+     * @Route("/formlist/updateleaverecords", defaults={"channel"="leaverecords"}, name="record_form_list_leaverecords")
      * @Method("GET")
      * @Template()
      */
