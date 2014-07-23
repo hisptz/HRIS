@@ -164,6 +164,7 @@ EOT
                             level.level >= :organisationunitLevel
                             AND organisationunitStructure.level'.$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel().'Organisationunit=:levelOrganisationunit
                         ) AND organisationunit.dhisUid is not null
+                        AND organisationunit.id!='.$entity->getParentOrganisationunit()->getId().'
                         AND organisationunit.id IN ( SELECT DISTINCT(recordOrganisationunit.id) FROM HrisRecordsBundle:Record record INNER JOIN record.organisationunit recordOrganisationunit )'
             )
             ->setParameters(array(
@@ -249,7 +250,7 @@ EOT
                     //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
                     file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
                     $logger->info('Inserted record for '.$dataelementFieldOptionValue->getDataelementname().' '.$dataelementFieldOptionValue->getCategoryComboname() .' '.$organisationunit->getLongname());
-                    echo 'Inserted record for '.$dataelementFieldOptionValue->getDataelementname().' '.$dataelementFieldOptionValue->getCategoryComboname() .' '.$organisationunit->getLongname()."\n";
+                    //echo 'Inserted record for '.$dataelementFieldOptionValue->getDataelementname().' '.$dataelementFieldOptionValue->getCategoryComboname() .' '.$organisationunit->getLongname()."\n";
                 }
 
                 unset($dhisUid);
