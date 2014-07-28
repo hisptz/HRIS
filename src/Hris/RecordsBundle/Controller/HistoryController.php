@@ -98,7 +98,7 @@ class HistoryController extends Controller
             $historyValue = $request->request->get('hris_recordsbundle_history');
             $historyFormData = $request->request->get('hris_recordsbundle_historytype');
             $field = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:Field')->findOneBy(array('id'=>$historyFormData['field']));
-
+            
             //Check if history is orgunit transfer or not
             if( $field->getCaption() == "Organisation Unit Transfer" ){
 
@@ -240,7 +240,13 @@ class HistoryController extends Controller
 
         //echo $orgUnitTransferField->getId()."--".$orgUnitTransferField->getCaption();exit;
 
-
+        $leaveTypes = $entityManager -> getConnection() -> executeQuery(
+            "SELECT L.name FROM hris_leave_type L"
+        ) -> fetchAll();
+        $leaves = array();
+        foreach($leaveTypes as $leave){
+            $leaves[] = $leave['name'];
+        }
 
         return array(
             'entity' => $entity,
@@ -533,5 +539,32 @@ class HistoryController extends Controller
         $val = array();
         array_walk_recursive($arr, function($v, $k) use($key, &$val){if($k == $key) array_push($val, $v);});
         return count($val) > 1 ? $val : array_pop($val);
+    }
+
+    /**
+     * Displays a calendar for a history in a single record
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDHISTORY_CREATE")
+     * @Route("/calendar/{recordid}", requirements={"recordid"="\d+"}, name="employee_calendar")
+     * @Method("GET")
+     * @Template()
+     */
+    public  function employeeHistoryCalendarAction($recordid)
+    {
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $query = "SELECT H.history as title, to_char(H.startdate,'yyyy-mm-dd') as start ";
+        $query .= "FROM hris_record_history H ";
+        $query .= "INNER JOIN hris_fieldoption as F on F.value = H.history ";
+        $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+        $query .= " WHERE V.id = ". $recordid;
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+        $serializer = $this->container->get('serializer');
+        return array(
+            'events' => $serializer->serialize($report,'json'),
+            'employeeName' => $this->getEmployeeName($recordid)
+        );
+
     }
 }

@@ -1,0 +1,22 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/highcharts.js') }}"></script>
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/modules/exporting.js') }}"></script>
+        <script type="text/javascript">
+            {{ chart(chart) }}
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+
+    <div class="container">
+        <h1><small> {{ title  }} </small></h1>
+    </div>
+
+    <div id="chart_placeholder_historytraining" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+    <div style="text-align: right">
+
+    </div>
+{% endblock %}

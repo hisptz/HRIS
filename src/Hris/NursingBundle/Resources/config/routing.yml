@@ -1,0 +1,3 @@
+nursingReport:
+    resource: "@HrisNursingBundle/Controller/NursingController.php"
+    type: annotation

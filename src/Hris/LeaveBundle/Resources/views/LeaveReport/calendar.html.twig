@@ -1,7 +1,48 @@
-{% extends "::base.html.twig" %}
+{% extends '::base.html.twig' %}
 
-{% block title %}HrisLeaveBundle:LeaveReport:calendar{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" language="javascript" src="{{ asset('commons/fullcalendar//lib/jquery.min.js') }}"></script>
+    <script type="text/javascript" language="javascript" src="{{ asset('commons/fullcalendar/lib/moment.min.js') }}"></script>
+    <script type="text/javascript" language="javascript" src="{{ asset('commons/js/jquery.validate.js') }}"></script>
+    <script type="text/javascript" language="javascript" src="{{ asset('commons/js/ext-all.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/fullcalendar/lib/jquery-ui.custom.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/fullcalendar/fullcalendar.js') }}"></script>
+    <script type="text/javascript">
 
-{% block body %}
-<h1>Welcome to the LeaveReport:calendar page</h1>
+        $( document ).ready(function() {
+            var jsonn = {{ events |raw }};
+            if(jsonn.length == 0){
+                $("#titlearea").html("<h3>No History Record</h3>");
+            }else{
+                $('#calendar').fullCalendar({
+                    theme: true,
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'year,month,agendaWeek'
+                    },
+                    defaultDate: jsonn[jsonn.length-1]['start'],
+                    editable: false,
+                    events: {{ events |raw }}
+                });
+            }
+
+
+        });
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" media="all" href="{{ asset('commons/css/ext-standard.css') }}">
+    <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
+    <link rel="stylesheet" href="{{ asset('commons/fullcalendar/lib/cupertino/jquery-ui.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('commons/fullcalendar/fullcalendar.css') }}" />
+    <link rel="stylesheet" href="{{ asset('commons/fullcalendar/fullcalendar.print.css') }}" />
+{% endblock stylesheets %}
+
+{% block right_content -%}
+    <h1><small>{{ employeeName }} History Calendar Report</small></h1>
+    <div id='calendar'></div>
 {% endblock %}

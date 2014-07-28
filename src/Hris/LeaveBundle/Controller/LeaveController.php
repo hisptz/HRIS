@@ -29,6 +29,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Tests\Common\Annotations\True;
 use Hris\FormBundle\Entity\FieldOption;
 use Hris\LeaveBundle\Form\LeaveTypeType;
+use Hris\RecordsBundle\Entity\History;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Doctrine\ORM\QueryBuilder as QueryBuilder;
@@ -92,13 +93,16 @@ class LeaveController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function newAction(  )
+    public function newAction( )
     {
         $entity = new LeaveType();
+
+        $message = $this->getRequest()->get('message');
+
         $form   = $this->createForm(new LeaveTypeType(), $entity);
         return array(
             'form' =>$form->createView(),
-            'message'=>''
+            'message'=>$message
         );
     }
 
@@ -117,10 +121,18 @@ class LeaveController extends Controller
         $form->bind($request);
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        $field = $this->getDoctrine()->getManager()->getRepository('HrisFormBundle:Field')->findOneBy(array('id'=>136));
+
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-//            $entity->setUsername($user->getUsername());
-            //Update Record Table hasTraining column
+            $fieldoption  = new FieldOption();
+            $formData = $form->getData();
+            $fieldoption->setDescription($formData->getDescription());
+            $fieldoption->setField($field);
+            $fieldoption->setHasTraining(True);
+            $fieldoption->setValue($formData->getName());
+            $entity->setRecord($fieldoption);
+            $em->persist($fieldoption);
             $em->persist($entity);
             $em->flush();
 
@@ -148,14 +160,12 @@ class LeaveController extends Controller
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $entity = $em->getRepository('HrisLeaveBundle:LeaveType')->find($id);
-
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Leave entity.');
+                throw $this->createNotFoundException('Unable to find FieldOption entity.');
             }
-
             $em->remove($entity);
             $em->flush();
-            $em = $this->getDoctrine()->getManager();
+
 
 
             return $this->redirect($this->generateUrl('leave'));
@@ -245,22 +255,52 @@ class LeaveController extends Controller
         );
     }
 
+
+    public function listEmployeeInLeave($leave,$id)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $resourceTableName = "_resource_all_fields";
+        $query = "SELECT R.firstname, R.middlename, R.surname, R.profession, H.history, H.reason, H.record_id, H.entitled_payment, H.startdate, H.enddate, H.entitled_payment, R.level5_facility ";
+        $query .= "FROM hris_record_history H ";
+        $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+        $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+        $query .= " WHERE H.history = ". $leave;
+         $query .= " ORDER BY R.firstname ASC";
+        //get the records
+        var_dump($query);
+        die();
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+
+        return array(
+            'entities' => $report,
+        );
+    }
+
     /**
-     * Lists all Record entities.
+     * Lists all Record entities within a single leave.
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_LIST")
-     * @Route("/employee_list/{id}", requirements={"id"="\d+"}, name="list_employee")
+     * @Route("/employeeList/", name="list_employee_on_leave")
      * @Method("GET")
      * @Template()
      */
-    public function listEmployeeInLeave($id)
-    {
-        $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('HrisRecordsBundle:Record')->findAll();
-        
+    public function employeeInLeaveAction(Request $request)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $resourceTableName = "_resource_all_fields";
+        $query = "SELECT R.firstname, R.middlename, R.surname, R.profession, H.history, H.reason, H.record_id, H.entitled_payment, H.startdate, H.enddate, H.entitled_payment, R.level5_facility ";
+        $query .= "FROM hris_record_history H ";
+        $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+        $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+        $query .= " WHERE H.history = '". $request->query->get('leave')."'";
+         $query .= " ORDER BY H.startdate DESC";
+        //get the records
+
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
         return array(
-            'entities' => $entities,
+            'entities' => $report,
+            'leave'    => $request->query->get('leave'),
         );
     }
 

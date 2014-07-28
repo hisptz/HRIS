@@ -1,3 +1,7 @@
+hris_nursing:
+    resource: "@HrisNursingBundle/Resources/config/routing.yml"
+    prefix:   /
+
 hris_leave:
     resource: "@HrisLeaveBundle/Resources/config/routing.yml"
     prefix:   /

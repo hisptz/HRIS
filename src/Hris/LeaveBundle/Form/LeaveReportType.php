@@ -55,8 +55,9 @@ class LeaveReportType extends AbstractType
             ->add('reportType','choice',array(
                 'choices'=>array(
                     '' => '--SELECT--',
-                    'history'=>'Leave',
-                    'training'=>'Leave Calendar'
+                    'leaveReport'=>'Employee Leave Report',
+                    'onLeaveReport'=>'Employee on Leave Report',
+                    'leaveSummary'=>'Leave Summary Report'
                 ),
                 'required'=>True,
                 'constraints'=>array(
@@ -76,14 +77,56 @@ class LeaveReportType extends AbstractType
                     new NotBlank(),
                 )
             ))
+            ->add('chatType','choice',array(
+                'choices'=>array(
+                    '' => '--SELECT--',
+                    'column'=>'Bar Chat',
+                    'line'=>'Line Chat',
+                    'bar'=>'Column Chat',
+                ),
+                'required'=>False,
+            ))
+            ->add('selectProfession','checkbox',array(
+                'required'=>False,
+            ))
             ->add('fields','entity',array(
-                'class'=>'HrisFormBundle:Field',
+                'class'=>'HrisFormBundle:FieldOption',
                 'empty_value' => '--SELECT--',
+                'multiple'=>true,
+                'required'=>False,
                 'query_builder'=>function(EntityRepository $er) {
-                        return $er->createQueryBuilder('field')
-                            ->where('field.hashistory=True')
-                            ->orderBy('field.name','ASC');
+                        return $er->createQueryBuilder('fieldoption')
+                            ->where('fieldoption.field=151')
+                            ->orderBy('fieldoption.value','ASC');
                     }
+            ))
+            ->add('selectLeaveTypes','checkbox',array(
+                'required'=>False,
+            ))
+            ->add('leaveTypes','entity',array(
+                'class'=>'HrisLeaveBundle:LeaveType',
+                'empty_value' => '--SELECT--',
+                'multiple'=>true,
+                'required'=>False,
+                'query_builder'=>function(EntityRepository $er) {
+                        return $er->createQueryBuilder('leave')
+                            ->orderBy('leave.name','ASC');
+                    }
+            ))
+            ->add('limitDateRange','checkbox',array(
+                'required'=>False,
+            ))
+            ->add('startdate','date',array(
+                'required'=>false,
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'attr' => array('class' => 'date')
+            ))
+            ->add('enddate','date',array(
+                'required'=>false,
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'attr' => array('class' => 'date')
             ))
             ->add('Generate Report','submit',array(
                 'attr' => array('class' => 'btn'),
@@ -103,7 +146,7 @@ class LeaveReportType extends AbstractType
 
     public function getName()
     {
-        return 'hris_leavebundle_leavereporttype';
+        return 'hris_reportsbundle_reporthistorytrainingtype';
     }
 
     /**

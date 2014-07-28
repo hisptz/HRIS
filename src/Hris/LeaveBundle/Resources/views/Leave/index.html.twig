@@ -35,7 +35,7 @@
 
 {% block right_content -%}
     <div class="container">
-        <h1><small>Leave</small></h1>
+        <h1><small>Leave Settings</small></h1>
 
         <ul class="record_actions inline">
             <li>
@@ -74,7 +74,7 @@
                             <a href="#"><i class="icon-list icon-large" title="View Details"></i></a>
                         </li>
                         <li>
-                            <a href="#"><i class="icon-user icon-large" title="Employee On this Leave"></i></a>
+                            <a href="{{ path('list_employee_on_leave', {'leave':entity.getName, 'id': entity.id }) }}"><i class="icon-user icon-large" title="Employee On this Leave"></i></a>
                         </li>
                         <li>
                             <a data-toggle="modal" href="#deleteModalFor{{ entity.uid }}"><i class="icon-remove-sign icon-large" title="Delete"></i></a>

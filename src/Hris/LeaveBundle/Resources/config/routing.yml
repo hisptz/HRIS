@@ -9,3 +9,9 @@ leave_management:
 leavereport:
     resource: "@HrisLeaveBundle/Controller/LeaveReportController.php"
     type: annotation
+
+nursungreport:
+    resource: "@HrisLeaveBundle/Controller/NursingReportController.php"
+    type: annotation
+
+

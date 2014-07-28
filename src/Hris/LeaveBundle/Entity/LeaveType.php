@@ -86,7 +86,7 @@ class LeaveType
      * @var string
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="description", type="string", length=2000, nullable=true)
+     * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
 
@@ -117,7 +117,7 @@ class LeaveType
 
     /**
      * @ORM\OneToOne(targetEntity="Hris\FormBundle\Entity\FieldOption")
-     * @ORM\JoinColumn(name="field_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="field_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $field;
 
@@ -172,7 +172,7 @@ class LeaveType
      */
     public function setDescription($description)
     {
-        $this->name = $description;
+        $this->description = $description;
 
         return $this;
     }
@@ -346,6 +346,16 @@ class LeaveType
     public function getField()
     {
         return $this->field;
+    }
+
+    /**
+     * Get Entity verbose name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 
 }

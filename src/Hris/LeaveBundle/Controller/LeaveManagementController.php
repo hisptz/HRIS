@@ -52,7 +52,7 @@ use DateTime;
 /**
  * Leave Management controller.
  *
- * @Route("/leave_management")
+ * @Route("/leaveManagement")
  */
 class LeaveManagementController extends Controller
 {

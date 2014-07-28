@@ -101,6 +101,8 @@ class FieldOption
      * @Gedmo\Versioned
      * @ORM\Column(name="description", type="text", nullable=true)
      */
+
+
     private $description;
 
     /**

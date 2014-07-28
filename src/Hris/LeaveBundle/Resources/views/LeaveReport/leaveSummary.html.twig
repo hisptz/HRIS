@@ -1,0 +1,81 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/highcharts.js') }}"></script>
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/modules/exporting.js') }}"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('#years_type_menu').highcharts({
+                    chart: {
+                        type: '{{ chatType }}'
+                    },
+                    title: {
+                        text: 'Yearly Leave Report  {{ forms }}  {{ organisationUnit }} {{ withLowerLevels }}'
+                    },
+                    xAxis: {
+                        categories: {{ years|raw }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Employee On Leave'
+                        }
+                    },
+                    series: [{
+                        name: 'Employee',
+                        data: {{ yearData |raw }}
+                    }]
+                });
+
+                $('#leave_view_menu').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Employee Leave Report  {{ forms }}  {{ organisationUnit }} {{ withLowerLevels }}'
+                    },
+                    xAxis: {
+                        categories: {{ leaveName|raw }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Employee On Leave'
+                        }
+                    },
+                    series: [{
+                        name: 'Employee',
+                        data: {{ leaveData |raw }}
+                    }]
+                });
+            });
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+    <div class="container">
+        <h1 style="text-align: center"><small> Leave Summary Report </small></h1>
+
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#years_type_menu" data-toggle="tab">View By Years</a></li>
+            <li><a href="#leave_view_menu" data-toggle="tab">View By Leave Types</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="years_type_menu" style="min-width: 400px; height: 400px; margin: 0 auto">
+
+            </div>
+            <div class="tab-pane" id="leave_view_menu" style="min-width: 400px; height: 400px; margin: 0 auto">
+
+            </div>
+        </div>
+        <div style="text-align: right">
+            <a class="btn" href="{{ path('report_historytraining_download', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels, 'fields': '45' }) }}">
+                Export Statistics to Excel
+            </a>
+            <a class="btn" href="{{ path('report_historytraining_download_records', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels, 'fields': '45' }) }}">
+                Export Records By Cadre
+            </a>
+        </div>
+    </div>
+
+
+{% endblock %}

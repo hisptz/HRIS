@@ -18,6 +18,9 @@ class LeaveTypeType extends AbstractType
             ->add('name','text',array(
                 'required'=>True,
             ))
+            ->add('description','textarea', array(
+                'required'=>false,
+            ))
             ->add('uid','hidden')
             ->add('maximumDays','integer',array(
                 'required'=>false,
@@ -25,9 +28,6 @@ class LeaveTypeType extends AbstractType
             ->add('limitApplicable', 'choice', array(
                 'choices'   => array(''=>'Select','Applicable' => 'Applicable', 'Not Applicable' => 'Not Applicable'),
                 'required'  => true,
-            ))
-            ->add('description','textarea', array(
-                'required'=>false,
             ))
         ;
     }
