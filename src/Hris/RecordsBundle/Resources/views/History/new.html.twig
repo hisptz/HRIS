@@ -58,7 +58,16 @@
                     // Use it to trigger loading all field options when no related option is found
                     window.foundRelatedFields = 'false';
                     //Get uids of fields and field option from record to filtering related options
-                    window.recordValues = $.parseJSON( '{{ record.getValue() |json_encode() | raw }}' );
+
+                    try {
+                        window.recordValues = $.parseJSON( '{{ record.getValue() |json_encode() | replace({'\\r\\n': " "}) | raw }}' );
+                    } catch (e) {
+                        // error
+                        $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Error Occurred!</strong> Malformed record or contains bad characters.</small></div>');
+                        console.log(recordValues);
+                        return;
+                    }
+
                     var selectedField = $("#hris_recordsbundle_historytype_field").val();
                     $(window.fieldOptionSection).prepend('<select name="hris_recordsbundle_history[history]" id="hris_recordsbundle_history_history"> </select>');
                     $(window.fieldOptionSection).prepend('<label for="hris_recordsbundle_history_history">History</label>');
