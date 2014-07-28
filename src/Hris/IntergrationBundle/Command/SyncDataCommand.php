@@ -32,6 +32,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class SyncDataCommand extends ContainerAwareCommand
 {
@@ -52,6 +53,12 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        $year = (date("Y")-1);
+        $interval=20;
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('syncing');
+
         $id = $input->getArgument('id');
         if ($id) {
             $this->dhisConnectionId = $id;
@@ -69,9 +76,6 @@ EOT
         $xmlFile = "/tmp/hrhis_data_".str_replace(' ','_',$entity->getParentOrganisationunit()).".xml";
         file_put_contents($xmlFile,$this->xmlContents);
 
-        /*
-         * Aggregate data for the parent organisationunit
-         */
         // Aggregate data for each orgunit in the current level.
         $em = $this->getContainer()->get('doctrine')->getManager();
         $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($this->dhisConnectionId);
@@ -82,74 +86,6 @@ EOT
         $resourceTableName = str_replace(' ','_',trim(strtolower( ResourceTable::getStandardResourceTableName())));
         $resourceTableAlias="ResourceTable";
 
-        //@todo create join clause to only go through orgunit with dhisUid
-
-        $fromClause=" FROM $resourceTableName $resourceTableAlias ";
-
-        $organisationunitLevelsWhereClause = " $resourceTableAlias.organisationunit_id=".$entity->getParentOrganisationunit()->getId()." ";
-
-        // Query for Options to exclude from reports
-        $fieldOptionsToSkip = $em->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
-        //filter the records with exclude report tag
-        foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
-            if(empty($fieldOptionsToSkipQuery)) {
-                $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-            }else {
-                $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-            }
-        }
-
-        // Dataelement field option relation
-        $dataelementFieldOptionRelation = $entity->getDataelementFieldOptionRelation();
-        foreach($dataelementFieldOptionRelation as $dataelementFieldOptionKey=>$dataelementFieldOptionValue) {
-            // Formulate Query for calculating field option
-            $columnFieldOptionGroup = $dataelementFieldOptionValue->getColumnFieldOptionGroup();
-            $rowFieldOptionGroup = $dataelementFieldOptionValue->getRowFieldOptionGroup();
-
-            $seriesFieldName=$rowFieldOptionGroup->getName();
-
-            //Column Query construction
-            $queryColumnNames[] = str_replace('-','_',str_replace(' ','',$columnFieldOptionGroup->getName()));
-            $categoryColumnFieldNames[] = $columnFieldOptionGroup->getField()->getName();
-            $categoryRowFieldName = $columnFieldOptionGroup->getField()->getName();
-            $columnWhereClause = NULL;
-
-            foreach($columnFieldOptionGroup->getFieldOption() as $columnFieldOptionKey=>$columnFieldOption) {
-                $operator = $columnFieldOptionGroup->getOperator();
-                if(empty($operator)) $operator = "OR";
-                $categoryColumnFieldOptionValue=str_replace('-','_',$columnFieldOption->getValue());
-                $categoryColumnFieldName=$columnFieldOption->getField()->getName();
-                $categoryColumnResourceTableName=$resourceTableAlias;
-                if(!empty($columnWhereClause)) {
-                    $columnWhereClause = $columnWhereClause." ".strtoupper($operator)." $categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
-                }else {
-                    $columnWhereClause = "$categoryColumnResourceTableName.$categoryColumnFieldName='".$categoryColumnFieldOptionValue."'";
-                }
-
-            }
-            $rowWhereClause = NULL;
-            foreach($rowFieldOptionGroup->getFieldOption() as $rowFieldOptionKey=>$rowFieldOption) {
-                $operator = $rowFieldOptionGroup->getOperator();
-                if(empty($operator)) $operator = "OR";
-                $categoryRowFieldOptionValue=str_replace('-','_',$rowFieldOption->getValue());
-                $categoryRowFieldName=$rowFieldOption->getField()->getName();
-                $categoryRowResourceTableName=$resourceTableAlias;
-                if(!empty($rowWhereClause)) {
-                    $rowWhereClause = $rowWhereClause." ".strtoupper($operator)." $categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
-                }else {
-                    $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
-                }
-            }
-
-            $selectQuery="SELECT COUNT(DISTINCT(instance)) $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" );
-            $instanceCount = $this->array_value_recursive('count',$this->getContainer()->get('doctrine')->getManager()->getConnection()->fetchAll($selectQuery));
-            $dhisUid=$entity->getParentOrganisationunit()->getDhisUid();
-            if(!empty($dhisUid) && ($instanceCount>0)) {
-                //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
-                file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$entity->getParentOrganisationunit()->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
-            }
-            unset($dhisUid);
-        }
 
         /*
          * Aggregate organisationunit for all the children
@@ -164,7 +100,6 @@ EOT
                             level.level >= :organisationunitLevel
                             AND organisationunitStructure.level'.$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel().'Organisationunit=:levelOrganisationunit
                         ) AND organisationunit.dhisUid is not null
-                        AND organisationunit.id!='.$entity->getParentOrganisationunit()->getId().'
                         AND organisationunit.id IN ( SELECT DISTINCT(recordOrganisationunit.id) FROM HrisRecordsBundle:Record record INNER JOIN record.organisationunit recordOrganisationunit )'
             )
             ->setParameters(array(
@@ -173,33 +108,38 @@ EOT
             ))
             ->getQuery()->getResult();
 
+        // Query for Options to exclude from reports
+        $fieldOptionsToSkip = $this->getContainer()->get('doctrine')->getManager()->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
+        //filter the records with exclude report tag
+        foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
+            if(empty($fieldOptionsToSkipQuery)) {
+                $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+            }else {
+                $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
+            }
+        }
+        $dataValueColumnName=NULL;
+        $selectQuery = NULL;
+        $organisationunitNames = NULL;
+        $incr=0;
+        $totalIncr=0;
+
+
+
+        $lastLap = $stopwatch->lap('syncing');
+        $lastLapDuration = round(($lastLap->getDuration()/1000),2);
+        $previousTotalLapTime = round(($lastLap->getDuration()/1000),2);
+
         foreach($allOrganisationunitsChildren as $organisationunitKey=>$organisationunit) {
+            $organisationunitNames .= $organisationunit->getLongname().', ';
+            $incr++;
             // Aggregate data for each orgunit in the current level.
             $em = $this->getContainer()->get('doctrine')->getManager();
             $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($this->dhisConnectionId);
-            /*
-             * Initializing query for dhis dataset calculation
-             */
-            // Get Standard Resource table name
-            $resourceTableName = str_replace(' ','_',trim(strtolower( ResourceTable::getStandardResourceTableName())));
-            $resourceTableAlias="ResourceTable";
-
-            //@todo create join clause to only go through orgunit with dhisUid
 
             $fromClause=" FROM $resourceTableName $resourceTableAlias ";
 
             $organisationunitLevelsWhereClause = " $resourceTableAlias.organisationunit_id=".$organisationunit->getId()." ";
-
-            // Query for Options to exclude from reports
-            $fieldOptionsToSkip = $this->getContainer()->get('doctrine')->getManager()->getRepository('HrisFormBundle:FieldOption')->findBy (array('skipInReport' =>True));
-            //filter the records with exclude report tag
-            foreach($fieldOptionsToSkip as $key => $fieldOptionToSkip){
-                if(empty($fieldOptionsToSkipQuery)) {
-                    $fieldOptionsToSkipQuery = "$resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-                }else {
-                    $fieldOptionsToSkipQuery .= " AND $resourceTableAlias.".$fieldOptionToSkip->getField()->getName()." !='".$fieldOptionToSkip->getValue()."'";
-                }
-            }
 
             // Dataelement field option relation
             $dataelementFieldOptionRelation = $entity->getDataelementFieldOptionRelation();
@@ -229,6 +169,7 @@ EOT
                     }
 
                 }
+                // Row Query construction
                 $rowWhereClause = NULL;
                 foreach($rowFieldOptionGroup->getFieldOption() as $rowFieldOptionKey=>$rowFieldOption) {
                     $operator = $rowFieldOptionGroup->getOperator();
@@ -242,43 +183,105 @@ EOT
                         $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
                     }
                 }
-
-                $selectQuery="SELECT COUNT(DISTINCT(instance)) $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" );
-                $instanceCount = $this->array_value_recursive('count',$this->getContainer()->get('doctrine')->getManager()->getConnection()->fetchAll($selectQuery));
-                //Only send non-zero data
-                if($instanceCount>0) {
-                    //$this->xmlContents = $this->xmlContents.'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
-                    file_put_contents($xmlFile,'<dataValue dataElement="'.$dataelementFieldOptionValue->getDataelementUid().'" period="'.date("Y").'" orgUnit="'.$organisationunit->getDhisUid().'" categoryOptionCombo="'.$dataelementFieldOptionValue->getCategoryComboUid().'" value="'.$instanceCount.'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />',FILE_APPEND);
-                    $logger->info('Inserted record for '.$dataelementFieldOptionValue->getDataelementname().' '.$dataelementFieldOptionValue->getCategoryComboname() .' '.$organisationunit->getLongname());
-                    //echo 'Inserted record for '.$dataelementFieldOptionValue->getDataelementname().' '.$dataelementFieldOptionValue->getCategoryComboname() .' '.$organisationunit->getLongname()."\n";
+                $dataValueColumnName=$organisationunit->getDhisUid().'--'.$dataelementFieldOptionValue->getDataelementUid().'--'.$dataelementFieldOptionValue->getCategoryComboUid();
+                if(!empty($selectQuery)) {
+                    $selectQuery.=" UNION ALL SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year>=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
+                }else {
+                    $selectQuery="SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year>=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
                 }
-
                 unset($dhisUid);
+                // Intercept after certain number of orgunits for fetching results
+                // So as not to exceed database max_stack_depth
+                if($incr>=$interval) {
+                    // Reset counter
+                    $totalIncr = $incr+ $totalIncr;
+                    $incr=0;
+                    // Process SQL Batch
+                    $sqlResult = $this->getContainer()->get('doctrine')->getManager()->getConnection()->fetchAll($selectQuery);
+                    foreach($sqlResult as $resultKey=>$resultRow) {
+                        $dataValueKeys = explode('--',$resultRow['datavaluelabel']);//dhisUid--dataelementUid--categoryComboUid
+                        $recordRow = '<dataValue orgUnit="'.$dataValueKeys[0].'" period="'.$year.'" dataElement="'.$dataValueKeys[1].'" categoryOptionCombo="'.$dataValueKeys[2].'" value="'.$resultRow['value'].'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+                        file_put_contents($xmlFile,$recordRow,FILE_APPEND);
+                    }
+                    $currentLap = $stopwatch->lap('syncing');
+                    $currentLapDuration = NULL;
+                    $currentLapDuration = round(($currentLap->getDuration()/1000),2) - $previousTotalLapTime;
+
+                    if( $currentLapDuration <60 ) {
+                        $durationMessage = round($currentLapDuration,2).' seconds';
+                    }elseif( $currentLapDuration >= 60 && $currentLapDuration < 3600 ) {
+                        $durationMessage = round(($currentLapDuration/60),2) .' minutes';
+                    }elseif( $currentLapDuration >=3600 && $currentLapDuration < 216000) {
+                        $durationMessage = round(($currentLapDuration/3600),2) .' hours';
+                    }else {
+                        $durationMessage = round(($currentLapDuration/86400),2) .' hours';
+                    }
+                    $lastLapDuration = NULL;
+                    $lastLapDuration = $currentLapDuration;
+
+                    $previousTotalLapTime = round(($currentLap->getDuration()/1000),2);
+
+
+                    $output->writeln('Fetched records for '.$totalIncr.' out of '.count($allOrganisationunitsChildren).' organisationunits in '.$durationMessage." ".count($sqlResult)." results found");
+                    //$output->writeln('Organisationunits parsed:'."\n".$organisationunitNames."\n");
+                    $selectQuery=NULL;
+                    $organisationunitNames = NULL;
+                }
             }
         }
+
+        // Process last remaining SQL Batch
+        $sqlResult = $this->getContainer()->get('doctrine')->getManager()->getConnection()->fetchAll($selectQuery);
+        foreach($sqlResult as $resultKey=>$resultRow) {
+            $dataValueKeys = explode('--',$resultRow['datavaluelabel']);//dhisUid--dataelementUid--categoryComboUid
+            $recordRow = '<dataValue orgUnit="'.$dataValueKeys[0].'" period="'.$year.'" dataElement="'.$dataValueKeys[1].'" categoryOptionCombo="'.$dataValueKeys[2].'" value="'.$resultRow['value'].'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
+            file_put_contents($xmlFile,$recordRow,FILE_APPEND);
+        }
+        $currentLap = $stopwatch->lap('syncing');
+        $currentLapDuration = NULL;
+        $currentLapDuration = round(($currentLap->getDuration()/1000),2) - $previousTotalLapTime;
+
+        if( $currentLapDuration <60 ) {
+            $durationMessage = round($currentLapDuration,2).' seconds';
+        }elseif( $currentLapDuration >= 60 && $currentLapDuration < 3600 ) {
+            $durationMessage = round(($currentLapDuration/60),2) .' minutes';
+        }elseif( $currentLapDuration >=3600 && $currentLapDuration < 216000) {
+            $durationMessage = round(($currentLapDuration/3600),2) .' hours';
+        }else {
+            $durationMessage = round(($currentLapDuration/86400),2) .' hours';
+        }
+        $lastLapDuration = NULL;
+        $lastLapDuration = $currentLapDuration;
+
+        $previousTotalLapTime = round(($currentLap->getDuration()/1000),2);
+
+
+        $output->writeln('Fetched records for '.$interval.' out of '.count($allOrganisationunitsChildren).' organisationunits in '.$durationMessage." ".count($sqlResult)." results found ");
+        //$output->writeln('Organisationunits parsed:'."\n".$organisationunitNames."\n");
+        $selectQuery=NULL;
+        $organisationunitNames = NULL;
 
         $this->xmlContents = $this->xmlContents.'</dataValueSet>';
         file_put_contents($xmlFile,'</dataValueSet>',FILE_APPEND);
 
+        /*
+         * Check Clock for time spent
+         */
+        $totalTime = $stopwatch->stop('syncing');
+        $duration = $totalTime->getDuration()/1000;
+        unset($stopwatch);
+        if( $duration <60 ) {
+            $durationMessage = round($duration,2).' seconds';
+        }elseif( $duration >= 60 && $duration < 3600 ) {
+            $durationMessage = round(($duration/60),2) .' minutes';
+        }elseif( $duration >=3600 && $duration < 216000) {
+            $durationMessage = round(($duration/3600),2) .' hours';
+        }else {
+            $durationMessage = round(($duration/86400),2) .' hours';
+        }
+        $output->writeln("Data Syncing completed in ". $durationMessage .".\n\n");
 
-        // Initializing export file
-        $outputFile =
-        $fileSystem = new Filesystem();
-        $exportFileName = "Export_".date("Y_m_d_His").".zip";
-        $exportArchive = new ZipArchive();
-        $exportArchive->open("/tmp/".$exportFileName,ZipArchive::CREATE);
-        $exportArchive->addFromString("Export_".date("Y_m_d_His").'xml',$this->xmlContents);
-        $exportArchive->close();
-        $fileSystem->chmod("/tmp/".$exportFileName,0666);
-        $response = new Response(file_get_contents("/tmp/".$exportFileName));
-        $d = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $exportFileName);
-        $response->headers->set('Content-Disposition', $d);
-
-        unlink("/tmp/".$exportFileName);
-
-        $result = $this->xmlContents;
-
-        $this->messageLog = "Sync aggregation operation is complete";
+        $this->messageLog = "Sync aggregation for ".$entity->getParentOrganisationunit()->getLongname()." operation is complete";
 
         $output->writeln($this->messageLog);
     }
