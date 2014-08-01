@@ -329,7 +329,8 @@ class RecordController extends Controller
         } catch(DBALException $exception) {
             $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('instance'=>$entity->getInstance()));
             $message.=" is existing for ".$entity->getOrganisationunit()->getLongname();
-            if(!empty($entity->getOrganisationunit()->getParent())) $message.= " in ".$entity->getOrganisationunit()->getParent()->getLongname()."!";
+            $parent = $entity->getOrganisationunit()->getParent();
+            if(!empty($parent)) $message.= " in ".$entity->getOrganisationunit()->getParent()->getLongname()."!";
             $message.=' <a href="'.$this->generateUrl('record_edit', array('id' => $record->getId(),'message'=>$message)).'">Click here to edit existing record</a>';
             $success='false';
         }
