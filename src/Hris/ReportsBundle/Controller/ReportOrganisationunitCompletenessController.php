@@ -965,6 +965,10 @@ class ReportOrganisationunitCompletenessController extends Controller
                     }else {
                         if(isset($dataValue[$valueKey])) $displayValue = $dataValue[$valueKey]; else $displayValue='';
                     }
+                    //Handle calculated fields
+                    if($visibleField->getIsCalculated() == True) {
+                        $displayValue = $this->calculateFieldExpression($dataValueInstance,$visibleField->getCalculatedExpression());
+                    }
                     $this->recordsToDisplay[$dataValueInstance->getInstance()][$visibleField->getUid()] = $displayValue;
                 }
                 $this->recordsToDisplay[$dataValueInstance->getInstance()]['form'] = $dataValueInstance->getForm()->getName();
@@ -994,6 +998,37 @@ class ReportOrganisationunitCompletenessController extends Controller
         $val = array();
         array_walk_recursive($arr, function($v, $k) use($key, &$val){if($k == $key) array_push($val, $v);});
         return count($val) > 1 ? $val : array_pop($val);
+    }
+
+    /**
+     * Deduce valaue of calculated field
+     *
+     * @param $record
+     * @param $fieldExpression
+     * @return mixed
+     */
+    public function calculateFieldExpression($record, $fieldExpression)
+    {
+        $fields = $record->getForm()->getSimpleField();
+        $match = NULL;
+        $valueKey=NULL;
+        $recordFieldKey = ucfirst(Record::getFieldKey());
+
+        if(preg_match_all('/\#{([^\}]+)\}/',$fieldExpression,$match)) {
+            foreach($fields as $fieldKey=>$field) {
+                if($field->getName()==$match[1][0]) {
+                    // Translates to $field->getUid()
+                    // or $field->getUid() depending on value of $recordKeyName
+                    $valueKey = call_user_func_array(array($field, "get${recordFieldKey}"),array());
+                }
+            }
+        }
+        $displayValue = $record->getValue($valueKey,'Y-m-d');
+        $datavalue = @@str_replace($match[0][0],$displayValue,$fieldExpression);
+
+        $calculatedExpression = eval("return $datavalue;");
+
+        return $calculatedExpression;
     }
 
     /**
