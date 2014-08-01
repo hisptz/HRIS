@@ -117,7 +117,7 @@
 
                 console.log(window.uniqueValuesString.replace(/&+$/,''));
                     window.recordUnique='';
-                    $.get( "{{ path('record_checkuniqueness', { '_format': 'json'}) }}"+'?'+window.uniqueValuesString.replace(/&+$/,''), function( data ) {
+                    $.get( "{{ path('record_checkuniqueness', { '_format': 'json' }) }}"+'?'+'formid='+'{{ formEntity.id }}&'+window.uniqueValuesString.replace(/&+$/,''), function( data ) {
                         window.recordUnique=data;
                     }).done(function(){
                         if( window.recordUnique==true ) {
@@ -166,10 +166,11 @@
 
 {% block message_alert %}
     {% if message %}
-        <div class="alert alert-success">
+
+        <div {% if success is defined and success==true %} class="alert alert-success" {% elseif success is defined and success==false %}  class="alert alert-danger" {% else %} class="alert alert alert-info" {% endif %}>
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <small class="visible-phone"><strong>Success!</strong> {{ message }}</small>
-            <small class="hidden-phone"><strong>Success!</strong> {{ message }}</small>
+            <small class="visible-phone"><strong>{% if success is defined and success==true %} Success! {% elseif success is defined and success==false %} Failure!  {% else %} Info! {% endif %}</strong> {{ message | raw }}</small>
+            <small class="hidden-phone"><strong>{% if success is defined and success==true %} Success! {% elseif success is defined and success==false %} Failure!  {% else %} Info! {% endif %}</strong> {{ message | raw }}</small>
         </div>
     {% endif %}
 {% endblock message_alert %}
