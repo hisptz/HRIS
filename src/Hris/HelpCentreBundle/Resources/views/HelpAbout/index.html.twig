@@ -44,6 +44,14 @@
             <td>{{ project }}</td>
         </tr>
         <tr>
+            <th>Copyright</th>
+            <td>{{ copyright }}</td>
+        </tr>
+        <tr>
+            <th>Client name</th>
+            <td>{{ client_name }}</td>
+        </tr>
+        <tr>
             <th>Current User</th>
             <td>{{ app.user }}</td>
         </tr>
@@ -57,7 +65,16 @@
         </tr>
         <tr>
             <th>User Agent</th>
-            <td>{{ useragent }}</td>
+            <td>
+                    <ul style="list-style:none;">
+                    {% for useragentrow in useragent %}
+                        <li class="well-small">
+                            <em>{{ loop.index }}.</em>
+                            <em>{{ useragentrow }} </em>
+                        </li>
+                    {% endfor %}
+                        </ul>
+            </td>
         </tr>
         <tr>
             <th>Server Date</th>
