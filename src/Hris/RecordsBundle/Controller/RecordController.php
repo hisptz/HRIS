@@ -359,6 +359,7 @@ class RecordController extends Controller
         $isEntryLevel = $user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getDataentrylevel();
         // Workaround to send message when user is redirected from one data entry page to another.
         $message = $this->getRequest()->get('message');
+        $success = $this->getRequest()->get('success');
         $organisationunitLevels = $this->getDoctrine()->getManager()->createQueryBuilder()
                     ->select('organisationunitLevel')
                     ->from('HrisOrganisationunitBundle:organisationunitLevel','organisationunitLevel')
@@ -371,7 +372,7 @@ class RecordController extends Controller
         return array(
             'formEntity' => $formEntity,
             'message'=>$message,
-            'success'=>NULL,
+            'success'=>$success,
             'isEntryLevel'=>$isEntryLevel,
             'user'=>$user,
             'message'=>$message,
