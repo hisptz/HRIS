@@ -58,25 +58,26 @@ class TrainingController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if(!empty($recordid)){
-            $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
-            $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
+           // $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
+           // $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
         }
 
-        $delete_forms = array();
-        foreach($entities as $entity) {
-            $delete_form= $this->createDeleteForm($entity->getId());
-            $delete_forms[$entity->getId()] = $delete_form->createView();
-        }
-        //print_r($record->getValue());exit;
+//        $delete_forms = array();
+//        foreach($entities as $entity) {
+//            $delete_form= $this->createDeleteForm($entity->getId());
+//            $delete_forms[$entity->getId()] = $delete_form->createView();
+//        }
+//
 
         return array(
-            'entities' => $entities,
-            'delete_forms' => $delete_forms,
+            'entities' => "",
+            'delete_forms' => "",
             'recordid' => $recordid,
-            'record' => $record,
+            'record' => "",
             'employeeName' => $this->getEmployeeName($recordid),
         );
     }
+
     /**
      * Creates a new Training entity.
      *
@@ -119,6 +120,57 @@ class TrainingController extends Controller
             'employeeName' => $this->getEmployeeName($recordid),
         );
     }
+
+
+
+    /**
+     * Returns Fields json.
+     *
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_GENERATE")
+     * @Route("/districtFormFields.{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="districts_formfields")
+     * @Method("POST")
+     * @Template()
+     */
+
+    public function RequestDropAction(Request $request,$_format)
+    {
+        $id = $request->request->get("id");
+        $em = $this->getDoctrine()->getManager();
+        $districts = $em -> getConnection() -> executeQuery('SELECT longname,id FROM hris_organisationunit WHERE hris_organisationunit.parent_id='.$id) -> fetchAll();
+
+        $serializer = $this->container->get('serializer');
+
+        return array(
+            'districts' => $serializer->serialize($districts,$_format)
+        );
+    }
+
+      /**
+     * Returns Fields json.
+     *
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_GENERATE")
+     * @Route("/trainingFormFields.{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="training_formfields")
+     * @Method("POST")
+     * @Template()
+     */
+
+    public function RequestDropTrainingAction(Request $request,$_format)
+    {
+        $id = $request->request->get("id");
+        $em = $this->getDoctrine()->getManager();
+        $districts = $em -> getConnection() -> executeQuery('SELECT T.coursename,I.district,I.startdate FROM hris_traininginstance I inner join hris_trainings T on T.id = I.training_id WHERE I.district ='.$id) -> fetchAll();
+
+        $serializer = $this->container->get('serializer');
+
+        return array(
+            'trainings' => $serializer->serialize($districts,$_format)
+        );
+    }
+
+
+
 
     /**
      * Displays a form to create a new Training entity.

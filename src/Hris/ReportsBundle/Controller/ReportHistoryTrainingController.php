@@ -97,7 +97,7 @@ class ReportHistoryTrainingController extends Controller
 
         $results = $this->aggregationEngine($organisationUnit, $forms, $fields, $reportType, $withLowerLevels);
 
-        //print_r($results);exit;
+
 
         //Get the Id for the form
         $formsId = $forms->getId();

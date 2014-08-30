@@ -1,0 +1,37 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+
+{% block right_content -%}
+    <script>
+
+    </script>
+<div class="container">
+    <h1><small>Human Resource Training</small></h1>
+
+    <div class="span12 forms">
+        <div class="row">
+            <div class="span12">
+                {#{{ include('HrisTrainingBundle:Training:new.html.twig', {'form': form}) }}#}
+                {{ include('HrisTrainingBundle:Training:show.html.twig')}}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    </div>
+</div>
+
+    {% endblock %}

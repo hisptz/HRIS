@@ -1,0 +1,146 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/hrisrecords/js/dataentry.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('.records_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+
+{% block right_content -%}
+    {% set queryParams = app.request.query.all %}
+
+    <div class="container">
+        <h2><small>{{ title }}</small></h2>
+        <ul class="record_actions inline">
+
+            {% if queryParams['instance_id'] is defined %}
+
+                <li>
+                    <a  href="{{ path("trainingsession") }}" class="btn btn-default " class="icon-left-arrow">&nbsp;Back</a>
+
+                </li> <li>
+                <a  href="{{ path("add_options",{'instance_id':queryParams['instance_id']} ) }}" class="btn btn-default" class="icon-left-arrow">&nbsp;Add</a>
+
+            </li>
+
+            {% endif %}
+        </ul>
+
+
+
+        <table class="records_list dataTable table table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>Sn.</th>
+                {% for visibleField in visibleFields %}
+                    {% if visibleField.caption in {'f':'First Name','m':'Middle Name','s':'Surname','a':'Age','p':'Profession','pe':'Profession Education Level'} %}
+                        <th>{{ visibleField.caption }}</th>
+                    {% endif %}
+
+                {% endfor %}
+                <th>Last updated</th>
+                <th>Duty Post</th>
+                <th>Action</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% set incr=0 %}
+            {% for record in records %}
+                {% set incr = incr+1 %}
+                {% if record.id in record_ids %}
+                    <tr id = {{ record.uid }}>
+                        <td>{{ incr }}</td>
+                        {% for visibleField in visibleFields %}
+                            {% if visibleField.caption in {'f':'First Name','m':'Middle Name','s':'Surname','a':'Age','p':'Profession','pe':'Profession Education Level'} %}
+
+                                {% if visibleField.getIsCalculated %}
+                                    <td>{{ record | calculateFieldExpression(visibleField.getCalculatedExpression,formFields) }}</td>
+                                {% else %}
+                                    {% if visibleField.getInputType == 'Select' %}
+                                        <td>
+                                            {% if record.getValue( visibleField.uid ) in optionMap | keys %}
+                                                {{ optionMap[ record.getValue( visibleField.uid ) ] }}
+                                            {% else %}
+
+                                            {% endif %}
+                                        </td>
+                                    {% elseif visibleField.getInputType == 'Date' %}
+                                        <td>{{ record.getValue( visibleField.uid ) | date('d/m/Y') }}</td>
+                                    {% else %}
+                                        <td>{{ record.getValue( visibleField.uid ) }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <td>{{ record.lastupdated| date('d/m/Y') }}</td>
+                        <td>{{ record.organisationunit.longname }}</td>
+                        <td><a href="{{ path("instanceParticipantdelete",{'id':record.id,'instance_id':queryParams['instance_id']}) }}" title="remove participant"><i class="icon-remove icon-large"></i></a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="showPopupModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Update Record Form</h4>
+                </div>
+                <div class="modal-body">
+
+                    <select id="content_field" ondblclick="$('#showPopupModal').modal('hide')" name="content" size="10" style="width: 100%; height: 90%; font-family: 'Courier New',Courier,mono; font-size: 12px;" dir="ltr" wrap="soft">
+                        {% for form in userForms %}
+
+                            <option value="{{ form.id }}">{{ form.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <form action="" method="post">
+                        <input type="hidden" class="btn btn-danger" name="_method" value="DELETE"/>
+                        <input type="hidden" value="" id="selectedField"/>
+                        <button type="button" class="btn btn-success" onclick="$('#showPopupModal').modal('hide')">Move Record</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </form>
+
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+{% endblock %}

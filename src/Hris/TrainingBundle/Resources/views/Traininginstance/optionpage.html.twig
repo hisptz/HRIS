@@ -1,0 +1,114 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/training.js') }}"></script>
+    <script type="text/javascript">
+        var fieldoptions =  JSON.stringify('{{ fieldoption }}');
+    </script>
+
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+    {% set queryParams = app.request.query.all %}
+    {% if queryParams['instance_id'] is defined %}
+        {% set instance_id = queryParams['instance_id'] %}
+    {% endif %}
+
+        <div class="span12 parent_container" id="{{ instance_id }}">
+        <div class="span12">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="tabableOption" role="tablist">
+                <li class="active"><a href="#participants" id="add_participants" role="tab" data-toggle="tab">Add Participants</a></li>
+                <li><a href="#trainers" role="tab" id="add_trainers" data-toggle="tab">Add Trainers</a></li>
+                <li><a href="#facilitators" role="tab" id="add_facilitators" data-toggle="tab">Add Facilitators</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content span12" style="">
+                <div class="tab-pane active buttons_grouped" id="participants">
+                    </br>
+                    <div class="span12">
+                        <div class="span12">
+                            <div class="btn-group ">
+                                <a class="btn btn-sm btn-default" id="participants_public_employee">Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="participants_private_employee">Private Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="participants_referal_employee">Referral Hospital Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="participants_instituion_employee">Training Institution Employee Form</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="span12">
+                        <div class="span12 add_participants">
+                            <h3>Add participants from Public employee form</h3>
+                            <div id="table_pane"></div>
+                        </div>
+                        <div class="span12">
+                            <a class="btn btn-sm btn-default users_submit_button span4" >add participants from public employee</a>
+                            <a class="btn btn-sm btn-default span4" href="{{ path('trainingsession') }}">back to training session</a>
+                            <a class="loadImages span4"></a>
+                        </div>
+                    </div>
+                    <div class="span12">
+
+                    </div>
+                </div>
+
+
+                <div class="tab-pane" id="trainers">
+                    </br>
+
+                    <div class="span12">
+                        <div class="span12 add_trainers">
+
+                        </div>
+                        <div class="span12">
+                            <a class="btn btn-sm btn-default users_submit_button span4">add trainers</a>
+                            <a class="btn btn-sm btn-default span4" href="{{ path('trainingsession') }}">back to training session</a>
+                            <a class="loadImages span4"></a>
+                        </div>
+                    </div>
+                    <div class="span12">
+
+                    </div>
+                </div>
+
+
+                <div class="tab-pane buttons_grouped" id="facilitators">
+                    </br>
+                    <div class="span12">
+                        <div class="span12">
+                            <div class="btn-group ">
+                                <a class="btn btn-sm btn-default" id="facilitators_public_employee">Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="facilitators_private_employee">Private Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="facilitators_referal_employee">Referral Hospital Employee Form</a>
+                                <a class="btn btn-sm btn-default" id="facilitators_instituion_employee">Training Institution Employee Form</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="span12">
+                        <div class="span12 add_facilitators">
+
+                        </div>
+                        <div class="span12">
+                            <a class="btn btn-sm btn-default users_submit_button span4">add facilitators from public employee</a>
+                            <a class="btn btn-sm btn-default span4" href="{{ path('trainingsession') }}">back to training session</a>
+                            <a class="loadImages span4"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+

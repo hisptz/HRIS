@@ -1,0 +1,87 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.participants').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>participants Lists</h3></h1></div><div class="span5"><a  href="{{ path("participants_new") }}" class="btn btn-info btn-small">add participant</a></div></div>
+    <div class="span12">
+        <table class="table participants table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+            <th rowspan="2">#</th>
+            <th colspan="3">Participants Name</th>
+            <th rowspan="2">Current Job Responsibilty</th>
+            <th rowspan="2">Current Job Title</th>
+            <th rowspan="2">Qualification And Employement</th>
+            <th colspan="3">Location</th>
+            <th rowspan="2">Action</th>
+            </tr>
+            <tr>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+                <th>Region</th>
+                <th>District</th>
+                <th>Facility</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% set incr=0 %}
+            {% for participant in participants %}
+                {% set incr = incr+1 %}
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ participant.firstname}}  </td>
+                    <td>{{ participant.middlename}}  </td>
+                    <td>{{ participant.lastname}}  </td>
+                    <td>{{ participant.currentJobResponsibility }}</td>
+                    <td>{{ participant.currentJobTitle }}</td>
+                    <td>{{ participant.qualificationAndEmployement }}</td>
+                    <td>{{ participant.region }}</td>
+                    <td>{{ participant.district }}</td>
+                    <td></td>
+                    <td><span class="btn-group"><a href="{{ path("newInstance",{'id':participant.id,'active':1} ) }}" class="btn btn-mini btn-success"><i class="icon-edit"></i>&nbsp;Add Event</a><a href="{{ path("participants_edit",{'id':participant.id,'active':1} ) }}" class="btn btn-mini btn-warning"><i class="icon-edit"></i>&nbsp;Edit</a></span></td>
+
+
+                </tr>
+
+            {% endfor %}
+
+
+
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

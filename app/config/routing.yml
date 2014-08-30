@@ -1,3 +1,7 @@
+hris_training:
+    resource: "@HrisTrainingBundle/Resources/config/routing.yml"
+    prefix:   /
+
 hris_intergration:
     resource: "@HrisIntergrationBundle/Controller/"
     type:     annotation

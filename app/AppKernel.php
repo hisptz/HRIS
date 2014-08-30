@@ -23,7 +23,7 @@ class AppKernel extends Kernel
             new JMS\DiExtraBundle\JMSDiExtraBundle($this),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Knp\Bundle\MenuBundle\KnpMenuBundle(),
-        	new FOS\UserBundle\FOSUserBundle(),
+            new FOS\UserBundle\FOSUserBundle(),
             new FOS\MessageBundle\FOSMessageBundle(),
             //new Bc\Bundle\BootstrapBundle\BcBootstrapBundle(),
             new Braincrafted\Bundle\BootstrapBundle\BraincraftedBootstrapBundle(),
@@ -38,10 +38,11 @@ class AppKernel extends Kernel
             new Hris\IndicatorBundle\HrisIndicatorBundle(),
             new Hris\ReportsBundle\HrisReportsBundle(),
             new Hris\ImportExportBundle\HrisImportExportBundle(),
-        	new Stfalcon\Bundle\TinymceBundle\StfalconTinymceBundle(),
+            new Stfalcon\Bundle\TinymceBundle\StfalconTinymceBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new Hris\HelpCentreBundle\HrisHelpCentreBundle(),
             new Hris\IntergrationBundle\HrisIntergrationBundle(),
+            new Hris\TrainingBundle\HrisTrainingBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

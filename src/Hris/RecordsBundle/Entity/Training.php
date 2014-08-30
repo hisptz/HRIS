@@ -131,6 +131,29 @@ class Training
      */
     private $lastupdated;
 
+    /**
+     * @var string $region
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="region", type="string", length=255)
+     */
+//    private $region;
+//    /**
+//     * @var string $district
+//     *
+//     * @Gedmo\Versioned
+//     * @ORM\Column(name="district", type="string", length=255)
+//     */
+//    private $district;
+//
+///**
+//     * @var string $training
+//     *
+//     * @Gedmo\Versioned
+//     * @ORM\Column(name="training", type="string", length=255)
+//     */
+//    private $training;
+
 
     /**
      * Constructor
@@ -391,4 +414,73 @@ class Training
         $trainingDetail = 'Record:'.$this->getRecord()->__toString().' Course location:'.$this->getCourselocation()->__toString().' Course name:'.$this->getCoursename();
         return $trainingDetail;
     }
+
+//    /**
+//     * Set region
+//     *
+//     * @param string $region
+//     * @return Training
+//     */
+//    public function setRegion($region)
+//    {
+//        $this->region = $region;
+//
+//        return $this;
+//    }
+//
+//    /**
+//     * Get region
+//     *
+//     * @return string
+//     */
+//    public function getRegion()
+//    {
+//        return $this->region;
+//    }
+//
+//    /**
+//     * Set district
+//     *
+//     * @param string $district
+//     * @return Training
+//     */
+//    public function setDistrict($district)
+//    {
+//        $this->district = $district;
+//
+//        return $this;
+//    }
+//
+//    /**
+//     * Get district
+//     *
+//     * @return string
+//     */
+//    public function getDistrict()
+//    {
+//        return $this->district;
+//    }
+//
+//    /**
+//     * Set training
+//     *
+//     * @param string $training
+//     * @return Training
+//     */
+//    public function setTraining($training)
+//    {
+//        $this->training = $training;
+//
+//        return $this;
+//    }
+//
+//    /**
+//     * Get training
+//     *
+//     * @return string
+//     */
+//    public function getTraining()
+//    {
+//        return $this->training;
+//    }
 }

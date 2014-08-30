@@ -1,0 +1,9 @@
+parameters:
+#    hris_training.example.class: Hris\TrainingBundle\Example
+
+services:
+    hris_training.configure_menu_listener:
+                    class: Hris\TrainingBundle\EventListener\ConfigureMenuListener
+                    tags:
+                        - { name: kernel.event_listener, event: hris_training.menu_configure, method: onMenuConfigure }
+

@@ -1,0 +1,112 @@
+{% extends '::base.html.twig' %}
+
+{% block right_content -%}
+
+{% block javascripts %}
+    {{ parent() }}
+<script type="text/javascript" language="javascript" src="{{ asset('commons/js/ext-all.js') }}"></script>
+<script type="text/javascript" language="javascript" src="{{ asset('commons/js/jquery.validate.js') }}"></script>
+<script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('select#hris_trainingbundle_traininginstance_region').change(function() {
+
+            var fieldOptionUrl = '{{ path('district_formfields', {'_format':'json'}) }}';
+
+            $.ajax({
+                method:'POST',
+                url: fieldOptionUrl,
+                data:'id='+this.value,
+                success: (function(data) {
+                    var select ="<label class='control-label required' for='hris_trainingbundle_traininginstance_district'>District</label>";
+                    select += "<select id='hris_trainingbundle_traininginstance_district' name='hris_trainingbundle_traininginstance[district]'>";
+                    jQuery.each(data, function(index, value) {
+                        select+="<option value='"+value['longname']+"'>"+value['longname']+"</option>";
+                    });
+                    select+="</select>"
+
+                    $('#hris_trainingbundle_traininginstance_district').parent().html(select);
+                })
+            });
+            var venueOptionUrl = '{{ path('venue_formfields', {'_format':'json'}) }}';
+
+            $.ajax({
+                method:'POST',
+                url:venueOptionUrl,
+                data:'id='+this.value,
+                success: (function(data) {
+
+                    var select ="<label class='control-label required' for='hris_trainingbundle_traininginstance_venue'>Venue</label>";
+                    select += "<select id='hris_trainingbundle_traininginstance_venue' name='hris_trainingbundle_traininginstance[venue]'>";
+                    jQuery.each(data, function(index, value) {
+                        select+="<option value='"+value['venuename']+"'>"+value['venuename']+"</option>";
+                    });
+                    select+="</select>"
+
+                    $('#hris_trainingbundle_traininginstance_venue').parent().html(select);
+                })
+            });
+        });
+
+        $( ".date" ).datepicker( {
+            changeMonth: true,
+            changeYear: true,
+            showOn: "both",
+            buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+            buttonImageOnly: true,
+            dateFormat: "dd/mm/yy",
+            showAnim: "clip",
+            yearRange:'c-60:c+60',
+            onClose: function( selectedDate ) {
+                $( ".enddate" ).datepicker( "option", "minDate", selectedDate );
+            }
+        });
+        $( ".enddate" ).datepicker( {
+            changeMonth: true,
+            changeYear: true,
+            showOn: "both",
+            buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+            buttonImageOnly: true,
+            dateFormat: "dd/mm/yy",
+            showAnim: "clip",
+            yearRange:'c-60:c+60',
+            onClose: function( selectedDate ) {
+                $( ".date" ).datepicker( "option", "maxDate", selectedDate );
+            }
+        });
+
+    });
+
+
+
+
+
+</script>
+
+    {% endblock javascripts %}
+
+    {% block stylesheets %}
+        {{ parent() }}
+        <link rel="stylesheet" type="text/css" media="all" href="{{ asset('commons/css/ext-standard.css') }}">
+        <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
+        <link rel="stylesheet" href="{{ asset('commons/css/jquery-ui.css') }}" />
+    {% endblock stylesheets %}
+
+    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Adding Training Session </h3></h1></div></div>
+
+    <form action="{{ path('trainingsession_create')}}" method="post" {{ form_enctype(form) }}>
+        {{ form_widget(form) }}
+        <br/>
+        <ul class="trainig_actions inline" style="float:left;">
+            <li>
+                <button type="submit" class="btn">Register</button>
+            </li>
+            <li>
+                <a href="{{ path('trainingsession') }}" class="btn">
+                    Back to the list
+                </a>
+            </li>
+        </ul>
+    </form>
+
+{% endblock %}

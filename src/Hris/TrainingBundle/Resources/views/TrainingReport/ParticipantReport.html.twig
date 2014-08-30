@@ -1,0 +1,87 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.trainingreport_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+
+
+{% block right_content -%}
+
+    <div class="container">
+        <h1><small> {{ title }} </small></h1>
+    </div>
+
+    <div id="table_placeholder_historytraining" style="min-width: 400px; height: 400px; margin: 0 auto">
+        <table  class="table trainingreport_list table-striped table-bordered table-hover">
+
+            <thead>
+            <tr>
+                <th rowspan="2">#</th>
+                <th rowspan="2">Course Name</th>
+                <th colspan="3">Location</th>
+                <th rowspan="2">Start Date</th>
+                <th rowspan="2">End Date</th>
+
+            </tr>
+            <tr>
+                <th>Region</th>
+                <th>District</th>
+                <th>Facility</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for data in result2  %}
+                <tr>
+                    <td></td>
+                    <td>{{ data['coursename'] }}</td>
+                    <td>{{ data['region'] }}</td>
+                    <td>{{ data['district'] }}</td>
+                    <td>{{ data['facility'] }}</td>
+                    <td>{{ data['startdate']|date("m/d/Y") }}</td>
+                    <td>{{ data['enddate']|date("m/d/Y") }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+    {#<div style="text-align: right">#}
+        {#<a class="btn" href="{{ path('report_trainingreport_download', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels }) }}">#}
+            {#Export Statistics to Excel#}
+        {#</a>#}
+        {#<a class="btn" href="{{ path('report_trainingreports_download_records', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups}) }}">#}
+            {#Export Records By Cadre#}
+        {#</a>#}
+    {#</div>#}
+{% endblock %}
+{#report_training_download#}

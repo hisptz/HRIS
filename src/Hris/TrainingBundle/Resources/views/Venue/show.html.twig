@@ -1,0 +1,137 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.venues').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[-1], ["All"]]
+            } );
+
+
+            //submit each form in a row
+            $(".is_trainer").hide();
+            $("table.venues tbody tr").each(function(){
+
+                $(this).find("td span button").click(function(){
+                    var btn = $(this);
+                    var trainer_id = $(this).parent().parent().find("input.trainer_id").val();
+                    var instance_id = $(this).parent().parent().find("input.instance_id").val();
+                    var url = "{{ path('trainer_add_to_event') }}";
+                    $.ajax({
+                        type:"POST",
+                        url:url,
+                        data: {"trainer_id":trainer_id,"instance_id":instance_id}
+                    }).done(function (data) {
+
+                           btn.hide();
+                           btn.parent().parent().find(".is_trainer").show();
+
+                    }).fail(function (jqXHR, textStatus) {
+
+                    });
+                });
+            });
+
+
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+    {% set queryParams = app.request.query.all %}
+    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Venues Lists</h3></h1></div><div class="span5">
+    {% if queryParams['instance_id'] is defined %}
+        {% if queryParams['status'] is defined and queryParams['status'] != "view_owned" %}
+                <a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>
+            {% else %}
+                <a  href="{{ path("venues",{'instance_id':queryParams['instance_id'],'status':'all'}) }}" class="btn btn-default">add to the list</a>
+                <a  href="{{ path("record_form_list_instanceRecord",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>
+        {% endif %}
+     {% else %}
+                <a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>
+    {% endif %}
+
+</div>
+    </div>
+    <div class="span12">
+    <table class="table venues table-striped table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>#</th>
+        <th>venues Name</th>
+        <th>Region</th>
+        <th>District</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+<?php $count = 0 ?>
+{% set incr=0 %}
+{% for venue in venues %}
+    {% set incr = incr+1 %}
+
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ venue.venueName}}  </td>
+                    <td>{{ venue.region }}</td>
+                    <td>{{ venue.district }}</td>
+                    <td>
+                            <span class="btn-group"><a href="{{ path("venues_edit",{'id':venue.id,'active':1} ) }}" ><i class="icon-edit icon-large"></i>&nbsp;Edit</a></span>
+                        <a data-toggle="modal" href="#deleteModalFor{{ venue.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>
+                        <div class="modal fade" id="deleteModalFor{{ venue.uid }}">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ venue.venuename | capitalize }}</h4>
+                                    </div>
+                                    <div class="modal-body" >
+                                        Are you sure you want to delete <strong>{{ venue.venuename | capitalize }}</strong> that was created on {{ venue.datecreated|date('d/m/Y') }}
+                                        {% if venue.lastUpdated %}
+                                            and last updated on {{ venue.lastUpdated|date('H:i:s d/m/Y') }} ??
+                                        {% else %}
+                                            and never updated ??
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path('venues_delete', { 'id': venue.id }) }}" method="post">
+                                            <input type="hidden" name="_method" value="DELETE" />
+                                            {{ form_widget(delete_forms[venue.id] ) }}
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                    </span>
+                    </td>
+
+                </tr>
+
+        {% endfor %}
+    </tbody>
+    </table>
+    </div>
+
+{% endblock %}

@@ -323,7 +323,9 @@ class ReportAggregationController extends Controller
 
         //get the records
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+       // $report = json_encode($report);
         return $report;
+
     }
 
     /**

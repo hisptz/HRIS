@@ -28,36 +28,46 @@ namespace Hris\RecordsBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-
+use Doctrine\ORM\EntityRepository;
 class TrainingType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('coursename')
-            ->add('courselocation')
-            ->add('sponsor', 'choice', array(
-                'empty_value' => '--SELECT--',
-                'choices' => array(
-                    'Development Partner' => 'Development Partner',
-                    'Employer' => 'Employer',
-                    'MOHSW' => 'Ministry of Health and Social Welfare',
-                    'Self Sponsored' => 'Self Sponsored',
-                    'Other' => 'Other',
-                ),
-            ))
-            ->add('startdate','date',array(
-                'required'=>true,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'attr' => array('class' => 'date')
-            ))
-            ->add('enddate','date',array(
-                'required'=>true,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'attr' => array('class' => 'date')
-            ))
+        ->add('region', 'entity', array(
+            'class' => 'Hris\OrganisationunitBundle\Entity\Organisationunit',
+            'query_builder' => function(EntityRepository $repo){
+                    return $repo->createQueryBuilder('q')
+                        ->where('q.parent = :parent')
+                        ->setParameter('parent',1161);
+
+                }))
+            ->add('district')
+            ->add('training');
+//            ->add('coursename')
+//            ->add('courselocation')
+//            ->add('sponsor', 'choice', array(
+//                'empty_value' => '--SELECT--',
+//                'choices' => array(
+//                    'Development Partner' => 'Development Partner',
+//                    'Employer' => 'Employer',
+//                    'MOHSW' => 'Ministry of Health and Social Welfare',
+//                    'Self Sponsored' => 'Self Sponsored',
+//                    'Other' => 'Other',
+//                ),
+//            ))
+//            ->add('startdate','date',array(
+//                'required'=>true,
+//                'widget' => 'single_text',
+//                'format' => 'dd/MM/yyyy',
+//                'attr' => array('class' => 'date')
+//            ))
+//            ->add('enddate','date',array(
+//                'required'=>true,
+//                'widget' => 'single_text',
+//                'format' => 'dd/MM/yyyy',
+//                'attr' => array('class' => 'date')
+//            ))
             //->add('startdate', 'date', array('input' => 'datetime', 'widget' => 'single_text',) )
             //->add('enddate', 'date', array('input' => 'datetime', 'widget' => 'single_text',) )
         ;

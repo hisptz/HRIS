@@ -17,11 +17,39 @@
     {% if message %}
         {# Return messages should be displaed here!!#}
     {% else %}
+        {% set queryParams = app.request.query.all %}
         <div class="container">
             {% if channel=='dataentry' %}
                 <h1><small>Data Entry Forms</small></h1>
+            {% elseif channel=='traininginstance' %}
+                <h1><small>Training Instance</small></h1>
             {% elseif channel=='updaterecords' %}
                 <h1><small>View Records</small></h1>
+            {% elseif channel=='facilitatorInstanceRecord' %}
+                <h1><small>Form Lists for Training Internal Facilitators</small></h1>
+            {% elseif channel=='participantsInstanceRecord' %}
+                <h1><small>Form Lists for Training Participants</small></h1>
+            {% elseif channel=='instanceRecord' %}
+            {% if queryParams['partic_for_view'] is defined %}
+                <h1><small>Add Participants</small></h1>
+                <a class="btn btn-default" href="{{ path("record_viewparticipants",{'instance_id':queryParams['instance_id']} ) }}" title="back to list">back</a>
+                </br>
+                </br>
+                {% elseif queryParams['facilitator'] is defined %}
+                    <h1><small>Facilitators(Internal) To the Training Instance</small></h1>
+                    <a class="btn btn-default" href="{{ path('record_viewfacilitators',{'instance_id':queryParams['instance_id']} ) }}" title="back to list">back</a>
+                    </br>
+                    </br>
+            {% else %}
+                    <h1><small>Add Participants, Trainers(External) and Facilitators(Internal) To the Training Instance</small></h1>
+
+                    <span class=" btn-group">
+                        <a class="btn btn-mini btn-default" href="{{ path('trainers',{'instance_id':queryParams['instance_id'],'status':'all'}) }}" title="Add External Facilitators/ Trainers"><i class="icon-add"></i>&nbsp;Add External Trainers</a>
+                        <a class="btn btn-mini btn-default" href="{{ path("trainingevent") }}" class="btn btn-default" class="icon-left-arrow">&nbsp;Back</a>
+                    </span>
+                        </br></br><span style="color:#ccc;">Select forms to add facilitator and participants</span>
+                    </br></br>
+                {% endif %}
             {% endif %}
 
             <table class="records_list dataTable table table-striped table-bordered table-hover">
@@ -32,12 +60,28 @@
                     </tr>
                 </thead>
                 <tbody  id="reload">
+
                 {% for entity in entities %}
                     <tr>
                         {% if channel=="dataentry" %}
                             <td><a href="{{ path('record_new', { 'id': entity.id }) }}">{{ entity.title }}</a></td>
-                        {% else %}
+
+                        {% elseif channel=='traininginstance' %}
+                            <td><a href="{{ path('record_viewinstance', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='instanceRecord' %}
+                                {% if queryParams['partic_for_view'] is defined %}
+                                    <td><a href="{{ path('record_viewinstance', { 'formid': entity.id,'instance_id':queryParams['instance_id'],'id':'partic_for_view'    }) }}">{{ entity.title }}</a></td>
+                                {% elseif queryParams['facilitator'] is defined %}
+                                    <td><a href="{{ path('record_viewinstance', { 'formid': entity.id,'instance_id':queryParams['instance_id'],'id':'facilitator'    }) }}">{{ entity.title }}</a></td>
+                                {% else %}
+                                    <td><a href="{{ path('record_viewinstance', { 'formid': entity.id,'instance_id':queryParams['instance_id']}) }}">{{ entity.title }}</a></td>
+                                {% endif %}
+                        {% elseif channel=='updaterecords' %}
                         <td><a href="{{ path('record_viewrecords', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='facilitatorInstanceRecord' %}
+                        <td><a href="{{ path('record_viewfacilitators', { 'formid': entity.id,'instance_id':queryParams['instance_id'],'id':'facilitators'  }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='participantsInstanceRecord' %}
+                        <td><a href="{{ path('record_viewparticipants', { 'instance_id':queryParams['instance_id']}) }}">{{ entity.title }}</a></td>
                         {% endif %}
                         <td>
                         <ul class="inline">
@@ -48,6 +92,27 @@
                             {% elseif channel=='updaterecords' %}
                                 <li>
                                     <a href="{{ path('record_viewrecords', { 'formid': entity.id }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
+                                </li>
+
+                            {% elseif channel=='traininginstance' %}
+                                <li>
+                                    <a href="{{ path('record_viewinstance', { 'formid': entity.id }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
+                                </li>
+                             {% elseif channel=='participantsInstanceRecord' %}
+                                <li>
+                                    <a href="{{ path('record_viewparticipants', { 'instance_id':queryParams['instance_id'],'id':'partic_for_view'  }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
+                                </li>
+                           {% elseif channel=='facilitatorInstanceRecord' %}
+                                     <li>
+                                    <a href="{{ path('record_viewfacilitators', { 'formid': entity.id,'instance_id':queryParams['instance_id'],'id':'facilitators'  }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
+                                </li>
+                            {% elseif channel=='instanceRecord' %}
+                                <li>
+
+                                        <a href="{{ path('record_viewinstance', { 'formid': entity.id,'instance_id':queryParams['instance_id']  }) }}">
+                                            <i class="icon-folder-open icon-large" title="Show"></i>
+                                        </a>
+
                                 </li>
                             {% endif %}
                         </ul>

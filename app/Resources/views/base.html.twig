@@ -8,6 +8,7 @@
             <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
             <link rel="stylesheet" href="{{ asset('css/bootstrap.icon-large.min.css') }}" />
             <link rel="stylesheet" href="{{ asset('commons/css/style.css') }}" />
+            <link rel="stylesheet" href="{{ asset('font-awesome/css/font-awesome.css') }}" />
             <style type="text/css">
                 #logo {
                     background: url("{{ asset('commons/images/coat_of_arms_of_Tz.svg') }}");
@@ -23,6 +24,7 @@
         {% endblock favicon %}
     </head>
     <body>
+    <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
         {% block body %}
             <div id="wrap">
                 {% block navigation_bar %}
@@ -131,6 +133,7 @@
             </script>
             <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
             <script type="text/javascript" src="{{ asset('js/bootstrap.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('js/jquery.form.js') }}"></script>
 
         {% endblock %}
     </body>

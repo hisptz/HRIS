@@ -61,7 +61,6 @@ class ReportController extends Controller
             $delete_form= $this->createDeleteForm($entity->getId());
             $delete_forms[$entity->getId()] = $delete_form->createView();
         }
-
         return array(
             'entities' => $entities,
             'delete_forms' => $delete_forms,
@@ -131,9 +130,7 @@ class ReportController extends Controller
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Report entity.');
         }
-
         $deleteForm = $this->createDeleteForm($id);
-
         return array(
             'entity'      => $entity,
             'delete_form' => $deleteForm->createView(),
@@ -151,16 +148,12 @@ class ReportController extends Controller
     public function editAction($id)
     {
         $em = $this->getDoctrine()->getManager();
-
         $entity = $em->getRepository('HrisReportsBundle:Report')->find($id);
-
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Report entity.');
         }
-
         $editForm = $this->createForm(new ReportType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
-
         return array(
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
@@ -179,13 +172,10 @@ class ReportController extends Controller
     public function updateAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
-
         $entity = $em->getRepository('HrisReportsBundle:Report')->find($id);
-
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Report entity.');
         }
-
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new ReportType(), $entity);
         $editForm->bind($request);

@@ -1,0 +1,139 @@
+{% extends '::base.html.twig' %}
+
+{% block right_content -%}
+    {% block javascripts %}
+        {{ parent() }}
+        <script type="text/javascript" language="javascript" src="{{ asset('commons/js/ext-all.js') }}"></script>
+        <script type="text/javascript" language="javascript" src="{{ asset('commons/js/jquery.validate.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('select#hris_trainingbundle_venue_region').change(function() {
+
+                    var fieldOptionUrl = '{{ path('district_formfields', {'_format':'json'}) }}';
+                    $.ajax({
+                        method:'POST',
+                        url: fieldOptionUrl,
+                        data:'id='+this.value,
+                        success: (function(data) {
+                            var select ="<label class='control-label required' for='hris_trainingbundle_venue_district'>District</label>";
+                            select += "<select id='hris_trainingbundle_venue_district' name='hris_trainingbundle_venue[district]'>";
+                            jQuery.each(data, function(index, value) {
+                                select+="<option value='"+value['longname']+"'>"+value['longname']+"</option>";
+                            });
+                            select+="</select>"
+
+                            $('#hris_trainingbundle_venue_district').parent().html(select);
+                        })
+                    });
+                    var venueOptionUrl = '{{ path('venue_formfields', {'_format':'json'}) }}';
+
+                    $.ajax({
+                        method:'POST',
+                        url:venueOptionUrl,
+                        data:'id='+this.value,
+                        success: (function(data) {
+                            var select ="<label class='control-label required' for='hris_trainingbundle_traininginstance_venue'>Venue</label>";
+                            select += "<select id='hris_trainingbundle_traininginstance_venue' name='hris_trainingbundle_traininginstance[venue]'>";
+                            jQuery.each(data, function(index, value) {
+                                select+="<option value='"+value['venueName']+"'>"+value['venueName']+"</option>";
+                            });
+                            select+="</select>"
+
+                            $('#hris_trainingbundle_traininginstance_venue').parent().html(select);
+                        })
+                    });
+                });
+
+                $( ".date" ).datepicker( {
+                    changeMonth: true,
+                    changeYear: true,
+                    showOn: "both",
+                    buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+                    buttonImageOnly: true,
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "clip",
+                    yearRange:'c-60:c+60',
+                    onClose: function( selectedDate ) {
+                        $( ".enddate" ).datepicker( "option", "minDate", selectedDate );
+                    }
+                });
+                $( ".enddate" ).datepicker( {
+                    changeMonth: true,
+                    changeYear: true,
+                    showOn: "both",
+                    buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+                    buttonImageOnly: true,
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "clip",
+                    yearRange:'c-60:c+60',
+                    onClose: function( selectedDate ) {
+                        $( ".date" ).datepicker( "option", "maxDate", selectedDate );
+                    }
+                });
+
+            });
+
+        </script>
+
+    {% endblock javascripts %}
+
+    {% block stylesheets %}
+        {{ parent() }}
+        <link rel="stylesheet" type="text/css" media="all" href="{{ asset('commons/css/ext-standard.css') }}">
+        <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
+        <link rel="stylesheet" href="{{ asset('commons/css/jquery-ui.css') }}" />
+    {% endblock stylesheets %}
+    <h1><i class="icon-edit icon-largest" title="Edit"></i><small> Venues edit</small></h1>
+
+    <form action="{{ path('venue_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+        <input type="hidden" name="_method" value="PUT" />
+        {{ form_widget(edit_form) }}
+        <br/>
+        <ul class="record_actions inline" style="float:left;">
+            <li>
+                <button type="submit" class="btn">Edit</button>
+            </li>
+            <li>
+                <a href="{{ path('venues') }}" class="btn">
+                    Back to the list
+                </a>
+            </li>
+        </ul>
+    </form>
+
+    <ul class="inline" style="float:left;margin-top:-20px;">
+        <li>
+            <a data-toggle="modal" href="#deleteModalFor{{ entity.uid }}" class="btn btn-danger">Delete {{ entity.venueName | capitalize }}</a>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModalFor{{ entity.uid }}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ entity.venueName | capitalize }}</h4>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete <strong>{{ entity.venueName | capitalize }}</strong> that was created on {{ entity.datecreated|date('d/m/Y') }}
+                            {% if entity.lastUpdated %}
+                                and last updated on {{ entity.lastUpdated|date('H:i:s d/m/Y') }} ??
+                            {% else %}
+                                and never updated ??
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ path('venues_delete', { 'id': entity.id }) }}" method="post">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                {{ form_widget(delete_form) }}
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+        </li>
+    </ul>
+{% endblock %}

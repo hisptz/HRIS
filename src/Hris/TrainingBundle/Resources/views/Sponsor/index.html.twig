@@ -1,0 +1,80 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.sponsor_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+<div class="span12">
+    <div class="span7">
+        <h3>
+            <i class="icon-circle-info icon-largest" title="Show"></i>Sponsors Lists</h3>
+    </div>
+    <div class="span5">
+        <a  href="{{ path("addSponsor") }}" class="btn btn-default">add sponsor</a>
+    </div>
+</div>
+<div class="span12">
+    <table class="table sponsor_list table-striped table-bordered table-hover">
+        <thead><th>#</th><th>Sponsor Name</th><th>Region</th><th>Phone</th><th>Email</th><th>Box</th><th>Action</th></thead>
+        <tbody>
+        <?php $count = 0 ?>
+
+
+
+        {% set incr=0 %}
+        {% for sponsor in sponsors %}
+            {% set incr = incr+1 %}
+            <tr>
+                <td>{{ incr }}</td>
+
+                <td>{{ sponsor.sponsorName }}</td>
+                <td>{{ sponsor.region }}</td>
+                <td>{{ sponsor.phone }}</td>
+                <td>{{ sponsor.email }}</td>
+                <td>{{ sponsor.box }}</td>
+                <td>
+                    <span class="btn-group">
+                        <a href="{{ path("editSponsor",{'id':sponsor.id,'active':1} ) }}" class="" style="color:black;font-weight: bolder;" title="edit"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></a>
+                    </span>
+                </td>
+
+            </tr>
+            <?php $count++; ?>
+        {% endfor %}
+
+
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

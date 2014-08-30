@@ -75,6 +75,7 @@ EOT
     {
 
         $filePath = $input->getArgument('file');
+
         $dataEntryFormName = $input->getArgument('form');
         $organisationunitName = $input->getArgument('organisationunit');
 
@@ -86,28 +87,28 @@ EOT
 
         $phpExcelObject = $this->getContainer()->get('phpexcel')->createPHPExcelObject($filePath);
         $objWorksheet = $phpExcelObject->getActiveSheet();
-        $i=0;
+        $rowCounter=0;
         $fieldUIDs = array();
         $fieldObjects = array();
         foreach ($objWorksheet->getRowIterator() as $row) {
             //Parse the headings on first row for deducing equivalent fields in database
-            if($i < 1){
+            if($rowCounter < 1){
                 $cellIterator = $row->getCellIterator();
-                $k = 1;
+                $cellnumber = 1;
                 foreach ($cellIterator as $cell) {
                     $field = $em->getRepository('HrisFormBundle:Field')->findOneBy(array('name'=>$cell->getValue()));
                     if(!empty($field)) {
                         // Construct array of columns with matched Fields
-                        $fieldUIDs[$k] = $field->getUid();
-                        $fieldObjects[$k] = $field;
-                        $k++;
+                        $fieldUIDs[$cellnumber] = $field->getUid();
+                        $fieldObjects[$cellnumber] = $field;
+                        $cellnumber++;
                     }
                 }
 
             }else {
                 break; //@todo placed to avoid going through many rows
             }
-            $i++;
+            $rowCounter++;
         }
         // Construct data values array
         $dataValueArray = array();
@@ -115,55 +116,54 @@ EOT
         foreach ($objWorksheet->getRowIterator() as $row) {
             //if($j > 1 && $j < 7){
                 $cellIterator = $row->getCellIterator();
-                $k = 1;
-                $instancestring= "";
+                $cellnumber = 1;
+                $instancestring = "";
                 //$instance=md5($firstName.$middleName.$surname.$dateOfBirth->format('Y-m-d'));
                 foreach ($cellIterator as $cell) {
-                    if($k==2 || $k==3 || $k==4){
+                    if($cellnumber==2 || $cellnumber==3 || $cellnumber==4){
                         $instancestring.=$cell->getValue().uniqid();
                     }
-                    if($k==5){
+                    if($cellnumber==5){
                         $instancestring.=$cell->getValue().uniqid();
                     }
                     $cellIntVal = intval($cell->getValue());
-                    if(isset($fieldObjects[$k]) && !empty($fieldObjects[$k])) {
-                        if($fieldObjects[$k]->getDataType()->getName() == "Date" && $cellIntVal!=0 ){
+                    if(isset($fieldObjects[$cellnumber]) && !empty($fieldObjects[$cellnumber])) {
+                        if($fieldObjects[$cellnumber]->getDataType()->getName() == "Date" && $cellIntVal!=0 ){
 
-                            $year=substr($cell->getValue(),0,4);
+                            $year =substr($cell->getValue(),0,4);
                             $month=substr($cell->getValue(),4,2);
-                            $days=substr($cell->getValue(),6,2);
+                            $days =substr($cell->getValue(),6,2);
                             $formattedDate=$year."-".$month."-".$days;
-                            $dataValueArray[$fieldUIDs[$k]] = new \DateTime($formattedDate);
-                        }elseif($fieldObjects[$k]->getInputType()->getName() == "Select"){
+                            $dataValueArray[$fieldUIDs[$cellnumber]] = new \DateTime($formattedDate);
+                        }elseif($fieldObjects[$cellnumber]->getInputType()->getName() == "Select"){
                             //special check for sex
-                            if($fieldObjects[$k]->getName() == "sex"){
-                                foreach($fieldObjects[$k]->getFieldOption() as $option){
+                            if($fieldObjects[$cellnumber]->getName() == "sex"){
+                                foreach($fieldObjects[$cellnumber]->getFieldOption() as $option){
                                     $val = ($cell->getValue()== "M")?"Male":"Female";
                                     if($option->getValue() == $val){
-                                        $dataValueArray[$fieldUIDs[$k]] = $option->getUid();
+                                        $dataValueArray[$fieldUIDs[$cellnumber]] = $option->getUid();
                                     }
                                 }
-                            }elseif($fieldObjects[$k]->getName() == "Religion"){
+                            }elseif($fieldObjects[$cellnumber]->getName() == "Religion"){
 
-                                foreach($fieldObjects[$k]->getFieldOption() as $option){
+                                foreach($fieldObjects[$cellnumber]->getFieldOption() as $option){
                                     if(strtolower($option->getValue()) == strtolower($cell->getValue())){
-                                        $dataValueArray[$fieldUIDs[$k]] = $option->getUid();
+                                        $dataValueArray[$fieldUIDs[$cellnumber]] = $option->getUid();
                                     }
-
                                 }
                             }else{
-                                foreach($fieldObjects[$k]->getFieldOption() as $option){
+                                foreach($fieldObjects[$cellnumber]->getFieldOption() as $option){
                                     if($option->getValue() == $cell->getValue()){
-                                        $dataValueArray[$fieldUIDs[$k]] = $option->getUid();
+                                        $dataValueArray[$fieldUIDs[$cellnumber]] = $option->getUid();
                                     }
                                 }
                             }
 
                         }else{
-                            $dataValueArray[$fieldUIDs[$k]] = $cell->getValue();
+                            $dataValueArray[$fieldUIDs[$cellnumber]] = $cell->getValue();
                         }
                     }
-                    $k++;
+                    $cellnumber++;
 
 
                 }
@@ -177,7 +177,7 @@ EOT
                 //for employer
                        $dataValueArray["5289e934a59a6"] = "528a0ae3249d2";
                 $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('longname' => $organisationunitName));
-                $entity = new Record();
+                $entity  = new Record();
                 $entity->setValue($dataValueArray);
                 $entity->setForm($formEntity);
                 $entity->setInstance($instance);

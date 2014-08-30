@@ -34,4 +34,5 @@ use Doctrine\ORM\EntityRepository;
  */
 class TrainingRepository extends EntityRepository
 {
+
 }

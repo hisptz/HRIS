@@ -18,10 +18,58 @@
             yearRange:'c-60:c+60'
         });
 
+
+        function training(variable){
+            var fieldOptionUrl = '{{ path('training_formfields', {'_format':'json'}) }}';
+
+            $.ajax({
+                method:'POST',
+                url: fieldOptionUrl,
+                data:'id='+(variable).value,
+                success: (function(data) {
+                    var select ="<label class='control-label required' for='hris_recordsbundle_trainingtype_training'>Training</label>";
+                    select += "<select id='hris_recordsbundle_trainingtype_training' name='hris_recordsbundle_trainingtype_training[training]'>";
+                    jQuery.each(data, function(index, value) {
+                        select+="<option value='"+value['id']+"'>"+value['coursename']+"</option>";
+                    });
+                    select+="</select>"
+
+                    $('#hris_recordsbundle_trainingtype_training').parent().html(select);
+                })
+            });
+        };
+
+
+
         $( document ).ready(function() {
 
             var startdate='#hris_recordsbundle_trainingtype_startdate';
             var enddate='#hris_recordsbundle_trainingtype_enddate';
+
+
+
+
+            $('select#hris_recordsbundle_trainingtype_region').change(function() {
+
+                var fieldOptionUrl = '{{ path('districts_formfields', {'_format':'json'}) }}';
+
+                $.ajax({
+                    method:'POST',
+                    url: fieldOptionUrl,
+                    data:'id='+this.value,
+                    success: (function(data) {
+                        var select ="<label class='control-label required' for='hris_recordsbundle_trainingtype_district'>District</label>";
+                        select += "<select id='hris_recordsbundle_trainingtype_district' name='hris_recordsbundle_trainingtype_district[district]' onchange='training(this)'>";
+                        jQuery.each(data, function(index, value) {
+                            select+="<option value='"+value['longname']+"'>"+value['longname']+"</option>";
+                        });
+                        select+="</select>"
+                        $('#hris_recordsbundle_trainingtype_district').parent().html(select);
+
+                    })
+                });
+            });
+
 
             // Disable end date
             $(enddate).attr('disabled', 'true');

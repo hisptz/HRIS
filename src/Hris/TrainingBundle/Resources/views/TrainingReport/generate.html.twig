@@ -1,0 +1,27 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/highcharts.js') }}"></script>
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/modules/exporting.js') }}"></script>
+        <script type="text/javascript">
+            {{ chart(chart) }}
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+
+    <div class="container">
+        <h1><small> {{ title  }} </small></h1>
+    </div>
+
+    <div id="chart_placeholder_historytraining" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+    <div style="text-align: right">
+        <a class="btn" href="{{ path('report_training_download', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups }) }}">
+            Export Statistics to Excel
+        </a>
+        <a class="btn" href="{{ path('report_training_download_cadre', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups }) }}">
+            Export Records By Cadre
+        </a>
+    </div>
+{% endblock %}

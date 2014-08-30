@@ -1,0 +1,114 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.trainers').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[-1], ["All"]]
+            } );
+
+            writeInstance("named_instance");
+
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+    {% set queryParams = app.request.query.all %}
+    <script>
+        function writeInstance(Id_to_paste){
+
+
+            $.ajax({ //ajax call starts
+                url:  'trainingevent/getInstance/json/'+{{ queryParams['instance_id'] }}, //JQuery
+                data: '', //Send value
+                dataType: 'json', //Choosing
+                success: function(data) // Variable
+                {
+                     $("span#"+Id_to_paste).html("<h4>for "+data.instance_name['coursename']+ " of "+data.instance_region+" ("+data.instance_startdate.substring(0,data.instance_startdate.indexOf("T"))+")</h4>");
+                }
+            });
+
+        }
+    </script>
+    <div class="span12">
+        <div class="span7">
+            <h3><i class="icon-circle-info icon-largest" title="Show"></i>trainers Lists <span style="color:#ccc;" id="named_instance"></span></h3>
+        </div>
+        <div class="span5">
+            <a  href="{{ path("add_options",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default">add to the list</a>
+            <a  href="{{ path("trainingevent") }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>
+        </div>
+    </div>
+    <div class="span12">
+        <table class="table trainers table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Trainers Name</th>
+                <th>Primary Job Responsibilty</th>
+                <th>Secondary  Job Responsibilty</th>
+                <th>Profession</th>
+                <th>Employer</th>
+                <th>Place Of Work</th>
+                <th>Organization Type</th>
+                <th>Trainer Type</th>
+                <th>Trainer Language</th>
+                <th>Experience</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php $count = 0 ?>
+            {% set incr=0 %}
+            {% for trainer in trainers %}
+                {% set incr = incr+1 %}
+
+                        <tr>
+                            <td>{{ incr }}</td>
+                            <td>{{ trainer.firstname}} {{ trainer.middlename}} {{ trainer.lastname}}  </td>
+                            <td>{{ trainer.primaryJobResponsibility }}</td>
+                            <td>{{ trainer.secondaryJobResponsibility }}</td>
+                            <td>{{ trainer.profession }}</td>
+                            <td>{{ trainer.employer }}</td>
+                            <td>{{ trainer.placeOfWork }}</td>
+                            <td>{{ trainer.organisationType }}</td>
+                            <td>{{ trainer.trainerType }}</td>
+                            <td>{{ trainer.trainerLanguage }}</td>
+                            <td>{{ trainer.experience }}</td>
+                            <td >
+                                   <span class="btn-group"><a href="{{ path("instanceTrainers_delete",{'id':trainer.id,'instance_id':queryParams['instance_id']} ) }}" title="remove trainer"><i class="icon-remove icon-large"></i></a></span>
+                            </td>
+
+                        </tr>
+
+
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

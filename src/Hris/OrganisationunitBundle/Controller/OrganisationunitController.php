@@ -476,6 +476,91 @@ class OrganisationunitController extends Controller
             'entities' => $serializer->serialize($organisationunitTreeNodes,$_format)
         );
     }
+/**
+     * Returns Organisationunit tree json.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_ORGANISATIONUNIT_LISTTREE,ROLE_USER")
+     * @Route("/trainingtree.{_format}", requirements={"_format"="yml|xml|json"}, defaults={"_format"="json"}, name="organisationunit_training_tree")
+     * @Method("GET")
+     * @Template()
+     */
+    public function trainingtreeAction($_format)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $id = $this->getRequest()->query->get('id');
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $id = 1161;
+        if($id == NULL || $id==0) {
+            // Root organisationunits called make user's orgunit, a root node and it's children count
+            $organisationunit = $this->container->get('security.context')->getToken()->getUser()->getOrganisationunit();
+            if(empty($organisationunit))
+            $organisationunit =  $this->getDoctrine()->getManager()->createQuery('SELECT organisationunit FROM HrisOrganisationunitBundle:Organisationunit organisationunit WHERE organisationunit.parent IS NULL')->getSingleResult();
+
+            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.uid,organisationunit.longname,
+                                                        (
+                                                            SELECT COUNT(lowerOrganisationunit.id)
+                                                            FROM HrisOrganisationunitBundle:Organisationunit lowerOrganisationunit
+                                                            WHERE lowerOrganisationunit.parent=organisationunit
+                                                        ) AS lowerChildrenCount
+                                                        FROM HrisOrganisationunitBundle:Organisationunit organisationunit
+                                                        WHERE organisationunit.id=:organisationunitid
+                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        ORDER BY organisationunit.longname ASC")->setParameter('organisationunitid',$organisationunit);;
+                                                        //WHERE organisationunit.parent IS NULL
+                                                        //GROUP BY organisationunit.id,organisationunit.longname");
+            try {
+                $entities = $organisationunitQuery->getArrayResult();
+            } catch(NoResultException $e) {
+                $entities = NULL;
+            }
+        }else {
+            // Leaf organisationunits called
+            $organisationunitQuery = $em->createQuery("SELECT organisationunit.id,organisationunit.uid,organisationunit.longname,
+                                                        (
+                                                            SELECT COUNT(lowerOrganisationunit.id)
+                                                            FROM HrisOrganisationunitBundle:Organisationunit lowerOrganisationunit
+                                                            WHERE lowerOrganisationunit.parent=organisationunit
+                                                        ) AS lowerChildrenCount
+                                                        FROM HrisOrganisationunitBundle:Organisationunit organisationunit
+                                                        WHERE organisationunit.parent=:parentid
+                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        ORDER BY organisationunit.longname ASC")->setParameter('parentid',$id);
+
+            try {
+                $entities = $organisationunitQuery->getArrayResult();
+            } catch(NoResultException $e) {
+                $entities = NULL;
+            }
+        }
+
+        $organisationunitTreeNodes = NULL;
+        foreach($entities as $key=>$entity) {
+//            if($entity['lowerChildrenCount'] > 0 ) {
+//                // Entity has children
+//                $organisationunitTreeNodes[] = Array(
+//                    'id' => $entity['id'],
+//                    'uid'=> $entity['uid'],
+//                    'longname' => $entity['longname'],
+//                    'cls' => 'folder'
+//                );
+//            }else {
+                // Entity has no children
+                $organisationunitTreeNodes[] = Array(
+                    'id' => $entity['id'],
+                    'uid'=> $entity['uid'],
+                    'longname' => $entity['longname'],
+                    'cls' => 'file',
+                    'leaf' => true,
+                );
+//            }
+        }
+        $serializer = $this->container->get('serializer');
+
+        return array(
+            'entities' => $serializer->serialize($organisationunitTreeNodes,$_format)
+        );
+    }
 
     /**
      * Returns OrganisationunitGroup members tree json.

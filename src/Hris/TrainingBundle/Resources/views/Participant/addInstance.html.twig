@@ -1,0 +1,161 @@
+{#{% extends '::base.html.twig' %}#}
+
+{#{% block right_content -%}#}
+    {#<div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Adding Participants </h3></h1></div></div>#}
+{#{{ entities }}#}
+    {#&#123;&#35;{% for entity in entities %}&#35;&#125;#}
+        {#&#123;&#35;{{ entity.coursename }}&#35;&#125;#}
+    {#&#123;&#35;{% endfor %}&#35;&#125;#}
+    {#&#123;&#35;&#123;&#35;<form action="#" method="post" {{ form_enctype(form) }}>&#35;&#125;&#35;&#125;#}
+        {#&#123;&#35;&#123;&#35;{{ form_widget(form) }}&#35;&#125;&#35;&#125;#}
+        {#&#123;&#35;<br/>&#35;&#125;#}
+        {#&#123;&#35;<ul class="trainig_actions inline" style="float:left;">&#35;&#125;#}
+            {#&#123;&#35;<li>&#35;&#125;#}
+                {#&#123;&#35;<button type="submit" class="btn">Register</button>&#35;&#125;#}
+            {#&#123;&#35;</li>&#35;&#125;#}
+            {#&#123;&#35;<li>&#35;&#125;#}
+                {#&#123;&#35;<a href="#" class="btn">&#35;&#125;#}
+                    {#&#123;&#35;Back to the list&#35;&#125;#}
+                {#&#123;&#35;</a>&#35;&#125;#}
+            {#&#123;&#35;</li>&#35;&#125;#}
+        {#&#123;&#35;</ul>&#35;&#125;#}
+    {#&#123;&#35;</form>&#35;&#125;#}
+
+{#{% endblock %}#}
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.records_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+
+{% block right_content -%}
+    <div class="container">
+        <h1><small>Training list for {{ employeeName }}</small></h1>
+        <ul class="inline">
+            <li>
+                <a class="btn" href="{{ path('new_userinstance', { 'recordid': id }) }}">
+                    Assign Training Event
+                </a>
+            </li>
+            <li>
+                <a class="btn" href="{{ path('record_viewinstance', { 'formid': record.form.id }) }}">
+                    Back to Records
+                </a>
+            </li>
+            <li>
+                {#<a class="btn" href="{{ path('record_show', { 'id': record.id }) }}"><i class="icon-user icon-large" title="Profile"></i> Profile</a>#}
+            </li>
+            <li>
+                <a class="btn" href="{{ path('history_list_byrecord', { 'recordid': record.id }) }}"><i class="icon-list icon-large" title="History"></i> History</a>
+            </li>
+        </ul>
+
+        <table class="records_list dataTable table table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th rowspan="2">SN</th>
+                <th rowspan="2">Course Name</th>
+                <th colspan="3">Course Location</th>
+                <th rowspan="2">Start Date</th>
+                <th rowspan="2">End Date</th>
+                {#<th>Sponsor</th>#}
+                <th rowspan="2">Actions</th>
+            </tr>
+            <tr>
+                <th>Region</th>
+                <th>District</th>
+                <th>Facility</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% set incr=0 %}
+            {% for entity in entities %}
+                {% set incr = incr+1 %}
+                {%  set location = entity.courselocation|split('->') %}
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ entity.coursename }}</td>
+                    <td>{{ location[0] }}</td>
+                    <td>{{ location[1] }}</td>
+                    <td>{{ location[2] }}</td>
+                    <td>{{ entity.startdate |date('d/m/Y') }}</td>
+                    <td>{{ entity.enddate |date('d/m/Y') }}</td>
+                    {#&#123;&#35;<td>{{ entity.sponsor }}</td>&#35;&#125;#}
+                    <td>
+                        <ul class="inline">
+                            <li>
+                                {#<a href="{{ path('training_show', { 'id': entity.id }) }}"><i class="icon-info-sign icon-large" title="Show"></i></a>#}
+                            </li>
+                            <li>
+                                {#<a href="{{ path('training_edit', { 'id': entity.id }) }}"><i class="icon-edit icon-large" title="Edit"></i></a>#}
+                            </li>
+                            <li>
+                                <a data-toggle="modal" href="#deleteModalFor{{ entity.uid }}"><i class="icon-remove-sign icon-large" title="Delete"></i></a>
+                                <!-- Modal -->
+                                <div class="modal fade" id="deleteModalFor{{ entity.uid }}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting <strong>{{ entity.coursename | capitalize }}</strong></h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete <strong>{{ entity.coursename | capitalize }}</strong> {#that was created on <em>{{ entity.datecreated|date('d/m/Y') }}</em>#}
+                                                {#{% if entity.lastUpdated %}#}
+                                                    {#and last updated on {{ entity.lastUpdated|date('H:i:s d/m/Y') }} ??#}
+                                                {#{% else %}#}
+                                                    {#and never updated ??#}
+                                                {#{% endif %}#}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="{{ path('training_instance_delete', { 'id': entity.id }) }}" method="post">
+                                                    <input type="hidden" name="_method" value="DELETE" />
+                                                    {{ form_widget(delete_forms[entity.id] ) }}
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal-dialog -->
+                                </div><!-- /.modal -->
+
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+

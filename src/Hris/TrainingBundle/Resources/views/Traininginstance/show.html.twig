@@ -1,0 +1,97 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.traininginstance_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+{% block right_content -%}
+    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Training Sessions Lists</h3></h1></div><div class="span5"><a  href="{{ path("trainingsession_new") }}" class="btn btn-default">add session</a></div></div>
+    <div class="span12">
+
+    <table  class="table traininginstance_list table-striped table-bordered table-hover">
+        <thead>
+       {#<tr> <th>#</th><th>Course Name</th><th>Training Location</th><th>Training Length</th><th>Start Date</th><th>End Date</th><th>Participants</th><th>Trainers</th><th>Organizers</th><th>Action</th></tr>#}
+        <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2">Course Name</th>
+            <th colspan="3">Training Location</th>
+            <th rowspan="2">Sponsor</th>
+            <th rowspan="2">Start Date</th>
+            <th rowspan="2">End Date</th>
+            <th rowspan="2">Action</th>
+        </tr>
+        <tr>
+            <th>Region</th>
+            <th>District</th>
+            <th>Venue</th>
+        </tr>
+        </thead>
+        <tbody>
+<?php $count = 0 ?>
+
+
+
+{% set incr=0 %}
+{% for traininginstance in traininginstances %}
+    {% set incr = incr+1 %}
+
+
+
+    <tr>
+        <td>{{ incr }}</td>
+        <td>{{ traininginstance.course }}</td>
+                <td>{{ traininginstance.region }}</td>
+                <td>{{ traininginstance.district }}</td>
+                <td>{{ traininginstance.venue }}</td>
+                <td>{{ traininginstance.sponsor }}</td>
+                <td>{{ traininginstance.startdate|date('Y-m-d') }}</td>
+                <td>{{ traininginstance.enddate|date('Y-m-d')  }}</td>
+                 <td>
+                     <span class="">
+                        <a href="{{ path("trainingsession_edit",{'id':traininginstance.id,'active':1} ) }}" title="edit training session" class="" style="color:black;font-weight: bolder;"><i class="fa fa-edit "></i>&nbsp;<!--edit--></a>
+                        <a class="" href="{{ path("record_viewparticipants",{'instance_id':traininginstance.id} ) }}" title="participants"  style="color:black;"><i class="fa fa-users"></i>&nbsp;<!--participants--></a>
+                        <a class="" href="{{ path('record_viewfacilitators', {'instance_id':traininginstance.id}) }} " title="facilitators" style="color:black;"><i class="fa fa-user"></i>&nbsp;<!--facilitators--></a>
+                        <a class="" href="{{ path("instanceTrainers",{'instance_id':traininginstance.id} ) }}" title="trainers" style="color:black;"><i class="fa fa-list"></i>&nbsp;<!--trainers--></a>
+                        <a class="" href="{{ path("add_options",{'instance_id':traininginstance.id}) }}" title="add facilitators and participants" style="color:black;"><i class="fa fa-plus"></i>&nbsp;<!--add--></a>
+                       </span>
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+
+
+        </tbody>
+    </table>
+    </div>
+
+{% endblock %}
