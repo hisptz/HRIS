@@ -24,7 +24,7 @@
  * @author Kelvin Mbwilo <kelvinmbwilo@gmail.com>
  *
  */
-namespace Hris\LeaveBundle\Form;
+namespace Hris\NursingBundle\Form;
 
 use Hris\ReportsBundle\Form\OrganisationunitToIdTransformer;
 use Doctrine\ORM\EntityRepository;
@@ -33,7 +33,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class NursingReportType extends AbstractType
+class SubstantivePositionsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -53,21 +53,12 @@ class NursingReportType extends AbstractType
                 'required'=>False,
             ))
             ->add('reportType','choice',array(
+                'empty_value' => 'All',
                 'choices'=>array(
-                    '' => '--SELECT--',
-                    'records'=>'Records Report',
-                    'availability'=>'Nurses Availability Report',
-                    'positions'=>'Superlative Substantive Positions Reports',
-                    'matrons'=>'Matron/Patron Reports',
-                    'attrition'=>'Nurses Retention Rate Reports',
-                    'migration'=>'Migration/Transfer Reports',
-                    'population_indicator'=>'Population Per Nurse Indicator',
-                    'patient_indicator'=>'Nurse per Patient Indicator',
+                    'table'=>'Table Report',
+                    'chart'=>'Graphical Report',
                 ),
                 'required'=>True,
-                'constraints'=>array(
-                    new NotBlank(),
-                )
             ))
             ->add('forms','entity', array(
                 'class'=>'HrisFormBundle:Form',
@@ -84,11 +75,20 @@ class NursingReportType extends AbstractType
                     new NotBlank(),
                 )
             ))
+
             ->add('NursingCadre','choice',array(
                 'empty_value' => 'All',
                 'choices'=>array(
                     'Enrolled'=>'Enrolled Nurse',
                     'Registered'=>'Registered Nurse',
+                ),
+                'required'=>False,
+            ))
+            ->add('NursesLicencing','choice',array(
+                'empty_value' => 'All',
+                'choices'=>array(
+                    'Licensed'=>'Licensed Nurses',
+                    'NotLicensed'=>'Not Licensed Nurses',
                 ),
                 'required'=>False,
             ))
@@ -135,7 +135,7 @@ class NursingReportType extends AbstractType
 
     public function getName()
     {
-        return 'hris_leavebundle_nursingreportgtype';
+        return 'hris_leavebundle_substantivepositiontype';
     }
 
     /**

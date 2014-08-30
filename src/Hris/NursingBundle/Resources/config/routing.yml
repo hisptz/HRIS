@@ -1,3 +1,19 @@
-nursingReport:
-    resource: "@HrisNursingBundle/Controller/NursingController.php"
+nursungreport:
+    resource: "@HrisNursingBundle/Controller/NursingReportController.php"
+    type: annotation
+
+deceasednursungreport:
+    resource: "@HrisNursingBundle/Controller/DeceasedNursesController.php"
+    type: annotation
+
+nursungdepartmentreport:
+    resource: "@HrisNursingBundle/Controller/DepartmentController.php"
+    type: annotation
+
+nursingsubstantivepositionsreport:
+    resource: "@HrisNursingBundle/Controller/SubstantivePositionsController.php"
+    type: annotation
+
+nursingdistributionreport:
+    resource: "@HrisNursingBundle/Controller/NursingDistributionController.php"
     type: annotation

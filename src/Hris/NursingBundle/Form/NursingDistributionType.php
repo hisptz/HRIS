@@ -24,7 +24,7 @@
  * @author Kelvin Mbwilo <kelvinmbwilo@gmail.com>
  *
  */
-namespace Hris\LeaveBundle\Form;
+namespace Hris\NursingBundle\Form;
 
 use Hris\ReportsBundle\Form\OrganisationunitToIdTransformer;
 use Doctrine\ORM\EntityRepository;
@@ -33,7 +33,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class NursingReportType extends AbstractType
+class NursingDistributionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -42,33 +42,15 @@ class NursingReportType extends AbstractType
         $username = $this->getUsername();
         $transformer = new OrganisationunitToIdTransformer($em);
         $builder
-            ->add($builder->create('organisationunit','hidden',array(
-                    'required'=>True,
-                    'constraints'=> array(
-                        new NotBlank(),
-                    )
-                ))->addModelTransformer($transformer)
-            )
-            ->add('withLowerLevels','checkbox',array(
-                'required'=>False,
-            ))
-            ->add('reportType','choice',array(
+            ->add('distributionLevel','choice',array(
+                'empty_value' => 'Select Distribution Level',
                 'choices'=>array(
-                    '' => '--SELECT--',
-                    'records'=>'Records Report',
-                    'availability'=>'Nurses Availability Report',
-                    'positions'=>'Superlative Substantive Positions Reports',
-                    'matrons'=>'Matron/Patron Reports',
-                    'attrition'=>'Nurses Retention Rate Reports',
-                    'migration'=>'Migration/Transfer Reports',
-                    'population_indicator'=>'Population Per Nurse Indicator',
-                    'patient_indicator'=>'Nurse per Patient Indicator',
+                    'Region'=>'Regions',
+                    'Districts'=>'Districts',
                 ),
-                'required'=>True,
-                'constraints'=>array(
-                    new NotBlank(),
-                )
+                'required'=>true,
             ))
+
             ->add('forms','entity', array(
                 'class'=>'HrisFormBundle:Form',
                 'required'=>True,
@@ -92,6 +74,25 @@ class NursingReportType extends AbstractType
                 ),
                 'required'=>False,
             ))
+            ->add('NursesLicencing','choice',array(
+                'empty_value' => 'All',
+                'choices'=>array(
+                    'Licensed'=>'Licensed Nurses',
+                    'NotLicensed'=>'Not Licensed Nurses',
+                ),
+                'required'=>False,
+            ))
+            ->add('region', 'entity', array(
+                'class' => 'Hris\OrganisationunitBundle\Entity\Organisationunit',
+                'empty_value' => '--SELECT--',
+                'multiple'=>true,
+                'required'=>False,
+                'query_builder' => function(EntityRepository $repo){
+                        return $repo->createQueryBuilder('q')
+                            ->where('q.parent = :parent')
+                            ->setParameter('parent',1161);
+
+                    }))
             ->add('chatType','choice',array(
                 'choices'=>array(
                     '' => '--SELECT--',
@@ -99,7 +100,7 @@ class NursingReportType extends AbstractType
                     'line'=>'Line Chat',
                     'bar'=>'Column Chat',
                 ),
-                'required'=>False,
+                'required'=>True,
             ))
 
             ->add('limitDateRange','checkbox',array(
@@ -135,7 +136,7 @@ class NursingReportType extends AbstractType
 
     public function getName()
     {
-        return 'hris_leavebundle_nursingreportgtype';
+        return 'hris_nursingbundle_departmenttype';
     }
 
     /**

@@ -8,7 +8,7 @@
     <script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
     <script type="text/javascript">
         var treeplaceholder="treeplaceholder";
-        var inputboxname="hris_leavebundle_nursingreportgtype[organisationunit]";
+        var inputboxname="hris_nursingbundle_departmenttype[organisationunit]";
         var urlExtension="";
         var selectedNode="";
         Ext.define('OrganisationUnitTreeModel2', {
@@ -69,16 +69,16 @@
         $( document ).ready(function() {
             // validate signup form on keyup and submit
             $("#nursingReportForm").validate({ ignore:[] });
-            var reportType='#hris_leavebundle_nursingreportgtype_reportType';
-            var forms='#hris_leavebundle_nursingreportgtype_forms';
-            var fields='#hris_leavebundle_nursingreportgtype_fields';
-            var startdate="#hris_leavebundle_nursingreportgtype_startdate";
-            var enddate="#hris_leavebundle_nursingreportgtype_enddate";
-            var limitrange="#hris_leavebundle_nursingreportgtype_limitDateRange";
-            var selectProfession="#hris_leavebundle_nursingreportgtype_selectProfession";
-            var selectLeave="#hris_leavebundle_nursingreportgtype_selectLeaveTypes";
-            var leaveType="#hris_leavebundle_nursingreportgtype_leaveTypes";
-            var chatType="#hris_leavebundle_nursingreportgtype_chatType";
+            var reportType='#hris_nursingbundle_departmenttype_reportType';
+            var forms='#hris_nursingbundle_departmenttype_forms';
+            var fields='#hris_nursingbundle_departmenttype_fields';
+            var startdate="#hris_nursingbundle_departmenttype_startdate";
+            var enddate="#hris_nursingbundle_departmenttype_enddate";
+            var limitrange="#hris_nursingbundle_departmenttype_limitDateRange";
+            var selectProfession="#hris_nursingbundle_departmenttype_selectProfession";
+            var selectLeave="#hris_nursingbundle_departmenttype_selectLeaveTypes";
+            var leaveType="#hris_nursingbundle_departmenttype_leaveTypes";
+            var chatType="#hris_nursingbundle_departmenttype_chatType";
             var fieldsUrl = '{{ path('report_formfields',{'_format':'json'}) }}';
 
             $(forms).multiSelect({
@@ -95,7 +95,7 @@
             $(enddate).parent().fadeOut();
             $(limitrange).parent().fadeOut();
             $(fields).parent().fadeOut();
-            $(chatType).parent().fadeOut();
+//            $(chatType).parent().fadeOut();
             $(leaveType).parent().fadeOut();
 
             $(limitrange).change(function(){
@@ -174,27 +174,26 @@
 {% endblock stylesheets %}
 
 {% block right_content -%}
-    <h1><small>Nursing Report</small></h1>
+    <h1><small>Nurses Special Working Areas Report</small></h1>
 
-    {{ form_start(nursingReportForm, { 'method' : 'PUT','attr': {'class':'historytrainingForm','id':'historytrainingForm'} } ) }}
+    {{ form_start(departmentReportForm, { 'method' : 'PUT','attr': {'class':'historytrainingForm','id':'historytrainingForm'} } ) }}
 
     <div>
-        {{ form_label( nursingReportForm.organisationunit ) }}
+        {{ form_label( departmentReportForm.organisationunit ) }}
         <div id="treeplaceholder"></div>
-        {{ form_errors( nursingReportForm.organisationunit ) }}
-        {{ form_widget( nursingReportForm.organisationunit ) }}
+        {{ form_errors( departmentReportForm.organisationunit ) }}
+        {{ form_widget( departmentReportForm.organisationunit ) }}
     </div>
     <br/>
-    {{ form_row( nursingReportForm.withLowerLevels ) }}
-    {{ form_row( nursingReportForm.reportType ) }}
-    {{ form_row( nursingReportForm.forms ) }}
+    {{ form_row( departmentReportForm.withLowerLevels ) }}
+    {{ form_row( departmentReportForm.forms ) }}
 
     <div class="controls">
-        {{ form_errors( nursingReportForm.forms ) }}
-        {{ form_widget( nursingReportForm.forms ) }}
+        {{ form_errors( departmentReportForm.forms ) }}
+        {{ form_widget( departmentReportForm.forms ) }}
     </div>
 
-    {{ form_end(nursingReportForm) }}
+    {{ form_end(departmentReportForm) }}
 
 
 

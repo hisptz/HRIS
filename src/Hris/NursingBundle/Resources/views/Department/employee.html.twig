@@ -1,0 +1,78 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/highcharts.js') }}"></script>
+        <script src="{{ asset('bundles/obhighcharts/js/highcharts/modules/exporting.js') }}"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('#years_type_menu').highcharts({
+                    chart: {
+                        type: '{{ chatType }}'
+                    },
+                    title: {
+                        text: '{{ licensetitle }} {{ title }} Special Working Areas  {{ organisationUnit }} {{ withLowerLevels }}'
+                    },
+                    xAxis: {
+                        categories: {{ departmentName|raw }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Nurses'
+                        }
+                    },
+                    series: [{
+                        name: 'Nurses',
+                        data: {{ departmentData |raw }}
+                    }]
+                });
+
+                $('#years_type_menu1').highcharts({
+                    chart: {
+                        type: '{{ chatType }}'
+                    },
+                    title: {
+                        text: '{{ licensetitle }} {{ title }} Special Working Areas  {{ organisationUnit }} {{ withLowerLevels }}'
+                    },
+                    xAxis: {
+                        categories: {{ departmentName1|raw }}
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Employee'
+                        }
+                    },
+                    series: [{
+                        name: 'Employee',
+                        data: {{ departmentData1 |raw }}
+                    }]
+                });
+
+
+            });
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+    <div class="container">
+        <h1 style="text-align: center"><small>  </small></h1>
+
+            <div class="" id="years_type_menu" style="min-width: 400px; height: 400px; margin: 0 auto">
+
+            </div>
+            <div class="" id="years_type_menu1" style="min-width: 400px; height: 400px; margin: 0 auto">
+
+            </div>
+
+        <div style="text-align: right">
+            <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+                Export to Excel
+            </a>
+            <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+                Export Records By Cadre
+            </a>
+        </div>
+    </div>
+
+
+{% endblock %}

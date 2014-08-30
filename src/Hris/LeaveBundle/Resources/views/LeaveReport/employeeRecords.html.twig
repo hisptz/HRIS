@@ -48,7 +48,7 @@
                 <th>Days Spent</th>
                 <th>Remaining Days</th>
                 <th>Entitled <br>For Leave<br> Benefit</th>
-                <th>Facility</th>
+                <th>Duty Post</th>
             </tr>
             </thead>
             <tbody>
@@ -70,5 +70,13 @@
             </tbody>
 
         </table>
+    </div>
+    <div style="text-align: right">
+        <a class="btn" href="{{ path('report_employeerecords_download', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'withLowerLevels': withLowerLevels }) }}">
+            Export to Excel
+        </a>
+        <a class="btn" href="{{ path('report_employeerecords_download_bycarde', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'withLowerLevels': withLowerLevels }) }}">
+            Export to Excel Order by Profession
+        </a>
     </div>
 {% endblock %}

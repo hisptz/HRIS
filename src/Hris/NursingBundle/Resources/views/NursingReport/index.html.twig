@@ -81,14 +81,11 @@
             var chatType="#hris_leavebundle_nursingreportgtype_chatType";
             var fieldsUrl = '{{ path('report_formfields',{'_format':'json'}) }}';
 
-            $(fields).multiSelect({
-                selectableHeader: "<div class=''>Available Professions</div>",
-                selectionHeader: "<div class=''>Selected Professions</div>"
+            $(forms).multiSelect({
+                selectableHeader: "<div class=''>Available Forms</div>",
+                selectionHeader: "<div class=''>Selected Forms</div>"
             });
-            $(leaveType).multiSelect({
-                selectableHeader: "<div class=''>Available Leave Types</div>",
-                selectionHeader: "<div class=''>Selected Leave Types</div>"
-            });
+
             // Disable fields and forms
             $(forms).attr('disabled', 'true');
             $(fields).attr('disabled', 'true');
@@ -189,13 +186,12 @@
     </div>
     <br/>
     {{ form_row( nursingReportForm.withLowerLevels ) }}
-    {{ form_row( nursingReportForm.reportType ) }}
     {{ form_row( nursingReportForm.forms ) }}
 
-        <div class="controls">
-            {{ form_errors( nursingReportForm.forms ) }}
-            {{ form_widget( nursingReportForm.forms ) }}
-        </div>
+    <div class="controls">
+        {{ form_errors( nursingReportForm.forms ) }}
+        {{ form_widget( nursingReportForm.forms ) }}
+    </div>
 
     {{ form_end(nursingReportForm) }}
 

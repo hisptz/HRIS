@@ -24,7 +24,7 @@
  * @author Kelvin Mbwilo <kelvinmbwilo@gmail.com>
  *
  */
-namespace Hris\LeaveBundle\Form;
+namespace Hris\NursingBundle\Form;
 
 use Hris\ReportsBundle\Form\OrganisationunitToIdTransformer;
 use Doctrine\ORM\EntityRepository;
@@ -52,21 +52,12 @@ class NursingReportType extends AbstractType
             ->add('withLowerLevels','checkbox',array(
                 'required'=>False,
             ))
-            ->add('reportType','choice',array(
-                'choices'=>array(
-                    '' => '--SELECT--',
-                    'leaveReport'=>'Employee Leave Report',
-                    'onLeaveReport'=>'Employee on Leave Report',
-                    'leaveSummary'=>'Leave Summary Report'
-                ),
-                'required'=>True,
-                'constraints'=>array(
-                    new NotBlank(),
-                )
-            ))
+
             ->add('forms','entity', array(
                 'class'=>'HrisFormBundle:Form',
                 'required'=>True,
+                'empty_value' => '--SELECT--',
+                'multiple'=>true,
                 'query_builder'=>function(EntityRepository $er) use ($username) {
                         return $er->createQueryBuilder('form')
                             ->join('form.user','user')
@@ -77,6 +68,22 @@ class NursingReportType extends AbstractType
                     new NotBlank(),
                 )
             ))
+            ->add('NursingCadre','choice',array(
+                'empty_value' => 'All',
+                'choices'=>array(
+                    'Enrolled'=>'Enrolled Nurse',
+                    'Registered'=>'Registered Nurse',
+                ),
+                'required'=>False,
+            ))
+            ->add('NursesLicencing','choice',array(
+                'empty_value' => 'All',
+                'choices'=>array(
+                    'Licensed'=>'Licensed Nurses',
+                    'NotLicensed'=>'Not Licensed Nurses',
+                ),
+                'required'=>False,
+            ))
             ->add('chatType','choice',array(
                 'choices'=>array(
                     '' => '--SELECT--',
@@ -86,33 +93,7 @@ class NursingReportType extends AbstractType
                 ),
                 'required'=>False,
             ))
-            ->add('selectProfession','checkbox',array(
-                'required'=>False,
-            ))
-            ->add('fields','entity',array(
-                'class'=>'HrisFormBundle:FieldOption',
-                'empty_value' => '--SELECT--',
-                'multiple'=>true,
-                'required'=>False,
-                'query_builder'=>function(EntityRepository $er) {
-                        return $er->createQueryBuilder('fieldoption')
-                            ->where('fieldoption.field=151')
-                            ->orderBy('fieldoption.value','ASC');
-                    }
-            ))
-            ->add('selectLeaveTypes','checkbox',array(
-                'required'=>False,
-            ))
-            ->add('leaveTypes','entity',array(
-                'class'=>'HrisLeaveBundle:LeaveType',
-                'empty_value' => '--SELECT--',
-                'multiple'=>true,
-                'required'=>False,
-                'query_builder'=>function(EntityRepository $er) {
-                        return $er->createQueryBuilder('leave')
-                            ->orderBy('leave.name','ASC');
-                    }
-            ))
+
             ->add('limitDateRange','checkbox',array(
                 'required'=>False,
             ))

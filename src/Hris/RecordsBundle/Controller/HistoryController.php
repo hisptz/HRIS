@@ -93,6 +93,7 @@ class HistoryController extends Controller
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         if ($form->isValid()) {
+
             //echo "Atleast im here";exit;
             $em = $this->getDoctrine()->getManager();
             $historyValue = $request->request->get('hris_recordsbundle_history');
@@ -240,13 +241,14 @@ class HistoryController extends Controller
 
         //echo $orgUnitTransferField->getId()."--".$orgUnitTransferField->getCaption();exit;
 
-        $leaveTypes = $entityManager -> getConnection() -> executeQuery(
-            "SELECT L.name FROM hris_leave_type L"
+        $leaveTypes = $this->getDoctrine()->getManager()->getConnection()->executeQuery(
+            "SELECT L.field_id,L.name,L.maximum_days FROM hris_leave_type L"
         ) -> fetchAll();
         $leaves = array();
         foreach($leaveTypes as $leave){
-            $leaves[] = $leave['name'];
+            $leaves[$leave['field_id']] = $leave['maximum_days'];
         }
+        $serializer = $this->container->get('serializer');
 
         return array(
             'entity' => $entity,
@@ -255,6 +257,7 @@ class HistoryController extends Controller
             'record' => $record,
             'employeeName' => $this->getEmployeeName($recordid),
             'removeFields' => $removeFields,
+            'leaves'   => $serializer->serialize($leave,'json')
             //'orgunitTransfer' => $orgUnitTransferField,
         );
     }

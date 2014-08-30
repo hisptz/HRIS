@@ -99,7 +99,11 @@ class LeaveReportController extends Controller
                 'reportType' => $reportType,
                 'withLowerLevels' => $withLowerLevels,
                 'professionTitle' => $professionTitle,
-                'leaveTitle'     => $leaveTitle
+                'profession' => $professionArray,
+                'leaveTitle'     => $leaveTitle,
+                'leaves'     => $leaveArray,
+                'startdate'  => $startdate,
+                'enddate'  => $enddate,
             ));
         }
         elseif($reportType == "onLeaveReport"){
@@ -114,7 +118,11 @@ class LeaveReportController extends Controller
                 'reportType' => $reportType,
                 'withLowerLevels' => $withLowerLevels,
                 'professionTitle' => $professionTitle,
-                'leaveTitle'     => $leaveTitle
+                    'profession' => $professionArray,
+                    'leaveTitle'     => $leaveTitle,
+                    'leaves'     => $leaveArray,
+                    'startdate'  => $startdate,
+                    'enddate'  => $enddate,
             ));
         }
         elseif($reportType == "leaveSummary"){
@@ -144,12 +152,16 @@ class LeaveReportController extends Controller
                     'reportType' => $reportType,
                     'withLowerLevels' => $withLowerLevels,
                     'professionTitle' => $professionTitle,
+                    'profession' => $professionArray,
                     'leaveTitle'     => $leaveTitle,
+                    'leaves'     => $leaveArray,
                     'chatType'     => $chatType,
                     'leaveName' => $serializer->serialize($leaveName,'json'),
                     'leaveData' => $serializer->serialize($leaveData,'json'),
                     'yearData' => $serializer->serialize($yearData,'json'),
                     'years' => $serializer->serialize($year,'json'),
+                    'startdate'  => $startdate,
+                    'enddate'  => $enddate,
                 ));
         }
     }
@@ -397,125 +409,28 @@ class LeaveReportController extends Controller
      *
      * @param Organisationunit $organisationUnit
      * @param Form $forms
-     * @param Field $fields
-     * @param $reportType
+     * @param $profession
+     * @param $leaves
      * @param $withLowerLevels
+     * @param $reportType
+     * @param $startdate
+     * @param $enddate
      * @return mixed
      */
-    private function aggregationEngine(Organisationunit $organisationUnit,  Form $forms, Field $fields, $reportType, $withLowerLevels)
+    private function aggregationEngine(Organisationunit $organisationUnit,  Form $forms, $profession=array(), $leaves=array(),  $withLowerLevels,$reportType,$startdate,$enddate)
     {
 
         $entityManager = $this->getDoctrine()->getManager();
-        //$selectedOrgunitStructure = $entityManager->getRepository('HrisOrganisationunitBundle:OrganisationunitStructure')->findOneBy(array('organisationunit' => $organisationUnit->getId()));
+        $resourceTableName = "_resource_all_fields";
 
-        if ($reportType == "training") {
-            //Query all lower levels units from the passed orgunit
-            if($withLowerLevels){
-                $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
-                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
-                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
-                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
-                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
-            }else{
-                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
-            }
-
-            //Query all training data and count by start date year
-            $query = "SELECT date_part('year',startdate) as data, count(date_part('year',startdate)) as total ";
-            $query .= "FROM hris_record_training T ";
-            $query .= "INNER JOIN hris_record as V on V.id = T.record_id ";
-            $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-            $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-            $query .= "WHERE V.form_id = ". $forms->getId();
-            $query .= " AND (". $subQuery .") ";
-            $query .= " GROUP BY date_part('year',startdate) ";
-            $query .= "ORDER BY data ASC";
-
-        }else{
-            if ($fields->getInputType()->getName() == "Select"){
-
-                //Query all lower levels units from the passed orgunit
-                if($withLowerLevels){
-                    $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
-                    $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
-                    $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
-                    $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
-                    $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
-                }else{
-                    $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
-                }
-
-                //Query all history data and count by field option
-                $query = "SELECT H.history as data, count (H.history) as total ";
-                $query .= "FROM hris_record_history H ";
-                $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
-                $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-                $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "WHERE V.form_id = ". $forms->getId()." AND H.field_id = ". $fields->getId();
-                $query .= " AND (". $subQuery .") ";
-                $query .= " GROUP BY H.history ";
-                $query .= " ORDER BY data ASC";
-
-
-            }else{  //For other fields which are not combo box, report is based on history dates
-
-                //$subQuery="select Distinct(T.id),T.instance,date_part('year', startdate) from hris_history T, hris_values V where T.instance= V.instance AND V.form_id =".$forms->getId()." AND T.history_type_id = ".$fields->getId()."AND V.orgunit_id in (".$orgunitsid." )";
-                //$query = "SELECT F.date_part as data, count (F.date_part) FROM (".$subQuery.") as F GROUP BY F.date_part";
-
-                //Query all lower levels units from the passed orgunit
-                if($withLowerLevels){
-                    $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
-                    $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
-                    $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
-                    $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
-                    $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
-                }else{
-                    $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
-                }
-
-                //Query all history data and history year
-                $query = "SELECT date_part('year',startdate) as data, count(date_part('year',startdate)) as total ";
-                $query .= "FROM hris_record_history H ";
-                $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
-                $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-                $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "WHERE V.form_id = ". $forms->getId()." AND H.field_id = ". $fields->getId();
-                $query .= " AND (". $subQuery .") ";
-                $query .= " GROUP BY date_part('year',startdate) ";
-                $query .= " ORDER BY data ASC";
-            }
+        //generating the fields which are concerned with leave only.
+        $leaveTypes = $entityManager -> getConnection() -> executeQuery(
+            "SELECT L.name FROM hris_leave_type L"
+        ) -> fetchAll();
+        $allLeaves = array();
+        foreach($leaveTypes as $leave){
+            $allLeaves[] = $leave['name'];
         }
-        //echo $query;exit;
-
-        //get the records
-        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
-        return $report;
-    }
-
-
-    /**
-     * Download History reports
-     *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOAD")
-     * @Route("/download", name="report_historytraining_download")
-     * @Method("GET")
-     * @Template()
-     */
-    public function downloadAction(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $organisationUnitid =$request->query->get('organisationUnit');
-        $formsId = $request->query->get('formsId');
-        $reportType = $request->query->get('reportType');
-        $withLowerLevels =$request->query->get('withLowerLevels');
-        $profession =$request->query->get('fields');
-        $leaveTypes = $request->query->get('leaveTypes');
-        $chatType = $request->query->get('chatType');
-        $startdate = $request->query->get('startdate');
-        $enddate = $request->query->get('enddate');
-
-            //Get the objects from the the variables
 
         //checking if date range is selected
         if($startdate != "" && $enddate != ""){
@@ -527,31 +442,148 @@ class LeaveReportController extends Controller
         }else{
             $datequery =" ";
         }
-        if($reportType != ""){
-            $reportType = " AND '". date('Y-m-d') ."' between H.startdate and H.enddate";
+        $reportTe = "";
+        if($reportType == "onLeaveReport"){
+            $reportTe .= " AND '". date('Y-m-d') ."' between H.startdate and H.enddate";
         }
         if(count($profession) != 0){
-            $reportType .= " AND R.profession IN ('".implode("', '", $proffesion)."') ";
+            $reportTe .= " AND R.profession IN ('".implode("', '", $profession)."') ";
         }else{
 
         }
+
+        //summary of employee taking leave
+        if($reportType == "leaveReport"){
+            //Query all lower levels units from the passed orgunit
+            if($withLowerLevels){
+                $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+            }else{
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+            }
+
+            //Query all history data and count by field option
+            $query = "SELECT R.firstname, R.middlename, R.surname, R.profession, H.history, H.reason, H.record_id, H.entitled_payment, H.startdate, H.enddate, H.entitled_payment, R.level5_facility ";
+            $query .= "FROM hris_record_history H ";
+            $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+            $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+            $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+            $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+            if(count($leaves) == 0){
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $allLeaves)."') ".$reportTe;
+            }else{
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $leaves)."') ".$reportTe;
+            }
+            $query .= " AND (". $subQuery .") ".$datequery;
+            $query .= " ORDER BY R.firstname ASC";
+
+        //summary of employee currently having leave
+        }elseif($reportType == "onLeaveReport"){
+            //Query all lower levels units from the passed orgunit
+            if($withLowerLevels){
+                $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+            }else{
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+            }
+
+            //Query all history data and count by field option
+            $query = "SELECT R.firstname, R.middlename, R.surname, R.profession, H.history, H.reason, H.record_id, H.entitled_payment, H.startdate, H.enddate, H.entitled_payment, R.level5_facility ";
+            $query .= "FROM hris_record_history H ";
+            $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+            $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+            $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+            $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+            if(count($leaves) == 0){
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $allLeaves)."') ".$reportTe;
+            }else{
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $leaves)."') ".$reportTe;
+            }
+            $query .= " AND (". $subQuery .") ".$datequery;
+            $query .= " ORDER BY R.firstname ASC";
+            //leave summaries
+        }elseif($reportType == "leaveSummary"){
+            //Query all lower levels units from the passed orgunit
+            if($withLowerLevels){
+                $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+            }else{
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+            }
+
+            //Query all history data and history year
+            $query = "SELECT date_part('year',startdate) as data, count(date_part('year',startdate)) as total ";
+            $query .= "FROM hris_record_history H ";
+            $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+            $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+            $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+            $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+            if(count($leaves) == 0){
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $allLeaves)."') ".$reportTe;
+            }else{
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $leaves)."') ".$reportTe;
+            }
+            $query .= " AND (". $subQuery .") ".$datequery;
+            $query .= " GROUP BY date_part('year',startdate) ";
+            $query .= " ORDER BY data ASC";
+
+        }
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+        return $report;
+    }
+
+
+    /**
+     * Download Leave reports
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOAD")
+     * @Route("/download", name="report_leave_download")
+     * @Method("GET")
+     * @Template()
+     */
+    public function downloadAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $organisationUnitid =$request->query->get('organisationUnit');
+        $formsId = $request->query->get('formsId');
+        $reportType = $request->query->get('reportType');
+        $withLowerLevels =$request->query->get('withLowerLevels');
+        $profession =$request->query->get('profession');
+        $leaves = $request->query->get('leaves');
+        $startdate = $request->query->get('startdate');
+        $enddate = $request->query->get('enddate');
 
 
         $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
         $forms = $em->getRepository('HrisFormBundle:Form')->find($formsId);
 
-        $results = $this->aggregationEngine($organisationUnit, $forms, $fields, $reportType, $withLowerLevels );
+        $results = $this->aggregationEngine($organisationUnit, $forms, $profession, $leaves,  $withLowerLevels,$reportType,$startdate,$enddate);
 
 
         //create the title
-        if ($reportType == "training"){
-            $subtitle = "Training";
+        if ($reportType == "onLeaveReport"){
+            $subtitle = "Staff On Leave Reports ";
         }
-        elseif( $reportType = "history"){
-            $subtitle = $fields->getCaption()." History";
+        elseif( $reportType = "leaveSummary"){
+            $subtitle = "Leave Summary Report";
+        }
+        elseif( $reportType = "leaveReport"){
+            $subtitle = "Leave Entitlement Report";
         }
 
-        $title = $subtitle. " Distribution Report ".$organisationUnit->getLongname();
+        $title = $subtitle. "  ".$organisationUnit->getLongname();
 
         if($withLowerLevels){
             $title .= " with lower levels";
@@ -635,34 +667,24 @@ class LeaveReportController extends Controller
         //reset the colomn and row number
         $column == 'A';
         $row += 2;
-
         //Start populating excel with data
-        if ($reportType == "history") {
-
-            /*print_r($results);exit;
-            foreach($results as $result){
-                $keys[$result[strtolower($fields->getName())]][$result[strtolower($fieldsTwo->getName())]] = $result['total'];
-                //$categoryKeys[$result[strtolower($fields->getName())]] = $result['total'];
-
-            }*/
+        if ($reportType == "leaveSummary") {
 
             //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:D2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:D1');
-            $excelService->getActiveSheet()->mergeCells('A2:D2');
+            $excelService->getActiveSheet()->getStyle('A1:G2')->applyFromArray($heading_format);
+            $excelService->getActiveSheet()->mergeCells('A1:G1');
+            $excelService->getActiveSheet()->mergeCells('A2:G2');
 
             //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:D4')->applyFromArray($header_format);
+            $excelService->getActiveSheet()->getStyle('A4:G4')->applyFromArray($header_format);
             $excelService->setActiveSheetIndex(0)
                 ->setCellValue($column++.$row, 'SN')
-                ->setCellValue($column++.$row, $fields->getCaption())
-                ->setCellValue($column.$row, 'Value');
-
-            /*$fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo));
-
-            foreach ($fieldOptions as $fieldOption) {
-                $excelService->setActiveSheetIndex(0)->setCellValue($column++.$row, $fieldOption->getValue());
-            }*/
+                ->setCellValue($column++.$row, 'Name')
+                ->setCellValue($column++.$row, 'Profession')
+                ->setCellValue($column++.$row, 'Leave')
+                ->setCellValue($column++.$row, 'Last Leave')
+                ->setCellValue($column++.$row, 'Days Spent')
+                ->setCellValue($column.$row, 'Duty Post');
 
             //write the values
             $i =1; //count the row
@@ -672,20 +694,61 @@ class LeaveReportController extends Controller
 
                 //format of the row
                 if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':D'.$row)->applyFromArray($text_format1);
+                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format1);
                 else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':D'.$row)->applyFromArray($text_format2);
+                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format2);
                 $excelService->setActiveSheetIndex(0)
                     ->setCellValue($column++.$row, $i++)
-                    ->setCellValue($column++.$row, $result['data'])
-                    ->setCellValue($column++.$row, $result['total']);
-
-                /*foreach ($items as $item) {
-                    $excelService->setActiveSheetIndex(0)->setCellValue($column++.$row, $item);
-                }*/
+                    ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
+                    ->setCellValue($column++.$row, $result['profession'])
+                    ->setCellValue($column++.$row, $result['history'])
+                    ->setCellValue($column++.$row, $this->LastLeaveDay1($result['record_id'],$result['history']))
+                    ->setCellValue($column++.$row, $this->leaveDaysCaluculator1($result['record_id'],$result['history']))
+                    ->setCellValue($column.$row, $result['level5_facility']);
             }
 
-        }elseif ($reportType == "training" ){
+            }
+        elseif ($reportType == "onLeaveReport") {
+
+            //apply the styles
+            $excelService->getActiveSheet()->getStyle('A1:G2')->applyFromArray($heading_format);
+            $excelService->getActiveSheet()->mergeCells('A1:G1');
+            $excelService->getActiveSheet()->mergeCells('A2:G2');
+
+            //write the table heading of the values
+            $excelService->getActiveSheet()->getStyle('A4:G4')->applyFromArray($header_format);
+            $excelService->setActiveSheetIndex(0)
+                ->setCellValue($column++.$row, 'SN')
+                ->setCellValue($column++.$row, 'Name')
+                ->setCellValue($column++.$row, 'Profession')
+                ->setCellValue($column++.$row, 'Leave')
+                ->setCellValue($column++.$row, 'Start Date')
+                ->setCellValue($column++.$row, 'End Date')
+                ->setCellValue($column.$row, 'Duty Post');
+
+            //write the values
+            $i =1; //count the row
+            foreach($results as $result){
+                $column = 'A';//return to the 1st column
+                $row++; //increment one row
+
+                //format of the row
+                if (($row % 2) == 1)
+                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format1);
+                else
+                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format2);
+                $excelService->setActiveSheetIndex(0)
+                    ->setCellValue($column++.$row, $i++)
+                    ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
+                    ->setCellValue($column++.$row, $result['profession'])
+                    ->setCellValue($column++.$row, $result['history'])
+                    ->setCellValue($column++.$row, $result['startdate'])
+                    ->setCellValue($column++.$row, $result['enddate'])
+                    ->setCellValue($column.$row, $result['level5_facility']);
+            }
+
+            }
+        elseif ($reportType == "leaveSummary" ){
             //apply the styles
             $excelService->getActiveSheet()->getStyle('A1:C2')->applyFromArray($heading_format);
             $excelService->getActiveSheet()->mergeCells('A1:C1');
@@ -717,7 +780,7 @@ class LeaveReportController extends Controller
             }
         }
 
-        $excelService->getActiveSheet()->setTitle('Training-History Report');
+        $excelService->getActiveSheet()->setTitle('Leave Report');
 
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -737,10 +800,93 @@ class LeaveReportController extends Controller
     }
 
     /**
+     * Aggregation Engine
+     *
+     * @param Organisationunit $organisationUnit
+     * @param Form $forms
+     * @param $profession
+     * @param $leaves
+     * @param $withLowerLevels
+     * @param $reportType
+     * @param $startdate
+     * @param $enddate
+     * @return mixed
+     */
+    private function recordsEngine(Organisationunit $organisationUnit,  Form $forms, $profession=array(), $leaves=array(),  $withLowerLevels,$reportType,$startdate,$enddate)
+    {
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $resourceTableName = "_resource_all_fields";
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $resourceTableName = "_resource_all_fields";
+
+        //generating the fields which are concerned with leave only.
+        $leaveTypes = $entityManager -> getConnection() -> executeQuery(
+            "SELECT L.name FROM hris_leave_type L"
+        ) -> fetchAll();
+        $allLeaves = array();
+        foreach($leaveTypes as $leave){
+            $allLeaves[] = $leave['name'];
+        }
+
+        //checking if date range is selected
+        if($startdate != "" && $enddate != ""){
+            $datequery = " AND H.startdate between '".$startdate."' and '".$enddate."' "." OR H.enddate between '".$startdate."' and '".$enddate."'";
+        }elseif($startdate == "" && $enddate != ""){
+            $datequery = " AND H.enddate <= '".$enddate."' ";
+        }elseif($startdate != "" && $enddate == ""){
+            $datequery = " AND H.startdate >= '".$startdate."' ";
+        }else{
+            $datequery =" ";
+        }
+        $reportTe = "";
+        if($reportType == "onLeaveReport"){
+            $reportTe .= " AND '". date('Y-m-d') ."' between H.startdate and H.enddate";
+        }
+        if(count($profession) != 0){
+            $reportTe .= " AND R.profession IN ('".implode("', '", $profession)."') ";
+        }else{
+
+        }
+
+        //summary of employee taking leave
+            //Query all lower levels units from the passed orgunit
+            if($withLowerLevels){
+                $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+            }else{
+                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+            }
+
+            //Query all history data and count by field option
+            $query = "SELECT R.firstname, R.middlename, R.surname, R.profession, H.history, H.reason, H.record_id, H.entitled_payment, H.startdate, H.enddate, H.entitled_payment, R.level5_facility ";
+            $query .= "FROM hris_record_history H ";
+            $query .= "INNER JOIN hris_record as V on V.id = H.record_id ";
+            $query .= "INNER JOIN ".$resourceTableName." as R on R.instance = V.instance ";
+            $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+            $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+            if(count($leaves) == 0){
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $allLeaves)."') ".$reportTe;
+            }else{
+                $query .= " WHERE V.form_id = ". $forms->getId()." AND H.history IN ('".implode("', '", $leaves)."') ".$reportTe;
+            }
+            $query .= " AND (". $subQuery .") ".$datequery;
+            $query .= " ORDER BY R.firstname ASC";
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+        return $report;
+    }
+
+    /**
      * Download history reports by Cadre
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOADBYCADRE")
-     * @Route("/records", name="report_historytraining_download_records")
+     * @Route("/records", name="report_leave_download_records")
      * @Method("GET")
      * @Template()
      */
@@ -752,31 +898,30 @@ class LeaveReportController extends Controller
         $formsId = $request->query->get('formsId');
         $reportType = $request->query->get('reportType');
         $withLowerLevels =$request->query->get('withLowerLevels');
-        $fieldsId =$request->query->get('fields');
+        $profession =$request->query->get('profession');
+        $leaves = $request->query->get('leaves');
+        $startdate = $request->query->get('startdate');
+        $enddate = $request->query->get('enddate');
 
         //Get the objects from the the variables
 
         $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
         $forms = $em->getRepository('HrisFormBundle:Form')->find($formsId);
 
-        if(is_null($fieldsId)){
-            $fields = new Field();
-        }
-        else{
-            $fields = $em->getRepository('HrisFormBundle:Field')->find($fieldsId);
-        }
-
-        $results = $this->recordsEngine($organisationUnit ,$forms, $fields, $reportType, $withLowerLevels );
+        $results = $this->recordsEngine($organisationUnit, $forms, $profession, $leaves, $withLowerLevels,$reportType,$startdate,$enddate);
 
         //create the title
-        if ($reportType == "training"){
-            $subtitle = "In Service Training";
+        if ($reportType == "onLeaveReport"){
+            $subtitle = "Staff On Leave Reports ";
         }
-        elseif( $reportType = "history"){
-            $subtitle = $fields->getCaption()." History";
+        elseif( $reportType = "leaveSummary"){
+            $subtitle = "Leave Summary Report";
+        }
+        elseif( $reportType = "leaveReport"){
+            $subtitle = "Leave Entitlement Report";
         }
 
-        $title = $subtitle. " Report ".$organisationUnit->getLongname();
+        $title = $subtitle. "  ".$organisationUnit->getLongname();
 
         if($withLowerLevels){
             $title .= " with lower levels";
@@ -862,74 +1007,22 @@ class LeaveReportController extends Controller
         $column == 'A';
         $row += 2;
 
-        //Start populating excel with data
-        if ($reportType == "history") {
-
 
             //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:G2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:G1');
-            $excelService->getActiveSheet()->mergeCells('A2:G2');
+            $excelService->getActiveSheet()->getStyle('A1:H2')->applyFromArray($heading_format);
+            $excelService->getActiveSheet()->mergeCells('A1:H1');
+            $excelService->getActiveSheet()->mergeCells('A2:H2');
 
             //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:G4')->applyFromArray($header_format);
+            $excelService->getActiveSheet()->getStyle('A4:H4')->applyFromArray($header_format);
             $excelService->setActiveSheetIndex(0)
                 ->setCellValue($column++.$row, 'SN')
                 ->setCellValue($column++.$row, 'Name')
                 ->setCellValue($column++.$row, 'Profession')
-                ->setCellValue($column++.$row, 'History')
-                ->setCellValue($column++.$row, 'Reason')
-                ->setCellValue($column++.$row, 'Date')
-                ->setCellValue($column.$row, 'Duty Post');
-
-            /*$fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo));
-
-            foreach ($fieldOptions as $fieldOption) {
-                $excelService->setActiveSheetIndex(0)->setCellValue($column++.$row, $fieldOption->getValue());
-            }*/
-
-            //write the values
-            $i =1; //count the row
-            foreach($results as $result){
-                $column = 'A';//return to the 1st column
-                $row++; //increment one row
-
-                //format of the row
-                if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format1);
-                else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format2);
-                $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $i++)
-                    ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
-                    ->setCellValue($column++.$row, $result['profession'])
-                    ->setCellValue($column++.$row, $result['history'])
-                    ->setCellValue($column++.$row, $result['reason'])
-                    ->setCellValue($column++.$row, $result['startdate'])
-                    ->setCellValue($column.$row, $result['level5_facility']);
-
-                /*foreach ($items as $item) {
-                    $excelService->setActiveSheetIndex(0)->setCellValue($column++.$row, $item);
-                }*/
-            }
-
-        }elseif ($reportType == "training" ){
-            //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:I2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:I1');
-            $excelService->getActiveSheet()->mergeCells('A2:I2');
-
-            //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:I4')->applyFromArray($header_format);
-            $excelService->setActiveSheetIndex(0)
-                ->setCellValue($column++.$row, 'SN')
-                ->setCellValue($column++.$row, 'Name')
-                ->setCellValue($column++.$row, 'Profession')
-                ->setCellValue($column++.$row, 'Course Name')
-                ->setCellValue($column++.$row, 'Course Location')
-                ->setCellValue($column++.$row, 'Sponsor')
+                ->setCellValue($column++.$row, 'Leave')
                 ->setCellValue($column++.$row, 'Start Date')
                 ->setCellValue($column++.$row, 'End Date')
+                ->setCellValue($column++.$row, 'Leave Benefit')
                 ->setCellValue($column.$row, 'Duty Post');
 
             //write the values
@@ -947,14 +1040,13 @@ class LeaveReportController extends Controller
                     ->setCellValue($column++.$row, $i++)
                     ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
                     ->setCellValue($column++.$row, $result['profession'])
-                    ->setCellValue($column++.$row, $result['coursename'])
-                    ->setCellValue($column++.$row, $result['courselocation'])
-                    ->setCellValue($column++.$row, $result['sponsor'])
+                    ->setCellValue($column++.$row, $result['history'])
                     ->setCellValue($column++.$row, $result['startdate'])
                     ->setCellValue($column++.$row, $result['enddate'])
+                    ->setCellValue($column++.$row, $result['entitled_payment'])
                     ->setCellValue($column.$row, $result['level5_facility']);
 
-            }
+
         }
 
         $excelService->getActiveSheet()->setTitle('List of Records');
@@ -1054,6 +1146,31 @@ class LeaveReportController extends Controller
     }
 
     /**
+     * caluculate the days required for leave
+     *
+     */
+    public function leaveDaysCaluculator1($recordid,$leave){
+        $entityManager = $this->getDoctrine()->getManager();
+        //Query all history data and count by field option
+
+        $query = "SELECT H.startdate, H.enddate ";
+        $query .= "FROM hris_record_history H ";
+        $query .= " WHERE H.record_id = ". $recordid." AND H.history = '".$leave."' AND date_part('year',startdate) = '".date("Y")."' ";
+
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+         $diff = 0;
+        foreach($report as $dates){
+            $date1 = new \DateTime(date('Y-m-d',strtotime($dates['startdate'])));
+            $date2 = new \DateTime(date('Y-m-d',strtotime($dates['enddate'])));
+
+            $diff += $date2->diff($date1)->format("%a");
+        }
+        return $diff;
+    }
+
+    /**
      * caluculate the remaining days for leave
      *
      */
@@ -1091,6 +1208,44 @@ class LeaveReportController extends Controller
         return new Response($limit);
     }
 
+     /**
+     * caluculate the remaining days for leave to use within excel report
+     *
+     */
+    public function remainingleaveDays1($recordid,$leave){
+        $entityManager = $this->getDoctrine()->getManager();
+        //Query all history data and count by field option
+        $leaveTypes = $entityManager -> getConnection() -> executeQuery(
+            "SELECT L.maximum_days FROM hris_leave_type L WHERE L.name='".$leave."'"
+        ) -> fetchAll();
+        $leavedays = array();
+        foreach($leaveTypes as $days){
+            $leavedays[] = $days['maximum_days'];
+        }
+        $query = "SELECT H.startdate, H.enddate ";
+        $query .= "FROM hris_record_history H ";
+        $query .= " WHERE H.record_id = ". $recordid." AND H.history = '".$leave."' AND date_part('year',startdate) = '".date("Y")."' ";
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+        $diff = 0;
+        foreach($report as $dates){
+            $date1 = new \DateTime(date('Y-m-d',strtotime($dates['startdate'])));
+            $date2 = new \DateTime(date('Y-m-d',strtotime($dates['enddate'])));
+
+            $diff += $date2->diff($date1)->format("%a");
+        }
+        if($leavedays[0] == ''){
+            $limit = "no limit";
+        }else{
+            $limit = $leavedays[0] - $diff;
+            if($limit > 365){
+                $limit = 365;
+            }
+        }
+        return $limit;
+    }
+
     /**
      * caluculate the day for the last leave
      *
@@ -1113,8 +1268,30 @@ class LeaveReportController extends Controller
         return new Response($lastleavedate);
     }
 
+        /**
+     * caluculate the day for the last leave to use within excel reports
+     *
+     */
+    public function LastLeaveDay1($recordid,$leave){
+        $entityManager = $this->getDoctrine()->getManager();
+        //Query all history data and count by field option
+
+        $query = "SELECT H.startdate, H.enddate ";
+        $query .= "FROM hris_record_history H ";
+        $query .= " WHERE H.record_id = ". $recordid." AND H.history = '".$leave."' ";
+        $query .= " ORDER BY H.startdate DESC LIMIT 1";
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+
+        foreach($report as $dates){
+           $lastleavedate = date('j, M Y',strtotime($dates['startdate']));
+        }
+        return $lastleavedate;
+    }
+
     /**
-     * caluculate the day for the last leave
+     * caluculate the days for the last leave
      * @param $startdate
      * @param $enddate
      * @return mixed

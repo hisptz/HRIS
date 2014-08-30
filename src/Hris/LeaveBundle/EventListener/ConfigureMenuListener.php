@@ -69,13 +69,5 @@ class ConfigureMenuListener
                   'attributes'=> array('class'=>'accordion-group'),
             )
         );
-        $leaveModule->addChild('Nursing Reports',
-            array('route'=>'nursing_report',
-                  'extras'=>array('tag'=>'div'),
-                  'name'=>'Leave Reports',
-                  'attributes'=> array('class'=>'accordion-group'),
-            )
-        );
-
     }
 }

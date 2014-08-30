@@ -44,12 +44,54 @@ class ConfigureMenuListener
             )
         );
 
-        $leaveModule = $menu->getChild('Nursing Module');
+        $nursingModule = $menu->getChild('Nursing Module');
 
-        $leaveModule->addChild('Nursing Report',
-            array('route'=>'nursingReport',
+        $nursingModule->addChild('Nursing Records Reports',
+            array('route'=>'nursing_report',
+                'extras'=>array('tag'=>'div'),
+                'name'=>'Nursing Records Reports',
+                'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Nurse Distribution',
+            array('route'=>'nursing_distribution_report',
                   'extras'=>array('tag'=>'div'),
-                  'name'=>'Nursing Report',
+                  'name'=>'Nurse Distribution',
+                  'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Superlative Substantive Positions',
+            array('route'=>'nursing_substantive_positions_report',
+                  'extras'=>array('tag'=>'div'),
+                  'name'=>'Superlative Substantive Positions',
+                  'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Special Working Areas',
+            array('route'=>'nursing_department_report',
+                  'extras'=>array('tag'=>'div'),
+                  'name'=>'Special Working Areas',
+                  'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Deceased Nurses Reports',
+            array('route'=>'deceased_nursing_report',
+                  'extras'=>array('tag'=>'div'),
+                  'name'=>'Deceased Nurses Reports',
+                  'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Nurse Patient Ratio',
+            array('route'=>'deceased_nursing_report',
+                  'extras'=>array('tag'=>'div'),
+                  'name'=>'Deceased Nurses Reports',
+                  'attributes'=> array('class'=>'accordion-group'),
+            )
+        );
+        $nursingModule->addChild('Population Indicator per Nurse',
+            array('route'=>'deceased_nursing_report',
+                  'extras'=>array('tag'=>'div'),
+                  'name'=>'Deceased Nurses Reports',
                   'attributes'=> array('class'=>'accordion-group'),
             )
         );

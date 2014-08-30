@@ -2,6 +2,8 @@ parameters:
 #    hris_nursing.example.class: Hris\NursingBundle\Example
 
 services:
-#    hris_nursing.example:
-#        class: %hris_nursing.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    hris_nursing.configure_menu_listener:
+            class: Hris\NursingBundle\EventListener\ConfigureMenuListener
+            tags:
+                - { name: kernel.event_listener, event: hris_nursing.menu_configure, method: onMenuConfigure }
+

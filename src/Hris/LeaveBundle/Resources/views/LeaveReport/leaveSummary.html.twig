@@ -68,10 +68,10 @@
             </div>
         </div>
         <div style="text-align: right">
-            <a class="btn" href="{{ path('report_historytraining_download', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels, 'fields': '45' }) }}">
+            <a class="btn" href="{{ path('report_leave_download', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'withLowerLevels': withLowerLevels, 'profession': profession,'leaves':leaves,'reportType':'leaveSummary','startdate':startdate,'enddate':enddate  }) }}">
                 Export Statistics to Excel
             </a>
-            <a class="btn" href="{{ path('report_historytraining_download_records', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'reportType': reportType, 'withLowerLevels': withLowerLevels, 'fields': '45' }) }}">
+            <a class="btn" href="{{ path('report_leave_download_records', { 'organisationUnit': organisationUnit.id, 'formsId': formsId, 'withLowerLevels': withLowerLevels, 'profession': profession,'leaves':leaves,'startdate':startdate,'enddate':enddate,'reportType':'leaveSummary'  }) }}">
                 Export Records By Cadre
             </a>
         </div>

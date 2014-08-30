@@ -8,7 +8,7 @@
     <script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
     <script type="text/javascript">
         var treeplaceholder="treeplaceholder";
-        var inputboxname="hris_leavebundle_nursingreportgtype[organisationunit]";
+        var inputboxname="hris_leavebundle_substantivepositiontype[organisationunit]";
         var urlExtension="";
         var selectedNode="";
         Ext.define('OrganisationUnitTreeModel2', {
@@ -69,16 +69,16 @@
         $( document ).ready(function() {
             // validate signup form on keyup and submit
             $("#nursingReportForm").validate({ ignore:[] });
-            var reportType='#hris_leavebundle_nursingreportgtype_reportType';
-            var forms='#hris_leavebundle_nursingreportgtype_forms';
-            var fields='#hris_leavebundle_nursingreportgtype_fields';
-            var startdate="#hris_leavebundle_nursingreportgtype_startdate";
-            var enddate="#hris_leavebundle_nursingreportgtype_enddate";
-            var limitrange="#hris_leavebundle_nursingreportgtype_limitDateRange";
-            var selectProfession="#hris_leavebundle_nursingreportgtype_selectProfession";
-            var selectLeave="#hris_leavebundle_nursingreportgtype_selectLeaveTypes";
-            var leaveType="#hris_leavebundle_nursingreportgtype_leaveTypes";
-            var chatType="#hris_leavebundle_nursingreportgtype_chatType";
+            var reportType='#hris_leavebundle_substantivepositiontype_reportType';
+            var forms='#hris_leavebundle_substantivepositiontype_forms';
+            var fields='#hris_leavebundle_substantivepositiontype_fields';
+            var startdate="#hris_leavebundle_substantivepositiontype_startdate";
+            var enddate="#hris_leavebundle_substantivepositiontype_enddate";
+            var limitrange="#hris_leavebundle_substantivepositiontype_limitDateRange";
+            var selectProfession="#hris_leavebundle_substantivepositiontype_selectProfession";
+            var selectLeave="#hris_leavebundle_substantivepositiontype_selectLeaveTypes";
+            var leaveType="#hris_leavebundle_substantivepositiontype_leaveTypes";
+            var chatType="#hris_leavebundle_substantivepositiontype_chatType";
             var fieldsUrl = '{{ path('report_formfields',{'_format':'json'}) }}';
 
             $(forms).multiSelect({
@@ -107,46 +107,14 @@
                     $(enddate).val("").parent().fadeOut();
                 }
             });
-            $(selectProfession).change(function(){
-                if($(selectProfession).is(":checked")){
-                    $(fields).parent().fadeIn();
+            $(reportType).change(function(){
+                if($(reportType).val() == 'table'){
+                    $(chatType).parent().fadeOut();
                 }else{
-                    $(fields).multiSelect('deselect_all').parent().fadeOut();
+                    $(chatType).parent().fadeIn();
                 }
             })
-            $(selectLeave).change(function(){
-                if($(selectLeave).is(":checked")){
-                    $(leaveType).parent().fadeIn();
-                }else{
-                    $(leaveType).multiSelect('deselect_all').parent().fadeOut();
-                }
-            })
-            // On Selecting Report Type, enable Forms
-            $(reportType).on('change', function() {
-                // enable forms
-                if( $(reportType).val() != '') {
-                    $(forms).removeAttr('disabled');
-                    $(fields).removeAttr('disabled');
-                    $(startdate).removeAttr('disabled');
-                    $(enddate).removeAttr('disabled');
-                    if( $(reportType).val() == 'leaveReport' || $(reportType).val() == 'calendar') {
-                        $(limitrange).parent().fadeIn();
-                        $(chatType).removeAttr('required').parent().fadeOut();
-                    }else if($(reportType).val() == 'leaveSummary'){
-                        $(limitrange).parent().fadeOut();
-                        $(chatType).attr('required','required').parent().fadeIn();
-                    }else{
-                        $(limitrange).parent().fadeOut();
-                        $(chatType).removeAttr('required').parent().fadeOut();
-                    }
-                }else{
-                    $(forms).attr('disabled', 'true');
-                    $(fields).attr('disabled', 'true');
-                    $(startdate).attr('disabled', 'true');
-                    $(enddate).attr('disabled', 'true');
 
-                }
-            });
 
             //Check startdate should always be less than end date
             $(enddate).on('change', function(){
@@ -174,27 +142,27 @@
 {% endblock stylesheets %}
 
 {% block right_content -%}
-    <h1><small>Nursing Report</small></h1>
+    <h1><small>Nurses Superlative Substantive Positions Report</small></h1>
 
-    {{ form_start(nursingReportForm, { 'method' : 'PUT','attr': {'class':'historytrainingForm','id':'historytrainingForm'} } ) }}
+    {{ form_start(positionReportForm, { 'method' : 'PUT','attr': {'class':'historytrainingForm','id':'historytrainingForm'} } ) }}
 
     <div>
-        {{ form_label( nursingReportForm.organisationunit ) }}
+        {{ form_label( positionReportForm.organisationunit ) }}
         <div id="treeplaceholder"></div>
-        {{ form_errors( nursingReportForm.organisationunit ) }}
-        {{ form_widget( nursingReportForm.organisationunit ) }}
+        {{ form_errors( positionReportForm.organisationunit ) }}
+        {{ form_widget( positionReportForm.organisationunit ) }}
     </div>
     <br/>
-    {{ form_row( nursingReportForm.withLowerLevels ) }}
-    {{ form_row( nursingReportForm.reportType ) }}
-    {{ form_row( nursingReportForm.forms ) }}
+    {{ form_row( positionReportForm.withLowerLevels ) }}
+    {{ form_row( positionReportForm.reportType ) }}
+    {{ form_row( positionReportForm.forms ) }}
 
     <div class="controls">
-        {{ form_errors( nursingReportForm.forms ) }}
-        {{ form_widget( nursingReportForm.forms ) }}
+        {{ form_errors( positionReportForm.forms ) }}
+        {{ form_widget( positionReportForm.forms ) }}
     </div>
 
-    {{ form_end(nursingReportForm) }}
+    {{ form_end(positionReportForm) }}
 
 
 
