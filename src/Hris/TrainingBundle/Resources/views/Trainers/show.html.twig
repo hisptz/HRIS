@@ -78,7 +78,7 @@
         <th>Profession</th>
         <th>Employer</th>
         <th>Place Of Work</th>
-        <th>Organization Type</th>
+        <th>Highest Qualification Level</th>
         <th>Trainer Type</th>
         <th>Trainer Language</th>
         <th>Experience</th>
@@ -90,9 +90,6 @@
 {% set incr=0 %}
 {% for trainer in trainers %}
     {% set incr = incr+1 %}
-      {% if( queryParams['status'] is defined and queryParams['status'] =="view_owned" ) %}
-          {% if queryParams['instance_id'] is defined %}
-             {% if trainer.id in trainers_id %}
                  <tr>
                      <td>{{ incr }}</td>
                      <td>{{ trainer.firstname}} {{ trainer.middlename}} {{ trainer.lastname}}  </td>
@@ -101,86 +98,39 @@
                      <td>{{ trainer.profession }}</td>
                      <td>{{ trainer.employer }}</td>
                      <td>{{ trainer.placeOfWork }}</td>
-                     <td>{{ trainer.organisationType }}</td>
+                     <td>{{ trainer.highestlevelofqualification }}</td>
                      <td>{{ trainer.trainerType }}</td>
                      <td>{{ trainer.trainerLanguage }}</td>
                      <td>{{ trainer.experience }}</td>
                      <td>
+                          <span class="btn-group">
+                                      <a data-toggle="modal" href="#deleteModalFor{{ trainer.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>
+                                <div class="modal fade" id="deleteModalFor{{ trainer.uid }}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ trainer.firstname | capitalize }}</h4>
+                                            </div>
+                                            <div class="modal-body" >
+                                                Are you sure you want to delete <strong>{{ trainer.firstname | capitalize }}</strong> that was created on {{ trainer.datecreated|date('d/m/Y') }}
+                                                {% if trainer.lastUpdated %}
+                                                    and last updated on {{ trainer.lastUpdated|date('H:i:s d/m/Y') }} ??
+                                                {% else %}
+                                                    and never updated ??
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="{{ path("trainers_delete",{'id':trainer.id} ) }}" method="post">
+                                                    <input type="hidden" name="_method" value="DELETE" />
+                                                    {{ form_widget(delete_forms[trainer.id] ) }}
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                     </span>
                     </td>
                     </tr>
-                {% else %}
-
-                {% endif %}
-          {% else %}
-                {#<tr>#}
-                    {#<td>{{ incr }}</td>#}
-                    {#<td>{{ trainer.firstname}} {{ trainer.middlename}} {{ trainer.lastname}}  </td>#}
-                    {#<td>{{ trainer.primaryJobResponsibility }}</td>#}
-                    {#<td>{{ trainer.secondaryJobResponsibility }}</td>#}
-                    {#<td>{{ trainer.profession }}</td>#}
-                    {#<td>{{ trainer.employer }}</td>#}
-                    {#<td>{{ trainer.placeOfWork }}</td>#}
-                    {#<td>{{ trainer.organisationType }}</td>#}
-                    {#<td>{{ trainer.trainerType }}</td>#}
-                    {#<td>{{ trainer.trainerLanguage }}</td>#}
-                    {#<td>{{ trainer.experience }}</td>#}
-                    {#<td>#}
-                        {#{% if queryParams['instance_id'] is defined %}#}
-                            {#{% if trainer.id in trainers_id %}#}
-                                {#<a class="btn btn-success btn-mini is_trainer" title="is a trainer"><i class="icon-ok"></i></a>#}
-                            {#{% else %}#}
-                                        {#<input type="hidden" value="{{ queryParams['instance_id'] }}" id="hris_trainingbundle_instancetrainer_instanceId" name="hris_trainingbundle_instancetrainer[instanceId]" class="form-control">#}
-                                        {#<input type="hidden" value="{{ trainer.id }}" id="hris_trainingbundle_instancetrainer_trainerId" name="hris_trainingbundle_instancetrainer[trainerId]" class="form-control">#}
-                                        {#<span class="btn-group"><button type="button" class="btn btn-mini btn-default" title="Add this trainer to session"><i class="icon-plus"></i></button></span>#}
-                                {#<a class="btn btn-success btn-mini is_trainer" title="is a trainer"><i class="icon-ok">oks</i></a>#}
-
-
-                            {#{% endif %}#}
-                        {#{% else %}#}
-                            {#<span class="btn-group"><a href="{{ path("trainers_edit",{'id':trainer.id,'active':1} ) }}" class="btn btn-mini btn-warning"><i class="icon-edit"></i>&nbsp;Edit</a></span>#}
-
-                        {#{% endif %}#}
-                    {#</td>#}
-
-                {#</tr>#}
-           {% endif %}
-        {% else %}
-
-        {#{% if( queryParams['status'] is null) %}#}
-            {#<tr>#}
-                {#<td>{{ incr }}</td>#}
-                {#<td>{{ trainer.firstname}} {{ trainer.middlename}} {{ trainer.lastname}}  </td>#}
-                {#<td>{{ trainer.primaryJobResponsibility }}</td>#}
-                {#<td>{{ trainer.secondaryJobResponsibility }}</td>#}
-                {#<td>{{ trainer.profession }}</td>#}
-                {#<td>{{ trainer.employer }}</td>#}
-                {#<td>{{ trainer.placeOfWork }}</td>#}
-                {#<td>{{ trainer.organisationType }}</td>#}
-                {#<td>{{ trainer.trainerType }}</td>#}
-                {#<td>{{ trainer.trainerLanguage }}</td>#}
-                {#<td>{{ trainer.experience }}</td>#}
-
-                {#<td>#}
-                    {#{% if queryParams['instance_id'] is defined %}#}
-                        {#{% if trainer.id in trainers_id %}#}
-                            {#<a  title="is a trainer"><i class="icon-ok"></i></a>#}
-                            {#&#123;&#35;<span  title="remove trainer" class="btn btn-small"><i class="icon-remove"></i></span>&#35;&#125;#}
-                        {#{% else %}#}
-                            {#<input type="hidden" value="{{ queryParams['instance_id'] }}"  name="instance_id" class="form-control instance_id">#}
-                            {#<input type="hidden" value="{{ trainer.id }}"  name="trainerId" class="form-control trainer_id">#}
-                            {#<span class="btn-group"><button type="button" class="btn btn-mini btn-default" title="Add this trainer to session"><i class="icon-plus"></i></button></span>#}
-                            {#<a class="is_trainer" title="is a trainer"><i class="icon-ok"></i></a>#}
-                        {#{% endif %}#}
-                    {#{% else %}#}
-                        {#<span class="btn-group">DFG<a href="{{ path("trainers_edit",{'id':trainer.id,'active':1} ) }}" style="color:black;font-weight: bolder;" title="edit trainer"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></span>#}
-
-                    {#{% endif %}#}
-                {#</td>#}
-
-            {#</tr>#}
-        {% endif %}
-
-
 
         {% endfor %}
 </tbody>

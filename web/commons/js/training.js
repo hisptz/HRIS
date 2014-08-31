@@ -136,13 +136,13 @@ var header = "Add"
                     j++;
                     if(jQuery.inArray( val['id'], recordList)>-1){
 
-                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td></td><td></td><td></td><td><input title='"+title+"' type='checkbox' id='"+val['id']+"' checked disabled /></td></tr>";
+                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td>"+window.Sex[vals['5289e934bde20']]+"</td><td>"+window.Employer[vals['5289e934a59a6']]+"</td><td>"+window.Profession[vals['5289e934b733b']]+"</td><td><input title='"+title+"' type='checkbox' id='"+val['id']+"' checked disabled /></td></tr>";
 
                     }else{
                         if(jQuery.inArray( val['id'], arrayOfRecord(data.insertedAlready,"inserted"))>-1){
                             j--;
                         }else{
-                            table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td></td><td></td><td></td><td><input type='checkbox' id='"+val['id']+"' /></td></tr>";
+                            table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td>"+window.Sex[vals['5289e934bde20']]+"</td><td>"+window.Employer[vals['5289e934a59a6']]+"</td><td>"+window.Profession[vals['5289e934b733b']]+"</td><td><input type='checkbox' id='"+val['id']+"' /></td></tr>";
                         }
                     }
                     }
@@ -171,13 +171,13 @@ var header = "Add"
                     j++;
                     if(jQuery.inArray( val['id'], recordList)>-1){
 
-                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td></td><td></td><td></td><td><input title='"+title+"' type='checkbox' id='"+val['id']+"' checked disabled /></td></tr>";
+                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td>"+window.Sex[vals['5289e934bde20']]+"</td><td>"+window.Employer[vals['5289e934a59a6']]+"</td><td>"+window.Profession[vals['5289e934b733b']]+"</td><td><input title='"+title+"' type='checkbox' id='"+val['id']+"' checked disabled /></td></tr>";
 
                     }else{
                     if(jQuery.inArray( val['id'], arrayOfRecord(data.insertedAlready,"inserted"))>-1){
                          j--;
                     }else{
-                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td></td><td></td><td></td><td><input type='checkbox' id='"+val['id']+"' /></td></tr>";
+                        table += "<tr><td>"+j+"</td><td >"+vals['5289e934b4e25']+"</td><td>"+window.Sex[vals['5289e934bde20']]+"</td><td>"+window.Employer[vals['5289e934a59a6']]+"</td><td>"+window.Profession[vals['5289e934b733b']]+"</td><td><input type='checkbox' id='"+val['id']+"' /></td></tr>";
                     }
                   }
                }
@@ -384,13 +384,6 @@ function arrayOfRecord(data,tabId){
 
 function optionLists(entity,fieldoptions){
 
-//    jQuery.each(entity, function(index, vals) {
-//        jQuery.each(vals.value, function(i, val){
-//            console.log(i+"  ==>  "+val);
-//        });
-//
-//    });
-
     jQuery.each(fieldoptions, function(index, vals) {
         jQuery.each(vals, function(i, val){
 //            console.log(i+"  ==>  "+val);
@@ -400,8 +393,10 @@ function optionLists(entity,fieldoptions){
             }
 
             if(val == "Employer"){
-                window.Employer[vals.fieldOptionUid] = vals.fieldOptionValue
-            }
+
+                    window.Employer[vals.fieldOptionUid] = vals.fieldOptionValue;
+
+              }
 
             if(val == "Profession"){
                 window.Profession[vals.fieldOptionUid] = vals.fieldOptionValue
@@ -409,7 +404,5 @@ function optionLists(entity,fieldoptions){
         });
 
     });
-
-    console.log(window.Profession['528a0adfa726a']);
 
 }

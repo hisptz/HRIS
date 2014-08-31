@@ -24,20 +24,7 @@ class TrainersController extends Controller
     public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        /// querying instance record table to see existing record instance pairs//
-        $instance_id = $request->query->get('instance_id');// query instance id from route url
-        $trainer_ids = array(0=>'');
-        if(!empty($instance_id)){
-             $instance_id;
-             $query = "SELECT trainer_id FROM instanceTrainer WHERE instance_id = ".$instance_id;
-            $trainings= $em -> getConnection() -> executeQuery($query) -> fetchAll();
 
-            foreach($trainings as $trains ){
-                $trainer_ids[] = $trains['trainer_id'];
-            }
-
-
-        }
  // Get the Entity Manager
 
         $trainers = $em->getRepository('HrisTrainingBundle:Trainer')->getAllTrainers(); // Get the repository
@@ -52,7 +39,6 @@ class TrainersController extends Controller
 
         return $this->render('HrisTrainingBundle:Trainers:show.html.twig',array(
             'trainers'     => $trainers,
-            'trainers_id' => $trainer_ids,
             'delete_forms' => $delete_forms
         )); // Render the template using necessary parameters
     }
@@ -277,6 +263,15 @@ class TrainersController extends Controller
 
             $em->remove($entity);
             $em->flush();
+            $deleteInstanceTrainer = "SELECT *  FROM instanceTrainer WHERE trainer_id =".$id;
+
+            $results = $em -> getConnection() -> executeQuery($deleteInstanceTrainer) -> fetchAll();
+            foreach($results as $result){
+                $entity = $em->getRepository('HrisTrainingBundle:instanceTrainer')->find($result['id']);
+                $em->remove($entity);
+                $em->flush();
+            }
+
         }
 
         return $this->redirect($this->generateUrl('trainers'));
