@@ -1,0 +1,88 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.records_list').dataTable( {
+                    "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                    "oTableTools": {
+                        "aButtons": [
+                            {"sExtends":"copy","mColumns":"visible"},
+                            {"sExtends":"xls","mColumns":"visible"},
+                            {"sExtends":"pdf","mColumns":"visible"}
+                        ],
+                        "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                    },
+                    "sPdfOrientation": "landscape",
+                    "sPaginationType": "bootstrap",
+                    "oLanguage": {
+                        "sLengthMenu": "_MENU_ records per page"
+                    },
+                    "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+                } );
+            } );
+        </script>
+        <script type="text/javascript">
+            {#{{ chart(chart) }}#}
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+
+    <div class="container">
+        <h1><small>{{ licensetitle }} {{ title }} Superlative Substantial  Report {{ organisationUnit }} {{ withLowerLevels }}</small></h1><br>
+
+        <table class="records_list dataTable table table-striped table-bordered table-hover" style="margin-top: 10px">
+            <thead>
+            <tr>
+                <th>Sn.</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
+                <th>Date of Birth</th>
+                <th>Gender</th>
+                <th>Education Level</th>
+                <th>Superlative Position</th>
+                <th>Employment Status</th>
+                <th>Present Department</th>
+                <th>Retirement Date</th>
+                <th>Duty Post</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set incr=0 %}
+            {% for result in results %}
+                {% set incr = incr+1 %}
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ result.firstname }}  </td>
+                    <td>{{ result.middlename }} </td>
+                    <td>{{ result.surname }}</td>
+                    <td>{{ result.dob| date('Y') }}</td>
+                    <td>{{ result.sex }}</td>
+                    <td>{{ result.edu_evel }}</td>
+                    <td>{{ result.hosp_superlative_post }}</td>
+                    <td>{{ result.employment_status }}</td>
+                    <td>{{ result.department }}</td>
+                    <td>{{ result.retirementdistribution }}</td>
+                    <td>{{ result.level5_facility }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+    <div style="text-align: right">
+        <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+            Export to Excel
+        </a>
+        <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+            Export Records By Cadre
+        </a>
+    </div>
+{% endblock %}

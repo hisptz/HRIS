@@ -1,0 +1,15 @@
+leave:
+    resource: "@HrisLeaveBundle/Controller/LeaveController.php"
+    type: annotation
+
+leave_management:
+    resource: "@HrisLeaveBundle/Controller/LeaveManagementController.php"
+    type: annotation
+
+leavereport:
+    resource: "@HrisLeaveBundle/Controller/LeaveReportController.php"
+    type: annotation
+
+
+
+

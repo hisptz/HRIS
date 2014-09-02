@@ -105,6 +105,22 @@ class History
     private $startdate;
 
     /**
+     * @var \DateTime $enddate
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="enddate", type="datetime", nullable=true)
+     */
+    private $enddate;
+
+    /**
+     * @var string $entitled_payment
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="entitled_payment", type="string", length=255, nullable=true)
+     */
+    private $entitled_payment;
+
+    /**
      * @var string $username
      *
      * @Gedmo\Versioned
@@ -218,6 +234,29 @@ class History
     }
 
     /**
+     * Set enddate
+     *
+     * @param \DateTime $enddate
+     * @return History
+     */
+    public function setEnddate($enddate)
+    {
+        $this->enddate = $enddate;
+
+        return $this;
+    }
+
+    /**
+     * Get enddate
+     *
+     * @return \DateTime
+     */
+    public function getEnddate()
+    {
+        return $this->enddate;
+    }
+
+    /**
      * Set reason
      *
      * @param string $reason
@@ -238,6 +277,29 @@ class History
     public function getReason()
     {
         return $this->reason;
+    }
+
+    /**
+     * Set entitled_payment
+     *
+     * @param string $entitled_payment
+     * @return History
+     */
+    public function setEntitledpayment($entitled_payment)
+    {
+        $this->entitled_payment = $entitled_payment;
+
+        return $this;
+    }
+
+    /**
+     * Get entitled_payment
+     *
+     * @return string
+     */
+    public function getEntitledpayment()
+    {
+        return $this->entitled_payment;
     }
 
     /**

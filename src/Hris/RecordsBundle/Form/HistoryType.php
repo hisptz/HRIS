@@ -51,7 +51,17 @@ class HistoryType extends AbstractType
                 'format' => 'dd/MM/yyyy',
                 'attr' => array('class' => 'date')
             ))
-            ->add('reason', 'text', array(
+            ->add('enddate', 'date', array(
+                'required'=>False,
+                'widget' => 'single_text',
+                'format' => 'dd/MM/yyyy',
+                'attr' => array('class' => 'enddate')
+            ))
+            ->add('entitled_payment', 'choice', array(
+                'choices'   => array('yes' => 'Entitled for Payment', 'no' => 'Not Entitled for Payment'),
+                'required'  => false,
+            ))
+            ->add('reason', 'textarea', array(
                 'required'=>True,
             ))
             ->add('updaterecord','checkbox',array(

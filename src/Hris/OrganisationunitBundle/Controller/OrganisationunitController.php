@@ -566,7 +566,7 @@ class OrganisationunitController extends Controller
      * Returns OrganisationunitGroup members tree json.
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_ORGANISATIONUNITGROUP_LISTTREE")
-     * @Route("/group/{organisationunitgroupid}/tree.{_format}", requirements={"_format"="yml|xml|json","organisationunitgroupid"="\d+"}, defaults={"format"="json","organisationunitgroupid"=0}, name="organisationunit_tree_group_members")
+     * @Route("/group/{organisationunitgroupid}/tree.{_format}", requirements={"_format"="yml|xml|json","organisationunitgroupid"="\d+"}, defaults={"_format"="json","organisationunitgroupid"=0}, name="organisationunit_tree_group_members")
      * @Method("GET")
      * @Template()
      */

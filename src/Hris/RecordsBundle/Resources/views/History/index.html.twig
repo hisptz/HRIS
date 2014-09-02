@@ -54,6 +54,9 @@
         <li>
             <a class="btn" href="{{ path('training_list_byrecord', { 'recordid': record.id }) }}"><i class="icon-folder-open icon-large" title="In service Training"></i> Training</a>
         </li>
+        <li>
+            <a class="btn" href="{{ path('employee_calendar', { 'recordid': record.id }) }}"><i class="icon-calendar icon-large" title="In service Training"></i> History Calendar</a>
+        </li>
     </ul>
 
     <table class="records_list dataTable table table-striped table-bordered table-hover">

@@ -86,6 +86,14 @@ class FieldOption
      * @ORM\Column(name="skipInReport", type="boolean", nullable=true)
      */
     private $skipInReport;
+
+    /**
+     * @var boolean $hasTraining
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="hasTraining", type="boolean", nullable=true)
+     */
+    private $hasTraining;
     
     /**
      * @var string $description
@@ -93,6 +101,8 @@ class FieldOption
      * @Gedmo\Versioned
      * @ORM\Column(name="description", type="text", nullable=true)
      */
+
+
     private $description;
 
     /**
@@ -229,6 +239,29 @@ class FieldOption
     public function getSkipInReport()
     {
         return $this->skipInReport;
+    }
+
+    /**
+     * Set hasTraining
+     *
+     * @param boolean $hasTraining
+     * @return FieldOption
+     */
+    public function setHasTraining($hasTraining)
+    {
+        $this->hasTraining = $hasTraining;
+
+        return $this;
+    }
+
+    /**
+     * Get hasTraining
+     *
+     * @return boolean
+     */
+    public function getHasTraining()
+    {
+        return $this->hasTraining;
     }
 
     /**

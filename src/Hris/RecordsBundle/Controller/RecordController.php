@@ -88,7 +88,7 @@ class RecordController extends Controller
         $em = $this->getDoctrine()->getManager();
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $userManager = $this->get('fos_user.user_manager');
+        $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->findUserByUsername($this->getUser());
         $organisationunit = $user->getOrganisationunit();
 
@@ -201,10 +201,7 @@ class RecordController extends Controller
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_LISTFORMS")
      * @Route("/formlist/dataentry", defaults={"channel"="dataentry"}, name="record_form_list")
      * @Route("/formlist/updaterecords", defaults={"channel"="updaterecords"}, name="record_form_list_updaterecords")
-     * @Route("/formlist/trainingInstance", defaults={"channel"="traininginstance"}, name="record_form_list_instance")
-     * @Route("/formlist/instanceRecord", defaults={"channel"="instanceRecord"}, name="record_form_list_instanceRecord")
-     * @Route("/formlist/facilitatorInstanceRecord", defaults={"channel"="facilitatorInstanceRecord"}, name="record_form_list_facilitatorInstanceRecord")
-     * @Route("/formlist/participantsInstanceRecord", defaults={"channel"="participantsInstanceRecord"}, name="record_form_list_participantsInstanceRecord")
+     * @Route("/formlist/updateleaverecords", defaults={"channel"="leaverecords"}, name="record_form_list_leaverecords")
      * @Method("GET")
      * @Template()
      */
