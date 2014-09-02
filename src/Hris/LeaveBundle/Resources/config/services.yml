@@ -1,8 +1,0 @@
-parameters:
-#    hris_leave.example.class: Hris\LeaveBundle\Example
-
-services:
-    hris_leave.configure_menu_listener:
-            class: Hris\LeaveBundle\EventListener\ConfigureMenuListener
-            tags:
-                - { name: kernel.event_listener, event: hris_leave.menu_configure, method: onMenuConfigure }
