@@ -27,10 +27,15 @@ class SponsorController extends Controller
         $em = $this->getDoctrine()->getManager(); // Get the Entity Manager
 
         $sponsors = $em->getRepository('HrisTrainingBundle:Sponsor')->getAllSponsors(); // Get the repository
-
+        $delete_forms = NULL;
+        foreach($sponsors as $entity) {
+            $delete_form= $this->createDeleteForm($entity->getId());
+            $delete_forms[$entity->getId()] = $delete_form->createView();
+        }
 
         return array(
-            'sponsors'     => $sponsors
+            'sponsors'     => $sponsors,
+            'delete_forms' =>$delete_forms
         ); // Render the template using necessary parameters
 
     }

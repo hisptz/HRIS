@@ -55,7 +55,7 @@ class TrainersController extends Controller
         $trainer_ids = array(0=>'');
 
              $instance_id;
-             $query = "SELECT trainer_id FROM instanceTrainer WHERE instance_id = ".$instance_id;
+            $query = "SELECT trainer_id FROM instanceTrainer WHERE instance_id = ".$instance_id;
             $trainings= $em -> getConnection() -> executeQuery($query) -> fetchAll();
             $trainersArray = array();
             $i = 0;

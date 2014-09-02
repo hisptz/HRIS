@@ -12,4 +12,16 @@ use Doctrine\ORM\EntityRepository;
  */
 class instanceFacilitatorRepository extends EntityRepository
 {
+    public function getAllFacilitators($limit = null)
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select('b')
+            ->addOrderBy('b.datecreated', 'DESC');
+
+        if (false === is_null($limit))
+            $qb->setMaxResults($limit);
+
+        return $qb->getQuery()
+            ->getResult();
+    }
 }

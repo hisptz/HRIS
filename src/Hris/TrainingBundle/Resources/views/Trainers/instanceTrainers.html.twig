@@ -53,16 +53,20 @@
 
         }
     </script>
-    <div class="span12">
-        <div class="span7">
-            <h3><i class="icon-circle-info icon-largest" title="Show"></i>trainers Lists <span style="color:#ccc;" id="named_instance"></span></h3>
-        </div>
-        <div class="span5">
-            <a  href="{{ path("add_options",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default">add to the list</a>
-            <a  href="{{ path("trainingsession") }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>
-        </div>
-    </div>
-    <div class="span12">
+    <div class="container">
+
+      <h1><small>Trainers Lists <span  id="named_instance"></span></small></h1>
+
+        <ul class="inline">
+            <li>
+                <a  href="{{ path("add_options",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default">add to the list</a>
+            </li>
+            <li>
+                <a  href="{{ path("trainingsession") }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>
+            </li>
+        </ul>
+
+    {#<div class="span12">#}
         <table class="table trainers table-striped table-bordered table-hover">
             <thead>
             <tr>
@@ -125,7 +129,9 @@
                                                     <button type="submit" class="btn btn-danger">Delete</button>
                                                 </form>
                                             </div>
-                                     </span>
+                                            </div>
+
+                                  </span>
                             </td>
 
                         </tr>
@@ -134,6 +140,6 @@
             {% endfor %}
             </tbody>
         </table>
-    </div>
+    {#</div>#}
 
 {% endblock %}

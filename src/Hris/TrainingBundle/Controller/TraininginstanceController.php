@@ -21,6 +21,7 @@ use Doctrine\ORM\Internal\Hydration\ObjectHydrator  as DoctrineHydrator;
 use Hris\RecordsBundle\Entity\Record;
 use Hris\TrainingBundle\Entity\instanceRecord;
 use Hris\TrainingBundle\Entity\instanceTrainer;
+use Hris\TrainingBundle\Entity\Sponsor;
 use Hris\TrainingBundle\Entity\trainer;
 use Hris\RecordsBundle\Form\RecordType;
 use Hris\TrainingBundle\Form\instanceRecordType;
@@ -208,7 +209,7 @@ class TraininginstanceController extends Controller
         $entity->setCourse($entity->getCourse());
         $entity->setRegion($entity->getRegion());
         $entity->setDistrict($entity->getDistrict());
-        $entity->setFacility($entity->getFacility());
+        $entity->setVenue($entity->getVenue());
 
         $entity->setStartdate($entity->getStartdate());
         $entity->setEnddate($entity->getEnddate());
@@ -647,13 +648,14 @@ class TraininginstanceController extends Controller
         $serializer = $this->container->get('serializer');
         $em = $this->getDoctrine()->getManager();
         $instance = $em->getRepository('HrisTrainingBundle:Traininginstance')->find($instanceId);
-        $instance_name = $instance->getCourse();
+//        $instance_name = $instance->getCourse();
         $instane_district = $instance->getDistrict();
         $instane_region = $instance->getRegion();
         $instance_startdate = $instance->getStartdate();
-
+        $instance_name ="";
         $trainingInstance = $serializer->serialize(array("instance_name"=>$instance_name,"instance_region"=>$instane_region,"instance_district"=>$instane_district,"instance_startdate"=>$instance_startdate),$_format);
-//
+
+
         return array(
             "trainingInstance"=>$trainingInstance
         );

@@ -104,7 +104,35 @@
                     {% endif %}
                     {% endfor %}
 
-                    <td><a href="{{ path('instanceFacilitatordelete',{'id':record.id,'instance_id':queryParams['instance_id']}) }}" title="remove facilitator"><i class="icon-remove icon-large"></i></a></td>
+                    <td>
+                         <a data-toggle="modal" href="#deleteModalFor{{ record.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>
+                        <div class="modal fade" id="deleteModalFor{{ record.uid }}">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting Facilitator </h4>
+                                    </div>
+                                    <div class="modal-body" >
+                                        {#Are you sure you want to delete session <strong>Facilitator</strong> that was created on {{ trainer.datecreated|date('d/m/Y') }}#}
+                                        {#{% if trainer.lastUpdated %}#}
+                                            {#and last updated on {{ trainer.lastUpdated|date('H:i:s d/m/Y') }} ??#}
+                                        {#{% else %}#}
+                                            and never updated ??
+                                        {#{% endif %}#}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="{{ path('instanceFacilitatordelete',{'id':record.id,'instance_id':queryParams['instance_id']}) }}" method="post">
+                                            <input type="hidden" name="_method" value="DELETE" />
+                                            {{ form_widget(delete_forms[queryParams['instance_id']][record.id] ) }}
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+
+                    </td>
                 </tr>
                 {% endif %}
             {% endfor %}

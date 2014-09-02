@@ -184,8 +184,17 @@ class FacilitatorController extends Controller
         $query = "SELECT record_id FROM instanceFacilitator WHERE instance_id =".$instance_id;
         $record_ids = $em -> getConnection() -> executeQuery($query) -> fetchAll();
         $id_record = array(0=>-1);
+        $i = 0;
         foreach($record_ids as $records_id ){
             $id_record[] = $records_id['record_id'];
+        }
+
+        $instanceFacilitators = $em->getRepository('HrisTrainingBundle:instanceFacilitator')->getAllFacilitators(); // Get the repository
+
+        $delete_forms=NULL;
+        foreach($instanceFacilitators as $entity) {
+            $delete_form= $this->createDeleteForm($entity->getId());
+            $delete_forms[$entity->getInstanceId()][$entity->getRecordId()] = $delete_form->createView();
         }
 
         return array(
@@ -196,10 +205,27 @@ class FacilitatorController extends Controller
             'optionMap'=>$fieldOptionMap,
             'userForms'=>$userForms,
             'formid'=>'',
+            'delete_forms'=>$delete_forms,
+            'instanceFacilitators'=>$instanceFacilitators,
             'record_ids'=>$id_record
 
         );
     }
 
+
+    /**
+     * Creates a form to delete a Report entity by id.
+     *
+     * @param mixed $id The entity id
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
+    private function createDeleteForm($id)
+    {
+        return $this->createFormBuilder(array('id' => $id))
+            ->add('id', 'hidden')
+            ->getForm()
+            ;
+    }
 
 }

@@ -62,21 +62,27 @@
 {% endblock stylesheets %}
 {% block right_content -%}
     {% set queryParams = app.request.query.all %}
-    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Venues Lists</h3></h1></div><div class="span5">
-    {% if queryParams['instance_id'] is defined %}
-        {% if queryParams['status'] is defined and queryParams['status'] != "view_owned" %}
-                <a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>
-            {% else %}
-                <a  href="{{ path("venues",{'instance_id':queryParams['instance_id'],'status':'all'}) }}" class="btn btn-default">add to the list</a>
-                <a  href="{{ path("record_form_list_instanceRecord",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>
-        {% endif %}
-     {% else %}
-                <a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>
-    {% endif %}
+    {#<div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Venues Lists</h3></h1></div><div class="span5">#}
+    {#{% if queryParams['instance_id'] is defined %}#}
+        {#{% if queryParams['status'] is defined and queryParams['status'] != "view_owned" %}#}
+                {#<a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>#}
+            {#{% else %}#}
+                {#<a  href="{{ path("venues",{'instance_id':queryParams['instance_id'],'status':'all'}) }}" class="btn btn-default">add to the list</a>#}
+                {#<a  href="{{ path("record_form_list_instanceRecord",{'instance_id':queryParams['instance_id']}) }}" class="btn btn-default" class="icon-left-arrow">&nbsp;back</a>#}
+        {#{% endif %}#}
+     {#{% else %}#}
+                {#<a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>#}
+    {#{% endif %}#}
 
-</div>
-    </div>
-    <div class="span12">
+
+    <div class="container">
+        <h1><small>Venue Lists</small></h1>
+        <ul class="inline">
+            <li>
+
+                <a  href="{{ path("venues_new") }}" class="btn btn-default">add venue</a>
+            </li>
+        </ul>
     <table class="table venues table-striped table-bordered table-hover">
     <thead>
     <tr>
@@ -92,7 +98,6 @@
 {% set incr=0 %}
 {% for venue in venues %}
     {% set incr = incr+1 %}
-
                 <tr>
                     <td>{{ incr }}</td>
                     <td>{{ venue.venueName}}  </td>
@@ -126,7 +131,6 @@
                                     </div>
                                     </span>
                     </td>
-
                 </tr>
 
         {% endfor %}

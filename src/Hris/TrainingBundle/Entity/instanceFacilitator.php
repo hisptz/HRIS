@@ -126,6 +126,24 @@ class instanceFacilitator
         return $this->uid;
     }
 
+
+    /**
+     * @var \DateTime $datecreated
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="datecreated", type="datetime", nullable=false)
+     */
+    private $datecreated;
+
+    /**
+     * @var \DateTime $lastupdated
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="lastupdated", type="datetime", nullable=true)
+     */
+    private $lastupdated;
+
+
     /**
      * Constructor
      */
@@ -134,5 +152,51 @@ class instanceFacilitator
         $this->uid = uniqid();
 
 
+    }
+
+    /**
+     * Set datecreated
+     *
+     * @param \DateTime $datecreated
+     * @return instanceFacilitator
+     */
+    public function setDatecreated($datecreated)
+    {
+        $this->datecreated = $datecreated;
+    
+        return $this;
+    }
+
+    /**
+     * Get datecreated
+     *
+     * @return \DateTime 
+     */
+    public function getDatecreated()
+    {
+        return $this->datecreated;
+    }
+
+    /**
+     * Set lastupdated
+     *
+     * @param \DateTime $lastupdated
+     * @return instanceFacilitator
+     */
+    public function setLastupdated($lastupdated)
+    {
+        $this->lastupdated = $lastupdated;
+    
+        return $this;
+    }
+
+    /**
+     * Get lastupdated
+     *
+     * @return \DateTime 
+     */
+    public function getLastupdated()
+    {
+        return $this->lastupdated;
     }
 }

@@ -34,7 +34,7 @@ use Hris\RecordsBundle\Entity\Record;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
- * Traininginstance
+ *Traininginstance
  *@Gedmo\Loggable
  *@ORM\Table(name="hris_traininginstance")
  *@ORM\Entity(repositoryClass="Hris\TrainingBundle\Entity\TraininginstanceRepository")
@@ -100,13 +100,6 @@ class Traininginstance
  */
     private $sponsor;
 
-
-//    /**
-//     *
-//     * @ORM\OneToMany(targetEntity="Hris\RecordsBundle\Entity\Record",mappedBy="instances")
-//     *
-//     */
-//    private $record;
 
     /**
      * @var \DateTime $startdate

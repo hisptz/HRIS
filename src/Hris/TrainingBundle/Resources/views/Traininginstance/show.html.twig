@@ -33,8 +33,15 @@
     <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
 {% endblock stylesheets %}
 {% block right_content -%}
-    <div class="span12"><div class="span7"<h1> <h3><i class="icon-circle-info icon-largest" title="Show"></i>Training Sessions Lists</h3></h1></div><div class="span5"><a  href="{{ path("trainingsession_new") }}" class="btn btn-default">add session</a></div></div>
-    <div class="span12">
+    <div class="container">
+
+        <h1><small>Training Sessions Lists</small></h1>
+
+        <ul class="inline">
+            <li>
+                <a  href="{{ path("trainingsession_new") }}" class="btn btn-default">add session</a>
+            </li>
+        </ul>
 
     <table  class="table traininginstance_list table-striped table-bordered table-hover">
         <thead>
