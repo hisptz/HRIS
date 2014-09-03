@@ -1,0 +1,70 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery-ui.js') }}"></script>
+    <script type="text/javascript" language="javascript" src="{{ asset('commons/js/jquery.validate.js') }}"></script>
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            $("#hris_leavebundle_leavetype_maximumDays").parent().fadeOut();
+            $("#hris_leavebundle_leavetype_limitApplicable").change(function(){
+                if($(this).val() == "Applicable" ){
+                    $("#hris_leavebundle_leavetype_maximumDays").parent().fadeIn();
+                }else if($(this).val() == "Not Applicable" ){
+                    $("#hris_leavebundle_leavetype_maximumDays").parent().fadeOut();
+                }
+            });
+            $( ".date" ).datepicker( {
+                changeMonth: true,
+                changeYear: true,
+                showOn: "both",
+                buttonImage: "{{ asset('commons/images/calendar.gif') }}",
+                buttonImageOnly: true,
+                dateFormat: "dd/mm/yy",
+                showAnim: "clip",
+                yearRange:'c-60:c+60'
+            });
+        });
+    </script>
+{% endblock %}
+
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/datepicker.css') }}" />
+    <link rel="stylesheet" href="{{ asset('commons/css/jquery-ui.css') }}" />
+{% endblock stylesheets %}
+
+{% block message_alert %}
+    {% if message %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <small class="visible-phone"><strong>Success!</strong> {{ message }}</small>
+            <small class="hidden-phone"><strong>Success!</strong> {{ message }}</small>
+        </div>
+    {% endif %}
+{% endblock message_alert %}
+
+{% block right_content -%}
+<h1><small>New Leave Type</small></h1>
+
+<form action="{{ path('leave_create')}}" method="post" {{ form_enctype(form) }}>
+
+    {{ form_row( form.name ) }}
+    {{ form_row( form.description ) }}
+    {{ form_row( form.limitApplicable ) }}
+    {{ form_row( form.maximumDays ) }}
+
+    <ul class="record_actions inline" style="..." >
+        <li>
+            <button type="submit" class="btn">Create</button>
+        </li>
+        <li>
+            <a href="{{ path('leave') }}" class="btn">
+                Back to the list
+            </a>
+        </li>
+    </ul>
+
+    {{ form_end(form) }}
+
+    {% endblock %}
