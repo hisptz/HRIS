@@ -37,7 +37,8 @@ use Hris\ReportsBundle\Event\ConfigureMenuEvent as ReportsConfigureMenuEvent;
 use Hris\ImportExportBundle\Event\ConfigureMenuEvent as ImportExportConfigureMenuEvent;
 use Hris\HelpCentreBundle\Event\ConfigureMenuEvent as HelpCentreConfigureMenuEvent;
 use Hris\TrainingBundle\Event\ConfigureMenuEvent as TrainingConfigureMenuEvent;
-
+use Hris\LeaveBundle\Event\ConfigureMenuEvent as LeaveConfigureMenuEvent;
+use Hris\NursingBundle\Event\ConfigureMenuEvent as NursingConfigureMenuEvent;
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
@@ -141,6 +142,11 @@ class MainBuilder extends ContainerAware
         // Training Bundle
         $this->container->get('event_dispatcher')->dispatch(TrainingConfigureMenuEvent::CONFIGURE, new TrainingConfigureMenuEvent($factory, $menu));
 
+        //leave module
+        $this->container->get('event_dispatcher')->dispatch(LeaveConfigureMenuEvent::CONFIGURE, new LeaveConfigureMenuEvent($factory, $menu));
+
+        //Nursing module
+        $this->container->get('event_dispatcher')->dispatch(NursingConfigureMenuEvent::CONFIGURE, new NursingConfigureMenuEvent($factory, $menu));
 
         // ImportExport Bundle
         if(
