@@ -42,6 +42,7 @@ class SyncDataCommand extends ContainerAwareCommand
             ->setName('hris:dhisintegration:syncdata')
             ->setDescription('Sync HRHIS Data to DHIS')
             ->addArgument('id', InputArgument::OPTIONAL, 'Intergration Connection Id')
+            ->addArgument('year', InputArgument::OPTIONAL, 'Year of analysis')
             ->setHelp(<<<EOT
 The <info>hris:dhisintegration:syncdata</info> command generates xml with aggregate data to be sent to dhis
 
@@ -60,6 +61,8 @@ EOT
         $stopwatch->start('syncing');
 
         $id = $input->getArgument('id');
+        $capturedYear = $input->getArgument('year');
+        if(!empty($capturedYear)) $year= $capturedYear;
         if ($id) {
             $this->dhisConnectionId = $id;
         } else {
@@ -91,7 +94,7 @@ EOT
          * Aggregate organisationunit for all the children
          */
         $queryBuilder = $em->createQueryBuilder();
-        $allOrganisationunitsChildren = $queryBuilder->select('organisationunit')
+        $allOrganisationunitsChildren = $queryBuilder->select('DISTINCT organisationunit')
             ->from('HrisOrganisationunitBundle:Organisationunit','organisationunit')
             ->join('organisationunit.organisationunitStructure','organisationunitStructure')
             ->join('organisationunitStructure.level','level')
@@ -183,11 +186,13 @@ EOT
                         $rowWhereClause = "$categoryRowResourceTableName.$categoryRowFieldName='".$categoryRowFieldOptionValue."'";
                     }
                 }
+
+                $verboseDataValaueColumnNames= $dataelementFieldOptionValue->getRowFieldOptionGroup()."--".$dataelementFieldOptionValue->getColumnFieldOptionGroup();
                 $dataValueColumnName=$organisationunit->getDhisUid().'--'.$dataelementFieldOptionValue->getDataelementUid().'--'.$dataelementFieldOptionValue->getCategoryComboUid();
                 if(!empty($selectQuery)) {
-                    $selectQuery.=" UNION ALL SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year>=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
+                    $selectQuery.=" UNION ALL SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year<=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
                 }else {
-                    $selectQuery="SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year>=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
+                    $selectQuery="SELECT CAST('".$dataValueColumnName."' AS text) AS datavaluelabel, COUNT(DISTINCT(instance)) AS value "." $fromClause WHERE ($rowWhereClause) AND ($columnWhereClause) AND ".$resourceTableAlias.".first_appointment_year<=".$year." AND $organisationunitLevelsWhereClause".( !empty($fieldOptionsToSkipQuery) ? " AND ( $fieldOptionsToSkipQuery )" : "" )." HAVING COUNT(DISTINCT(instance))>0";
                 }
                 unset($dhisUid);
                 // Intercept after certain number of orgunits for fetching results
@@ -199,7 +204,7 @@ EOT
                     // Process SQL Batch
                     $sqlResult = $this->getContainer()->get('doctrine')->getManager()->getConnection()->fetchAll($selectQuery);
                     foreach($sqlResult as $resultKey=>$resultRow) {
-                        $dataValueKeys = explode('--',$resultRow['datavaluelabel']);//dhisUid--dataelementUid--categoryComboUid
+                        $dataValueKeys = explode('--',$resultRow['datavaluelabel']);//dhisUid--dataelementUid--categoryComboUid$recordRow ='<!--'.$resultRow['datavaluelabelverbose'].'-->';
                         $recordRow = '<dataValue orgUnit="'.$dataValueKeys[0].'" period="'.$year.'" dataElement="'.$dataValueKeys[1].'" categoryOptionCombo="'.$dataValueKeys[2].'" value="'.$resultRow['value'].'" storedBy="hrhis" lastUpdated="'.date("c").'" followUp="false" />';
                         file_put_contents($xmlFile,$recordRow,FILE_APPEND);
                     }
