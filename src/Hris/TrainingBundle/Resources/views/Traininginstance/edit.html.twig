@@ -125,14 +125,35 @@
                         </div>
                         <div class="modal-body">
                             Are you sure you want to delete <strong>{{ entity.course | capitalize }}</strong>
-                            {#{% if entity.lastUpdated %}#}
-                                {#and last updated on {{ entity.lastUpdated|date('H:i:s d/m/Y') }} ??#}
-                            {#{% else %}#}
-                                {#and never updated ??#}
-                            {#{% endif %}#}
+                            {% if entity.lastUpdated %}
+                                and last updated on {{ entity.lastUpdated|date('H:i:s d/m/Y') }} ??
+                            {% else %}
+                                and never updated ??
+                            {% endif %}
+                            <table class="table table-condensed table-striped ">
+                                <thead>
+                                <tr>
+                                    <th>Region</th>
+                                    <th>District</th>
+                                    <th>Venue</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td>{{ entity.region }}</td>
+                                    <td>{{ entity.district }}</td>
+                                    <td>{{ entity.venue }}</td>
+                                    <td>{{ entity.startdate|date(' d/m/Y') }}</td>
+                                    <td>{{ entity.enddate|date(' d/m/Y') }}</td>
+                                </tr>
+                                <tbody>
+
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
-                            <form action="{{ path('training_delete', { 'id': entity.id }) }}" method="post">
+                            <form action="{{ path('trainingsession_delete', { 'id': entity.id }) }}" method="post">
                                 <input type="hidden" name="_method" value="DELETE" />
                                 {{ form_widget(delete_form) }}
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

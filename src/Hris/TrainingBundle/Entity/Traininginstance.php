@@ -62,42 +62,43 @@ class Traininginstance
 
     /**
      * @var String $course
-    /**
-     *@ORM\ManyToOne(targetEntity="Hris\TrainingBundle\Entity\Training")
-     *@ORM\JoinColumn(name="training_id", referencedColumnName="id")
+     *
+     * @ORM\ManyToOne(targetEntity="Hris\TrainingBundle\Entity\Training")
+     * @ORM\JoinColumn(name="training_id", referencedColumnName="id", onDelete="CASCADE")
+     *
      */
     private $course;
 
- /**
- * @var string $region
- *
- * @Gedmo\Versioned
- * @ORM\Column(name="region", type="string", length=100, unique=false)
- */
+     /**
+     * @var string $region
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="region", type="string", length=100, unique=false)
+     */
     private $region;
 
- /**
- * @var string $district
- *
- * @Gedmo\Versioned
- * @ORM\Column(name="district", type="string", length=100, unique=false)
- */
+     /**
+     * @var string $district
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="district", type="string", length=100, unique=false)
+     */
     private $district;
 
- /**
- * @var string $venue
- *
- * @Gedmo\Versioned
- * @ORM\Column(name="venue", type="string", length=100, unique=false)
- */
+     /**
+     * @var string $venue
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="venue", type="string", length=100, unique=false)
+     */
     private $venue;
 
- /**
- * @var string $sponsor
- *
- * @Gedmo\Versioned
- * @ORM\Column(name="sponsor", type="string", length=100, unique=false)
- */
+     /**
+     * @var string $sponsor
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="sponsor", type="string", length=100, unique=false)
+     */
     private $sponsor;
 
 
@@ -119,6 +120,23 @@ class Traininginstance
      * @ORM\Column(name="enddate", type="datetime", length=255)
      */
     private $enddate;
+
+
+    /**
+     * @var \DateTime $datecreated
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="datecreated", type="datetime", nullable=false)
+     */
+    private $datecreated;
+
+    /**
+     * @var \DateTime $lastupdated
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="lastupdated", type="datetime", nullable=true)
+     */
+    private $lastupdated;
+
 
     /**
      * Get id
@@ -327,5 +345,51 @@ class Traininginstance
     public function getVenue()
     {
         return $this->venue;
+    }
+
+    /**
+     * Set datecreated
+     *
+     * @param \DateTime $datecreated
+     * @return Traininginstance
+     */
+    public function setDatecreated($datecreated)
+    {
+        $this->datecreated = $datecreated;
+    
+        return $this;
+    }
+
+    /**
+     * Get datecreated
+     *
+     * @return \DateTime 
+     */
+    public function getDatecreated()
+    {
+        return $this->datecreated;
+    }
+
+    /**
+     * Set lastupdated
+     *
+     * @param \DateTime $lastupdated
+     * @return Traininginstance
+     */
+    public function setLastupdated($lastupdated)
+    {
+        $this->lastupdated = $lastupdated;
+    
+        return $this;
+    }
+
+    /**
+     * Get lastupdated
+     *
+     * @return \DateTime 
+     */
+    public function getLastupdated()
+    {
+        return $this->lastupdated;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Hris\TrainingBundle\Controller;
 
+use Hris\RecordsBundle\Entity\Training;
 use Hris\TrainingBundle\Entity\instanceFacilitator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -317,6 +318,39 @@ class TraininginstanceController extends Controller
         ));
     }
 
+
+    /**
+     * Deletes a Report entity.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Route("/{id}/trainingsession_delete", requirements={"id"="\d+"}, name="trainingsession_delete")
+     * @Method("DELETE")
+     */
+    public function deleteAction(Request $request, $id)
+    {
+
+//        deleteRelatedRecords($id);die();
+
+        $form = $this->createDeleteForm($id);
+        $form->bind($request);
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $entity = $em->getRepository('HrisTrainingBundle:Traininginstance')->find($id);
+
+            if (!$entity) {
+                throw $this->createNotFoundException('Unable to find Training session entity.');
+            }
+
+            $em->remove($entity);
+            $em->flush();
+        }
+
+        return $this->redirect($this->generateUrl('trainingsession'));
+
+    }
+
+
     /**
      * Returns Fields json.
      *
@@ -446,11 +480,11 @@ class TraininginstanceController extends Controller
         ///////// getting inserted mapping
         if($tabId=="add_participants"){
             $query = "SELECT * FROM hris_instance_records WHERE hris_instance_records.instance_id =".$instance_id;
-            $queryAlready = "SELECT record_id FROM instancefacilitator WHERE instancefacilitator.instance_id =".$instance_id;
+            $queryAlready = "SELECT record_id FROM hris_instanceFacilitator WHERE hris_instanceFacilitator.instance_id =".$instance_id;
 
         }
         if($tabId=="add_facilitators"){
-            $query = "SELECT * FROM instancefacilitator WHERE instancefacilitator.instance_id =".$instance_id;
+            $query = "SELECT * FROM hris_instanceFacilitator WHERE hris_instanceFacilitator.instance_id =".$instance_id;
             $queryAlready = "SELECT record_id FROM hris_instance_records WHERE hris_instance_records.instance_id =".$instance_id;
         }
 
@@ -480,7 +514,7 @@ class TraininginstanceController extends Controller
       $serializer = $this->container->get('serializer');
         $em       = $this->getDoctrine()->getManager();
         $trainers = $em->getRepository('HrisTrainingBundle:Trainer')->getAllTrainers();
-           $query = "SELECT * FROM instancetrainer WHERE instancetrainer.instance_id =".$instance_id;
+           $query = "SELECT * FROM hris_instancetrainer WHERE hris_instancetrainer.instance_id =".$instance_id;
 
 
         $insertedTrainers = $em -> getConnection() -> executeQuery($query) -> fetchAll();
@@ -582,7 +616,7 @@ class TraininginstanceController extends Controller
     public function instanceFacilitatorsdelete(Request $request,$id,$instance_id)
     {
         $em = $this->getDoctrine()->getManager();
-        $sql = "DELETE FROM instancefacilitator WHERE instancefacilitator.instance_id = '".$instance_id."' AND instancefacilitator.record_id = '".$id."'";
+        $sql = "DELETE FROM hris_instanceFacilitator WHERE hris_instanceFacilitator.instance_id = '".$instance_id."' AND hris_instanceFacilitator.record_id = '".$id."'";
         $em -> getConnection() -> executeQuery($sql);
         return $this->redirect($this->generateUrl('record_viewfacilitators', array('instance_id' => $instance_id)));
 
@@ -631,7 +665,7 @@ class TraininginstanceController extends Controller
     {
 
         $em = $this->getDoctrine()->getManager();
-        $sql = "DELETE FROM instanceTrainer WHERE instanceTrainer.instance_id = '".$instance_id."' AND instanceTrainer.trainer_id = '".$id."'";
+        $sql = "DELETE FROM hris_instanceTrainer WHERE hris_instanceTrainer.instance_id = '".$instance_id."' AND hris_instanceTrainer.trainer_id = '".$id."'";
         $em -> getConnection() -> executeQuery($sql);
 
         return $this->redirect($this->generateUrl('instanceTrainers', array('instance_id' => $instance_id)));
@@ -692,6 +726,21 @@ class TraininginstanceController extends Controller
         return count($val) > 1 ? $val : array_pop($val);
     }
 
+
+    /**
+    * Delete records related to training session
+    * @param mixed $id The entity id
+    *
+    */
+    public function deleteRelatedRecords($id)
+    {
+        $queryArray  = Array();
+        $queryArray[] = "DELETE FROM hris_instance_records WHERE instance_id=".$id;
+        $queryArray[] = "DELETE FROM hris_instancefacilitator WHERE instance_id=".$id;
+        $queryArray[] = "DELETE FROM hris_instancetrainer WHERE instance_id=".$id;
+
+        print_r($queryArray);
+    }
 
     /**
 * Creates a form to delete a Report entity by id.

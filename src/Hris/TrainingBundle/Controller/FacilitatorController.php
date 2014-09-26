@@ -181,7 +181,7 @@ class FacilitatorController extends Controller
         $userForms = $user->getForm();
 
 
-        $query = "SELECT record_id FROM instanceFacilitator WHERE instance_id =".$instance_id;
+        $query = "SELECT record_id FROM hris_instanceFacilitator WHERE instance_id =".$instance_id;
         $record_ids = $em -> getConnection() -> executeQuery($query) -> fetchAll();
         $id_record = array(0=>-1);
         $i = 0;

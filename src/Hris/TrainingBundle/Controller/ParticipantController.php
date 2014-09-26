@@ -371,7 +371,7 @@ class ParticipantController extends Controller
             $id_record[] = $records_id['record_id'];
         }
 
-        $query = "SELECT record_id FROM instanceFacilitator WHERE instance_id =".$instance_id;
+        $query = "SELECT record_id FROM hris_instanceFacilitator WHERE instance_id =".$instance_id;
         $facilitator_record_ids = $em -> getConnection() -> executeQuery($query) -> fetchAll();
         $facilitator_ids = array(0=>-1);
         foreach( $facilitator_record_ids as $records_id ){

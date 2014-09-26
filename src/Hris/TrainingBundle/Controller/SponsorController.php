@@ -31,10 +31,13 @@ class SponsorController extends Controller
         foreach($sponsors as $entity) {
             $delete_form= $this->createDeleteForm($entity->getId());
             $delete_forms[$entity->getId()] = $delete_form->createView();
-        }
 
+            $AssociateArray[$entity->getId()] = $this->getSponsorAssociates($entity->getId());
+        }
+//        print_r($AssociateArray);die();
         return array(
             'sponsors'     => $sponsors,
+            'AssociateArray' =>$AssociateArray,
             'delete_forms' =>$delete_forms
         ); // Render the template using necessary parameters
 
@@ -173,6 +176,28 @@ class SponsorController extends Controller
         return $this->redirect($this->generateUrl('sponsors'));
     }
 
+
+
+    /**
+     * Creates a associates of the trainer  by id.
+     *
+     * @param mixed $id The entity id
+     *
+     */
+    private function getSponsorAssociates($id)
+    {
+        $associates = "";
+
+        $associateQuery  = "SELECT * FROM hris_training_sponsors S ";
+        $associateQuery .= "INNER JOIN hris_traininginstance as T on T.sponsor = S.sponsorname ";
+        $associateQuery .= "INNER JOIN hris_trainings as D ON D.id = T.training_id  ";
+        $associateQuery .= "WHERE S.id=".$id;
+
+        $em = $this->getDoctrine()->getManager();
+        $associates = $em -> getConnection() -> executeQuery($associateQuery) -> fetchAll();
+
+        return  $associates;
+    }
 
     /**
      * Creates a form to delete a Report entity by id.

@@ -7,12 +7,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
-/**
- * instanceFacilitator
- *@Gedmo\Loggable
- * @ORM\Table()
- * @ORM\Entity(repositoryClass="Hris\TrainingBundle\Entity\instanceFacilitatorRepository")
- */
+    /**
+     * instanceFacilitator
+     * @Gedmo\Loggable
+     * @ORM\Table("hris_instanceFacilitator")
+     * @ORM\Entity(repositoryClass="Hris\TrainingBundle\Entity\instanceFacilitatorRepository")
+     */
 class instanceFacilitator
 {
     /**

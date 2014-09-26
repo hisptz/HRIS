@@ -30,15 +30,19 @@ class TrainersController extends Controller
         $trainers = $em->getRepository('HrisTrainingBundle:Trainer')->getAllTrainers(); // Get the repository
 
         $delete_forms=NULL;
+
+        $AssociateArray = Array();
         foreach($trainers as $entity) {
             $delete_form= $this->createDeleteForm($entity->getId());
             $delete_forms[$entity->getId()] = $delete_form->createView();
-        }
 
+            $AssociateArray[$entity->getId()] = $this->getTrainerAssociates($entity->getId());
+        }
 
 
         return $this->render('HrisTrainingBundle:Trainers:show.html.twig',array(
             'trainers'     => $trainers,
+            'AssociateArray' => $AssociateArray,
             'delete_forms' => $delete_forms
         )); // Render the template using necessary parameters
     }
@@ -55,7 +59,7 @@ class TrainersController extends Controller
         $trainer_ids = array(0=>'');
 
              $instance_id;
-            $query = "SELECT trainer_id FROM instanceTrainer WHERE instance_id = ".$instance_id;
+            $query = "SELECT trainer_id FROM hris_instanceTrainer WHERE instance_id = ".$instance_id;
             $trainings= $em -> getConnection() -> executeQuery($query) -> fetchAll();
             $trainersArray = array();
             $i = 0;
@@ -124,6 +128,35 @@ class TrainersController extends Controller
 
         return $this->render('HrisTrainingBundle:Trainers:new.html.twig', array(
             'form' => $form->createView(),
+        ));
+    }
+
+
+    /**
+     * Displays a form to create a new Report entity.
+     *
+     * @Route("/trainer_details/{id}", requirements={"id"="\d+"}, name="trainer_details")
+     * @Method("GET")
+     * @Template()
+     */
+    public function trainerDetailsAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('HrisTrainingBundle:Trainer')->find($id);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Trainer entity.');
+        }
+
+        $editForm = $this->createForm(new TrainerType(), $entity);
+        $deleteForm = $this->createDeleteForm($id);
+        $associates = $this->getTrainerAssociates($id);
+        return $this->render('HrisTrainingBundle:Trainers:trainerDetails.html.twig', array(
+            'entity'      => $entity,
+            'associates'  => $associates,
+            'editForm'   => $editForm->createView(),
+            'deleteForm' => $deleteForm->createView(),
         ));
     }
 
@@ -263,9 +296,9 @@ class TrainersController extends Controller
 
             $em->remove($entity);
             $em->flush();
-            $deleteInstanceTrainer = "SELECT *  FROM instanceTrainer WHERE trainer_id =".$id;
+            $selectInstanceTrainer = "SELECT *  FROM hris_instanceTrainer WHERE trainer_id =".$id;
 
-            $results = $em -> getConnection() -> executeQuery($deleteInstanceTrainer) -> fetchAll();
+            $results = $em -> getConnection() -> executeQuery($selectInstanceTrainer) -> fetchAll();
             foreach($results as $result){
                 $entity = $em->getRepository('HrisTrainingBundle:instanceTrainer')->find($result['id']);
                 $em->remove($entity);
@@ -276,6 +309,27 @@ class TrainersController extends Controller
 
         return $this->redirect($this->generateUrl('trainers'));
 
+    }
+
+    /**
+     * Creates a associates of the trainer  by id.
+     *
+     * @param mixed $id The entity id
+     *
+     */
+    private function getTrainerAssociates($id)
+    {
+        $associates = "";
+
+        $associateQuery  = "SELECT * FROM hris_instanceTrainer I ";
+        $associateQuery .= "INNER JOIN hris_traininginstance as T on T.id = I.instance_id ";
+        $associateQuery .= "INNER JOIN hris_trainings as D ON D.id = T.training_id  ";
+        $associateQuery .= "WHERE I.trainer_id=".$id;
+
+        $em = $this->getDoctrine()->getManager();
+        $associates = $em -> getConnection() -> executeQuery($associateQuery) -> fetchAll();
+
+        return  $associates;
     }
 
     /**

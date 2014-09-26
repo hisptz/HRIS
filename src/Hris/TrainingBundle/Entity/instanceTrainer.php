@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * instanceTrainer
  *@Gedmo\Loggable
- * @ORM\Table()
+ * @ORM\Table("hris_instanceTrainer")
  * @ORM\Entity(repositoryClass="Hris\TrainingBundle\Entity\instanceTrainerRepository")
  */
 class instanceTrainer

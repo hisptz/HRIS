@@ -64,34 +64,88 @@
                 <td>{{ sponsor.email }}</td>
                 <td>{{ sponsor.box }}</td>
                 <td>
-                    <span class="btn-group">
-                        <a href="{{ path("editSponsor",{'id':sponsor.id,'active':1} ) }}" class="" style="color:black;font-weight: bolder;" title="edit"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></a>
-                        <a data-toggle="modal" href="#deleteModalFor{{ sponsor.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>
-                        <div class="modal fade" id="deleteModalFor{{ sponsor.uid }}">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                        <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ sponsor.sponsorName | capitalize }}</h4>
-                                    </div>
-                                    <div class="modal-body" >
-                                        Are you sure you want to delete <strong>{{ sponsor.sponsorName | capitalize }}</strong> that was created on {{ sponsor.datecreated|date('d/m/Y') }}
-                                        {% if sponsor.lastUpdated %}
-                                            and last updated on {{ sponsor.lastUpdated|date('H:i:s d/m/Y') }} ??
-                                        {% else %}
-                                            and never updated ??
-                                        {% endif %}
-                                    </div>
-                                    <div class="modal-footer">
-                                        <form action="{{ path('deleteSponsor', { 'id': sponsor.id }) }}" method="post">
-                                            <input type="hidden" name="_method" value="DELETE" />
-                                            {{ form_widget(delete_forms[sponsor.id] ) }}
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                    </span>
-                    </span>
+                    {#<span class="btn-group">#}
+                        {#<a href="{{ path("editSponsor",{'id':sponsor.id,'active':1} ) }}" class="" style="color:black;font-weight: bolder;" title="edit"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></a>#}
+                        {#<a data-toggle="modal" href="#deleteModalFor{{ sponsor.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>#}
+                        {#<div class="modal fade" id="deleteModalFor{{ sponsor.uid }}">#}
+                            {#<div class="modal-dialog">#}
+                                {#<div class="modal-content">#}
+                                    {#<div class="modal-header">#}
+                                        {#<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>#}
+                                        {#<h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ sponsor.sponsorName | capitalize }}</h4>#}
+                                    {#</div>#}
+                                    {#<div class="modal-body" >#}
+                                        {#Are you sure you want to delete <strong>{{ sponsor.sponsorName | capitalize }}</strong> that was created on {{ sponsor.datecreated|date('d/m/Y') }}#}
+                                        {#{% if sponsor.lastUpdated %}#}
+                                            {#and last updated on {{ sponsor.lastUpdated|date('H:i:s d/m/Y') }} ??#}
+                                        {#{% else %}#}
+                                            {#and never updated ??#}
+                                        {#{% endif %}#}
+                                    {#</div>#}
+                                    {#<div class="modal-footer">#}
+                                        {#<form action="{{ path('deleteSponsor', { 'id': sponsor.id }) }}" method="post">#}
+                                            {#<input type="hidden" name="_method" value="DELETE" />#}
+                                            {#{{ form_widget(delete_forms[sponsor.id] ) }}#}
+                                            {#<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
+                                            {#<button type="submit" class="btn btn-danger">Delete</button>#}
+                                        {#</form>#}
+                                    {#</div>#}
+                                    {#</span>                   #}
+
+
+
+
+                    <a href="{{ path("editSponsor",{'id':sponsor.id,'active':1} ) }}" class="" style="color:black;font-weight: bolder;" title="edit"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></a>
+                    <a data-toggle="modal" href="#deleteModalFor{{ sponsor.uid }}" class="" ><i class="icon-remove-sign icon-large" title="Delete"></i>&nbsp;<!--edit--></a>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModalFor{{ sponsor.uid }}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ sponsor.sponsorname | capitalize }}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete <strong>{{ sponsor.sponsorName | capitalize }}</strong> that was created on {{ sponsor.datecreated|date('d/m/Y') }}
+
+                                    {% if AssociateArray[sponsor.id]|length > 0 %}
+
+                                        </br><em>RELATED TO THE FOLLOWING TRAINING SESSIONS</em></br></br>
+                                        <table class="table table-condensed table-striped">
+                                            <thead>
+                                            <th>Course</th>
+                                            <th>Region</th>
+                                            <th>District</th>
+                                            <th>Venue</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            </thead>
+                                            <tbody>
+                                            {% for associate in AssociateArray[sponsor.id] %}
+                                                <tr><td>{{ associate.coursename }}</td><td>{{ associate.region }}</td><td>{{ associate.district }}</td><td>{{ associate.venue }}</td><td>{{ associate.startdate }}</td><td>{{ associate.enddate }}</td></tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endif %}
+
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="{{ path('deleteSponsor', { 'id': sponsor.id }) }}" method="post">
+                                        <input type="hidden" name="_method" value="DELETE" />
+                                        {{ form_widget(delete_forms[sponsor.id]) }}
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
+
+
+
                 </td>
 
             </tr>

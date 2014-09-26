@@ -217,6 +217,8 @@ class TrainingController extends Controller
                 throw $this->createNotFoundException('Unable to find Training entity.');
             }
 
+//            $record->setHasTraining(false);
+//            $em->persist($record);
             $em->remove($entity);
             $em->flush();
         }

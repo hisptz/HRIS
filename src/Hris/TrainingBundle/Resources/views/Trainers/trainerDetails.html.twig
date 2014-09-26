@@ -1,0 +1,140 @@
+{% extends '::base.html.twig' %}
+
+{% block right_content -%}
+    <h1><i class="icon-circle-info icon-largest" title="Show"></i> <small>{{ entity.firstname | capitalize }}'s  Details</small></h1>
+
+    <table class="record_properties table table-striped table-bordered table-hover">
+        <tbody>
+        <tr>
+            <th>First Name</th>
+            <td>{{ entity.firstname }}</td>
+        </tr>
+        <tr>
+            <th>Middle Name</th>
+            <td>{{ entity.middlename }}</td>
+        </tr>
+        <tr>
+            <th>Last Name</th>
+            <td>{{ entity.lastname }}</td>
+        </tr>
+        <tr>
+            <th>Primary Job Responsibility</th>
+            <td>{{ entity.primaryJobResponsibility }}</td>
+        </tr>
+        <tr>
+            <th>Secondary Job Responsibility</th>
+            <td>{{ entity.secondaryJobResponsibility }}</td>
+        </tr>
+        <tr>
+            <th>Profession</th>
+            <td>{{ entity.profession }}</td>
+        </tr>
+        <tr>
+            <th>Employer</th>
+            <td>{{ entity.employer }}</td>
+        </tr>
+        <tr>
+            <th>Place Of Work</th>
+            <td>{{ entity.placeOfWork }}</td>
+        </tr>
+        <tr>
+            <th>Organization Type</th>
+            <td>{{ entity.organisationType }}</td>
+        </tr>
+        <tr>
+            <th>Trainer Type</th>
+            <td>{{ entity.trainerType }}</td>
+        </tr>
+        <tr>
+            <th>Trainer Language</th>
+            <td>{{ entity.trainerLanguage }}</td>
+        </tr>
+        <tr>
+            <th>Trainer Affiliation</th>
+            <td>{{ entity.trainerAffiliation }}</td>
+        </tr>
+        <tr>
+            <th>Experience</th>
+            <td>{{ entity.experience }}</td>
+        </tr>
+        <tr>
+            <th>Highest Level Of Qualification</th>
+            <td>{{ entity.highestLevelOfQualification}}</td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <ul class="record_actions inline">
+        <li>
+            <a href="{{ path('trainers') }}" class="btn">
+                Back to the list
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('trainers_edit', { 'id': entity.id }) }}" class="btn">
+                Edit
+            </a>
+        </li>
+        <li>
+            <a class="btn" href="{{ path('trainers_new') }}">
+                Create a new trainer
+            </a>
+        </li>
+        <li>
+            <a data-toggle="modal" href="#deleteModalFor{{ entity.id }}" class="btn btn-danger">Delete {{ entity.firstname | capitalize }}</a>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModalFor{{ entity.id }}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ entity.firstname | capitalize }}</h4>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete <strong>{{ entity.firstname | capitalize }}</strong> who's  was created on <em>{{ entity.datecreated|date('d/m/Y') }}</em>
+                            {% if entity.lastupdated %}
+
+                                </br> and last updated on <em>{{ entity.lastupdated|date('d/m/Y') }}</em>
+
+                            {% endif %}
+
+                            {% if associates|length > 0 %}
+
+                            </br><em>RELATED TO THE FOLLOWING TRAINING SESSIONS</em></br></br>
+                            <table class="table table-condensed table-striped">
+                                <thead>
+                                <th>Course</th>
+                                <th>Region</th>
+                                <th>District</th>
+                                <th>Venue</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                </thead>
+                                <tbody>
+                                {% for associate in associates %}
+                                    <tr><td>{{ associate.coursename }}</td><td>{{ associate.region }}</td><td>{{ associate.district }}</td><td>{{ associate.venue }}</td><td>{{ associate.startdate }}</td><td>{{ associate.enddate }}</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endif %}
+
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ path('trainers_delete', { 'id': entity.id }) }}" method="post">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                {{ form_widget(deleteForm) }}
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+
+                        </div>
+                    </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+        </li>
+    </ul>
+{% endblock %}

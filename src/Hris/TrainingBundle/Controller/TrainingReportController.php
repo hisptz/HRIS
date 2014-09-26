@@ -304,7 +304,7 @@ class TrainingReportController extends Controller
             foreach($groups[0] as $individual_group){
 
                 $query  = "SELECT count(F.record_id) as total , date_part('year',startdate) as data ";
-                $query .= "FROM instanceFacilitator F ";
+                $query .= "FROM hris_instanceFacilitator F ";
                 $query .= "INNER JOIN hris_traininginstance as I on I.id = F.instance_id ";
                 $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
                 $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
@@ -491,7 +491,7 @@ class TrainingReportController extends Controller
                 $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
             }
             $query  = "SELECT * ";
-            $query .= "FROM instanceFacilitator F ";
+            $query .= "FROM hris_instanceFacilitator F ";
             $query .= "INNER JOIN hris_traininginstance as I on I.id = F.instance_id ";
             $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
             $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
