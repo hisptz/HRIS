@@ -17,13 +17,14 @@
             fields: [{name: 'longname',type: 'string'},{name: 'id',type: 'int'},{ name: 'cls',type: 'string'},{name: 'leaf', type: 'boolean'}],
             validations: [{type: 'exclusion', field: 'cls',list: ['file','folder']}]
         });
-        Ext.onReady(function(){
+        {#url: '{{ path('organisationunit_training_tree',{'_format':'json'}) }}'+urlExtension,#}
+                Ext.onReady(function(){
             var OrganisationUnitTreeStore2 = Ext.create('Ext.data.TreeStore', {
                 storeId: 'MyJsonOrganisationUnitTreeStore2',
                 model: 'OrganisationUnitTreeModel2',
                 proxy: {
                     type: 'ajax',
-                    url: '{{ path('organisationunit_training_tree',{'_format':'json'}) }}'+urlExtension,
+                    url: '{{ path('organisationunit_tree',{'_format':'json'}) }}'+urlExtension,
                     reader: { type: 'json', root: 'organisationUnits'}
                 },
                 nodeParam: 'id',

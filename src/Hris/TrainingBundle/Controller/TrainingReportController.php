@@ -118,11 +118,12 @@ class TrainingReportController extends Controller
           $groups_results = $this->aggregationEngine($organisationUnit,$groups, $formIds,$reportType, $withLowerLevels,$startdate,$enddate);
 
             $groups_series = array();
+            $categories = array();
 
             foreach($groups_results as $results){
 
                 $data = array();
-                if(is_array($results[1])){
+                if(count($results[1])>0){
 
                     foreach($results[1] as $result){
 
@@ -279,6 +280,14 @@ class TrainingReportController extends Controller
 
         $entityManager = $this->getDoctrine()->getManager();
 
+        /// check for selected organisation unit
+        $organisation_unit_clause = "";
+        if($organisationUnit->getLongName()==="Ministry Of Health"){
+            $organisation_unit_clause = "";
+        }else{
+            $organisation_unit_clause = "and I.region= '".$organisationUnit->getLongName()."'";
+        }
+
         if($startdate !=NULL && $enddate !=NULL){
             $dateSubquery = " and hris_traininginstance.startdate = '".$startdate."'";
 
@@ -310,7 +319,7 @@ class TrainingReportController extends Controller
                 $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
                 $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
                 $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "where V.form_id  in (".implode(",",$forms).")  and I.region= '".$organisationUnit->getLongName()."' and   training_id =".$individual_group."  GROUP BY I.startdate";
+                $query .= "where V.form_id  in (".implode(",",$forms).")  ".$organisation_unit_clause." and   I.training_id =".$individual_group."  GROUP BY I.startdate";
 
 
                 $results[0] = $groups[1][$i];
@@ -346,17 +355,19 @@ class TrainingReportController extends Controller
                 $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
                 $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
                 $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "where V.form_id  in (".implode(",",$forms).") and I.region= '".$organisationUnit->getLongName()."' and training_id =".$individual_group."  GROUP BY I.startdate";
+                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
 
 
                 $results[0] = $groups[1][$i];
                 $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
                 $groups_results[] = $results;
                 $i++;
+
             }
+//echo json_encode($groups_results);die();
+        }
 
-
-        } if ($reportType == "trainings") {
+        if ($reportType == "trainings") {
 
             //Query all lower levels units from the passed orgunit
             if($withLowerLevels){
@@ -381,7 +392,7 @@ class TrainingReportController extends Controller
                 $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
                 $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
                 $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-                $query .= "where V.form_id  in (".implode(",",$forms).") and I.region= '".$organisationUnit->getLongName()."' and I.training_id =".$individual_group."  GROUP BY I.startdate";
+                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
 
                 $results[0] = $groups[1][$i];
                 $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
@@ -416,6 +427,13 @@ class TrainingReportController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $resourceTableName = "_resource_all_fields";
 
+        if($organisationUnit->getLongName()=="Ministry Of Health"){
+            $organisation_unit_clause = "";
+        }else{
+            $organisation_unit_clause = "and I.region= '".$organisationUnit->getLongName()."'";
+        }
+
+
         if ($reportType == "trainings") {
             //Query all lower levels units from the passed orgunit
             if($withLowerLevels){
@@ -438,7 +456,7 @@ class TrainingReportController extends Controller
             $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
             $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
             $query .= "where V.form_id  in (".implode(",",$forms).")";
-            $query .="and I.training_id in (".implode(",",$groups[0]).") and I.region= '".$organisationUnit->getLongName()."'  GROUP BY T.coursename,I.region,I.district,I.venue,I.startdate,I.enddate ORDER BY I.startdate DESC";
+            $query .="and I.training_id in (".implode(",",$groups[0]).") ".$organisation_unit_clause."  GROUP BY T.coursename,I.region,I.district,I.venue,I.startdate,I.enddate ORDER BY I.startdate DESC";
 
 
 
@@ -471,7 +489,7 @@ class TrainingReportController extends Controller
             $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
             $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
             $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-            $query .= "where V.form_id  in (".implode(",",$forms).") and I.region= '".$organisationUnit->getLongName()."' and I.training_id in (".implode(",",$groups[0]).") GROUP BY  I.startdate,F.id,I.id,T.id,V.id,R.id,S.id,L.id,O.id";
+            $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id in (".implode(",",$groups[0]).") GROUP BY  I.startdate,F.id,I.id,T.id,V.id,R.id,S.id,L.id,O.id";
 
                 $results = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
@@ -499,7 +517,7 @@ class TrainingReportController extends Controller
             $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
             $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
             $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-            $query .= "where V.form_id  in (".implode(",",$forms).") and I.region= '".$organisationUnit->getLongName()."' and I.training_id in (".implode(",",$groups[0]).") GROUP BY  I.startdate,F.id,I.id,T.id,V.id,R.id,S.id,L.id,O.id";
+            $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id in (".implode(",",$groups[0]).") GROUP BY  I.startdate,F.id,I.id,T.id,V.id,R.id,S.id,L.id,O.id";
 
                 $results = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
@@ -1177,8 +1195,6 @@ class TrainingReportController extends Controller
         $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(" ","_",$title).'.xls');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        //$response->sendHeaders();
-//        die();
         return $response;
     }
 
