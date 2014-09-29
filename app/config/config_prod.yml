@@ -36,7 +36,7 @@ monolog:
         swift:
             type: swift_mailer
             from_email: john.f.mukulu@gmail.com
-            to_email: [john.f.mukulu@gmail.com,lepebina@gmail.com,senyoni@gmail.com,yusuphk@gmail.com,ismailkoleleni@gmail.com,kelvinmbwilo@gmail.com,leo.august27@gmail.com]
+            to_email: [john.f.mukulu@gmail.com,senyoni@gmail.com,yusuphk@gmail.com,ismailkoleleni@gmail.com,leo.august27@gmail.com,kelvinmbwilo@gmail.com]
             subject: HRHIS: UNCAUGHT CRITICAL EXCEPTION!
             level: debug
         other:

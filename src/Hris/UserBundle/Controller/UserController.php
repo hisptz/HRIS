@@ -257,6 +257,8 @@ class UserController extends Controller
             $userRequest = $request->request->get('hris_userbundle_usertype') ;
             if(!empty($userRequest['plainPassword']['first']) && !empty($userRequest['plainPassword']['second']) && $userRequest['plainPassword']['first']==$userRequest['plainPassword']['second']) {
                 $entity->setPlainPassword($userRequest['plainPassword']['first']);
+                $userManager = $this->container->get('fos_user.user_manager');
+                $userManager->updatePassword($entity);
             }
             $em->persist($entity);
             $em->flush();

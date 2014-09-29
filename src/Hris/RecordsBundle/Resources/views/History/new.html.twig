@@ -60,7 +60,7 @@
                     //Get uids of fields and field option from record to filtering related options
 
                     try {
-                        window.recordValues = $.parseJSON( '{{ record.getValue() |json_encode() | replace({'\\r\\n': " "}) | raw }}' );
+                        window.recordValues = $.parseJSON( '{{ record.getValue() |json_encode() | replace({'\\r\\n': " "}) | replace({'\\r': " "}) | replace({'\\n': " "}) | raw }}' );
                     } catch (e) {
                         // error
                         $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Error Occurred!</strong> Malformed record or contains bad characters.</small></div>');

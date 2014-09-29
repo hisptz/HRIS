@@ -105,7 +105,7 @@
                     // Insert values to fields
                     var recordValues;
                     try {
-                        recordValues = $.parseJSON( '{{ entity.getValue() |json_encode() | replace({'\\r\\n': " "}) | raw }}' );
+                        recordValues = $.parseJSON( '{{ entity.getValue() |json_encode() | replace({'\\r\\n': " "}) | replace({'\\r': " "}) | replace({'\\n': " "}) | raw }}' );
                     } catch (e) {
                         // error
                         $('#messageArea').html('<div class="alert alert-success" id="loadingMessage" style="color:#E92B2B;"><button type="button" class="close" data-dismiss="alert">×</button><small><strong>Error Occurred!</strong> Malformed record or contains bad characters.</small></div>');

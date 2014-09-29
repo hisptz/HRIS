@@ -96,6 +96,11 @@ class ReportAggregationController extends Controller
 
         $results = $this->aggregationEngine($organisationUnit, $forms, $fields, $organisationunitGroup, $withLowerLevels, $fieldsTwo);
 
+
+        //handle the exception when there is no data
+        $data = NULL;
+        $categories = NULL;
+
         //Get the Id for the forms
         $formsId = '';
         foreach($forms as $form){
@@ -131,9 +136,24 @@ class ReportAggregationController extends Controller
             $formatterLabel = $fields->getCaption();
 
         }else{//Two fields selected
+            $tempCategory = NULL;
+            $tempFieldOption = NULL;
+            $i=0;
             foreach($results as $result){
+
+                if(($result[strtolower($fields->getName())] != $tempCategory) && ($i!=0)){
+                    foreach($fieldsTwo->getFieldOption() as $fieldOption){
+                        if(!in_array($fieldOption->getValue(),$tempFieldOption))
+                                $keys[$fieldOption->getValue()][] = 0;
+                    }
+                    $tempFieldOption = NULL;
+                }
                 $keys[$result[strtolower($fieldsTwo->getName())]][] = $result['total'];
                 $categoryKeys[$result[strtolower($fields->getName())]] = $result['total'];
+                $tempCategory = $result[strtolower($fields->getName())];
+                $tempFieldOption[] = $result[strtolower($fieldsTwo->getName())];
+                $i++;
+                //if($i==4) {print_r($keys);die();}
             }
             $series = array();
             foreach($keys as $key => $values){
@@ -196,6 +216,7 @@ class ReportAggregationController extends Controller
         $dashboardchart->title->text($title);
         $dashboardchart->subtitle->text($organisationUnit->getLongname().' with lower levels');
         $dashboardchart->xAxis->categories($categories);
+        $dashboardchart->xAxis->labels(array('rotation'=>45));
         $dashboardchart->yAxis($yData);
         if($fieldsTwo->getId() == $fields->getId())$dashboardchart->legend->enabled(true); else $dashboardchart->legend->enabled(true);
 
@@ -452,11 +473,21 @@ class ReportAggregationController extends Controller
 
         //work with cross tabulation report
         if ($fields->getId() != $fieldsTwo->getId()) {
+
             foreach($results as $result){
+
                 $keys[$result[strtolower($fields->getName())]][$result[strtolower($fieldsTwo->getName())]] = $result['total'];
                 //$categoryKeys[$result[strtolower($fields->getName())]] = $result['total'];
-
             }
+            foreach($keys as $key => $items){
+                foreach($fieldsTwo->getFieldOption() as $fieldOption){
+                    if(!array_key_exists($fieldOption->getValue(),$items))
+                        $items[$fieldOption->getValue()] = 0;
+                }
+                ksort($items);
+                $keys[$key] = $items;
+            }
+
             //apply the styles
             $excelService->getActiveSheet()->getStyle('A1:D2')->applyFromArray($heading_format);
             $excelService->getActiveSheet()->mergeCells('A1:D1');
@@ -465,7 +496,8 @@ class ReportAggregationController extends Controller
             //write the table heading of the values
             //identify total options to write
             $last_Column = 'B';
-            $fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo));
+            $fieldOptions = $em->getRepository('HrisFormBundle:FieldOption')->findBy(array('field'=>$fieldsTwo), array('value'=> 'ASC'));
+
             for($i=1;$i<=count($fieldOptions);$i++){
                 $last_Column++;
             }

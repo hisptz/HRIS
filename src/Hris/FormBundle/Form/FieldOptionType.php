@@ -109,7 +109,7 @@ class FieldOptionType extends AbstractType
                     'query_builder'=>function(EntityRepository $er) use ($fieldId,$fieldOptionValue) {
                             return $er->createQueryBuilder('fieldOption')
                                 ->join('fieldOption.field','field')
-                                ->andWhere("field.id='".$fieldId."'")
+                                ->andWhere("field.id!='".$fieldId."'")
                                 ->orderBy('fieldOption.value','ASC');
                         },
                     'constraints'=>array(
@@ -126,7 +126,7 @@ class FieldOptionType extends AbstractType
                     'query_builder'=>function(EntityRepository $er) use ($fieldId) {
                             return $er->createQueryBuilder('fieldOption')
                                 ->join('fieldOption.field','field')
-                                ->andWhere("field.id='".$fieldId."'")
+                                ->andWhere("field.id!='".$fieldId."'")
                                 ->orderBy('fieldOption.value','ASC');
                         },
                     'constraints'=>array(
