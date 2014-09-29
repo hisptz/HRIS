@@ -78,7 +78,7 @@ class LeaveType
      * @var string
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="limit_applicable", type="string", length=13, nullable=true)
+     * @ORM\Column(name="limit_applicable", type="string", length=53, nullable=true)
      */
     private $limitApplicable;
 
@@ -86,14 +86,14 @@ class LeaveType
      * @var string
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="description", type="text", nullable=true)
+     * @ORM\Column(name="description", type="text",nullable=true)
      */
     private $description;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="payment_applicable", type="string", length=13,nullable=true)
+     * @ORM\Column(name="payment_applicable", type="string", length=53,nullable=true)
      */
     private $paymentApplicable;
 
