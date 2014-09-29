@@ -23,6 +23,8 @@
                 <h1><small>Data Entry Forms</small></h1>
             {% elseif channel=='traininginstance' %}
                 <h1><small>Training Instance</small></h1>
+            {% elseif channel=='leaverecords' %}
+                <h1><small>Update Records</small></h1>
             {% elseif channel=='updaterecords' %}
                 <h1><small>View Records</small></h1>
             {% elseif channel=='facilitatorInstanceRecord' %}
@@ -68,6 +70,8 @@
 
                         {% elseif channel=='traininginstance' %}
                             <td><a href="{{ path('record_viewinstance', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
+                        {% elseif channel=='leaverecords' %}
+                            <td><a href="{{ path('leave_viewrecords', { 'formid': entity.id }) }}">{{ entity.title }}</a></td>
                         {% elseif channel=='instanceRecord' %}
                                 {% if queryParams['partic_for_view'] is defined %}
                                     <td><a href="{{ path('record_viewinstance', { 'formid': entity.id,'instance_id':queryParams['instance_id'],'id':'partic_for_view'    }) }}">{{ entity.title }}</a></td>
@@ -92,6 +96,11 @@
                             {% elseif channel=='updaterecords' %}
                                 <li>
                                     <a href="{{ path('record_viewrecords', { 'formid': entity.id }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
+                                </li>
+
+                            {% elseif channel=='leaverecords' %}
+                                <li>
+                                    <a href="{{ path('leave_viewrecords', { 'formid': entity.id }) }}"><i class="icon-folder-open icon-large" title="Show"></i></a>
                                 </li>
 
                             {% elseif channel=='traininginstance' %}
