@@ -215,6 +215,7 @@ class DashboardController extends Controller
         $combinationdashboardchart->title->text('Employment Distribution, Retirement Distribution with Gender Report');
         $combinationdashboardchart->subtitle->text($organisationunit->getLongname().' with lower levels');
         $combinationdashboardchart->xAxis->categories($categories);
+        $combinationdashboardchart->xAxis->labels(array('rotation'=>45));
         $combinationdashboardchart->yAxis($yData);
         $combinationdashboardchart->legend->enabled(false);
         $formatter = new Expr('function () {
@@ -302,9 +303,24 @@ class DashboardController extends Controller
 
 
             }else{//Two fields selected
+                $tempCategory = NULL;
+                $tempFieldOption = NULL;
+                $i=0;
                 foreach($entitiesData as $result){
+
+                    if(($result[strtolower($entity->getFieldOne()->getName())] != $tempCategory) && ($i!=0)){
+                        foreach($entity->getFieldTwo()->getFieldOption() as $fieldOption){
+                            if(!in_array($fieldOption->getValue(),$tempFieldOption))
+                                $keys[$fieldOption->getValue()][] = 0;
+                        }
+                        $tempFieldOption = NULL;
+                    }
                     $keys[$result[strtolower($entity->getFieldTwo()->getName())]][] = $result['total'];
                     $categoryKeys[$result[strtolower($entity->getFieldOne()->getName())]] = $result['total'];
+                    $tempCategory = $result[strtolower($entity->getFieldOne()->getName())];
+                    $tempFieldOption[] = $result[strtolower($entity->getFieldTwo()->getName())];
+                    $i++;
+                    //if($i==4) {print_r($keys);die();}
                 }
                 $series = array();
                 foreach($keys as $key => $values){
@@ -316,7 +332,6 @@ class DashboardController extends Controller
                 }
                 $formatterLabel = $entity->getFieldTwo()->getCaption();
                 $categories = array_keys($categoryKeys);
-                $data = $series;
             }
 
 

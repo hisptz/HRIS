@@ -44,6 +44,8 @@ class FriendlyReportType extends AbstractType
                 'required'=>False,
             ))
             ->add('description')
+            ->add('javascript')
+            ->add('stylesheet')
             ->add('sort')
             ->add('serie')
             ->add('friendlyReportCategory','entity',array(

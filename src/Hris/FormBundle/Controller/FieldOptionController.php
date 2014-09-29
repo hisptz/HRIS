@@ -247,6 +247,7 @@ class FieldOptionController extends Controller
 
         $editForm = $this->createForm(new FieldOptionType($entity->getField()->getId(),$entity->getValue()), $entity);
 
+        //Gather persisted merged field option
         $fieldOptionMerges = $em->getRepository('HrisFormBundle:FieldOptionMerge')->findBy(array('mergedFieldOption'=>$entity));
         $mergedOptions = new ArrayCollection();
         foreach($fieldOptionMerges as $fieldOptionMergeKey=>$fieldOptionMerge) {
@@ -254,6 +255,8 @@ class FieldOptionController extends Controller
             $mergedOptions->add($removedFieldOption);
         }
         $editForm->get('fieldOptionMerge')->setData($mergedOptions);
+
+        $editForm->get('childFieldOption')->setData($entity->getChildFieldOption());
 
         $deleteForm = $this->createDeleteForm($id);
 
@@ -290,7 +293,7 @@ class FieldOptionController extends Controller
             $requestcontent = $request->request->get('hris_formbundle_fieldoptiontype');
             $fieldOptionIds = $requestcontent['fieldOptionMerge'];
             // Clear ResourceTableFieldMembers
-            //Get rid of current fields
+            //Get rid of current merged fields options
             $em->createQueryBuilder('fieldOptionMerge')
                 ->delete('HrisFormBundle:FieldOptionMerge','fieldOptionMerge')
                 ->where('fieldOptionMerge.mergedFieldOption= :mergedFieldOption')
@@ -341,8 +344,11 @@ class FieldOptionController extends Controller
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find FieldOption entity.');
             }
-
-            $em->remove($entity);
+            $em->createQueryBuilder('fieldOption')
+                ->delete('HrisFormBundle:FieldOption','fieldOption')
+                ->where('fieldOption.id= :fieldOptionId')
+                ->setParameter('fieldOptionId',$entity->getId())
+                ->getQuery()->getResult();
             $em->flush();
         }
 

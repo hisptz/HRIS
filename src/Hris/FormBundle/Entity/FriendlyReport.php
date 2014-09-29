@@ -86,6 +86,22 @@ class FriendlyReport
     private $description;
 
     /**
+     * @var string $javascript
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="javascript", type="text", nullable=true)
+     */
+    private $javascript;
+
+    /**
+     * @var string $stylesheet
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="stylesheet", type="text", nullable=true)
+     */
+    private $stylesheet;
+
+    /**
      * @var integer $sort
      *
      * @Gedmo\Versioned
@@ -270,6 +286,52 @@ class FriendlyReport
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set javascript
+     *
+     * @param string $javascript
+     * @return FriendlyReport
+     */
+    public function setJavascript($javascript)
+    {
+        $this->javascript = $javascript;
+
+        return $this;
+    }
+
+    /**
+     * Get javascript
+     *
+     * @return string
+     */
+    public function getJavascript()
+    {
+        return $this->javascript;
+    }
+
+    /**
+     * Set stylesheet
+     *
+     * @param string $stylesheet
+     * @return FriendlyReport
+     */
+    public function setStylesheet($stylesheet)
+    {
+        $this->stylesheet = $stylesheet;
+
+        return $this;
+    }
+
+    /**
+     * Get stylesheet
+     *
+     * @return string
+     */
+    public function getStylesheet()
+    {
+        return $this->stylesheet;
     }
 
     /**
