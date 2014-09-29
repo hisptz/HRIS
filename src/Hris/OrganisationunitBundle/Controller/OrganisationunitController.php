@@ -420,7 +420,7 @@ class OrganisationunitController extends Controller
                                                         ) AS lowerChildrenCount
                                                         FROM HrisOrganisationunitBundle:Organisationunit organisationunit
                                                         WHERE organisationunit.id=:organisationunitid
-                                                        GROUP BY organisationunit.id,organisationunit.longname,organisationunit.uid
+                                                        GROUP BY organisationunit.id,organisationunit.uid,organisationunit.longname
                                                         ORDER BY organisationunit.longname ASC")->setParameter('organisationunitid',$organisationunit);;
                                                         //WHERE organisationunit.parent IS NULL
                                                         //GROUP BY organisationunit.id,organisationunit.longname");
@@ -439,7 +439,7 @@ class OrganisationunitController extends Controller
                                                         ) AS lowerChildrenCount
                                                         FROM HrisOrganisationunitBundle:Organisationunit organisationunit
                                                         WHERE organisationunit.parent=:parentid
-                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        GROUP BY organisationunit.id,organisationunit.uid,organisationunit.longname
                                                         ORDER BY organisationunit.longname ASC")->setParameter('parentid',$id);
 
             try {
@@ -505,7 +505,7 @@ class OrganisationunitController extends Controller
                                                         ) AS lowerChildrenCount
                                                         FROM HrisOrganisationunitBundle:Organisationunit organisationunit
                                                         WHERE organisationunit.id=:organisationunitid
-                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        GROUP BY organisationunit.id,organisationunit.uid,organisationunit.longname
                                                         ORDER BY organisationunit.longname ASC")->setParameter('organisationunitid',$organisationunit);;
                                                         //WHERE organisationunit.parent IS NULL
                                                         //GROUP BY organisationunit.id,organisationunit.longname");
@@ -524,7 +524,7 @@ class OrganisationunitController extends Controller
                                                         ) AS lowerChildrenCount
                                                         FROM HrisOrganisationunitBundle:Organisationunit organisationunit
                                                         WHERE organisationunit.parent=:parentid
-                                                        GROUP BY organisationunit.id,organisationunit.longname
+                                                        GROUP BY organisationunit.id,organisationunit.uid,organisationunit.longname
                                                         ORDER BY organisationunit.longname ASC")->setParameter('parentid',$id);
 
             try {
