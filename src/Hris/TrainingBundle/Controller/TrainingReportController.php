@@ -384,26 +384,71 @@ class TrainingReportController extends Controller
             $i=0;
             foreach($groups[0] as $individual_group){
 
-                $query  = "SELECT count(training_id) as total , date_part('year',startdate) as data ";
-                $query .= "FROM hris_traininginstance I ";
-                $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
-                $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
-                $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
-                $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-                $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
+                  $query  = "SELECT  count(training_id) as total , date_part('year',startdate) as data ";
+                  $query .= "FROM hris_traininginstance I ";
+                  $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
+//                $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
+//                $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
+//                $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+//                $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+//                $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
+//                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
+                  $query .= $organisation_unit_clause;
+                  $query .= " where  I.training_id = ".$individual_group;
+                  $query .= " GROUP BY I.startdate";
+                  $results[0] = $groups[1][$i];
+                  $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
-                $results[0] = $groups[1][$i];
-                $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
-                $groups_results[] = $results;
-                $i++;
+                  $groups_results[] = $results;
+                  $i++;
+
             }
 
 
         }
 
-
+//        // purify data
+//        $availableyears = array();
+//        $i = 0;
+//        foreach($groups_results as $results){
+//            foreach($results[1] as $innerResult){
+//                $availableyears[$i]=$innerResult['data'];
+//                $i++;
+//            }
+//
+//        }
+//
+//        $availableyears = array_unique ( $availableyears,SORT_NUMERIC );
+//        sort ( $availableyears,SORT_REGULAR );
+//
+//
+//$arrayNewGroupResults = array();
+//            foreach($groups_results as $results){
+//                $counter = 0;
+//                foreach($results[1] as $innerResult){
+//                    foreach($availableyears as $catYears){
+//                        $counter = 0;
+//                   if(in_array($catYears,$innerResult)){
+//echo json_encode($innerResult);
+//                   }else{
+////                       echo $innerResult['data']." ==> ".$catYears;
+////                       echo "</br></br>";
+//////                       echo $innerResult['data']." ==> ".$catYears;
+//                       array_push($results[1],array("total"=>"0","data"=>$catYears));
+//                   }
+//
+//
+//                }
+//                    $counter++;
+//
+//                }
+//
+//                array_push($arrayNewGroupResults,$results);
+//
+//            }
+//
+////       echo  json_encode($arrayNewGroupResults);
+//        die();
 
         //get the records
         return $groups_results;
@@ -1236,5 +1281,17 @@ class TrainingReportController extends Controller
             'entities' => $results
         );
     }
+
+//    /**
+//     * Records Engine
+//     *
+//     * @param $soltableArray
+//     * @return mixed
+//     */
+//   private  function SortMultArray($soltableArray)
+//    {
+//      //$soltableArray is $result[1]
+//        array_multisort($soltableArray, SORT_ASC, SORT_NUMERIC,$soltableArray,SORT_NUMERIC, SORT_DESC);
+//    }
 
 }
