@@ -26,12 +26,13 @@
             } );
         } );
     </script>
+    {{ friendlyReport.getJavascript | raw }}
 {% endblock javascripts %}
 
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
-    {{  }}
+    {{ friendlyReport.getStylesheet | raw }}
 {% endblock stylesheets %}
 
 {% block right_content -%}

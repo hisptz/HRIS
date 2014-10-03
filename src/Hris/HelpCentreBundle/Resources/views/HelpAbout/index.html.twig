@@ -1,0 +1,86 @@
+{% extends '::base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.records_list').dataTable( {
+                "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        {"sExtends":"copy","mColumns":"visible"},
+                        {"sExtends":"xls","mColumns":"visible"},
+                        {"sExtends":"pdf","mColumns":"visible"}
+                    ],
+                    "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                },
+                "sPdfOrientation": "landscape",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+            } );
+        } );
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('commons/css/dt_bootstrap.css') }}" />
+{% endblock stylesheets %}
+
+{% block right_content -%}
+
+    <h1><i class="icon-circle-info icon-largest" title="Show"></i> <small>Help About HRHIS</small></h1>
+
+    <table class="record_properties table table-striped table-bordered table-hover">
+        <tbody>
+        <tr>
+            <th>Software</th>
+            <td>{{ project }}</td>
+        </tr>
+        <tr>
+            <th>Copyright</th>
+            <td>{{ copyright }}</td>
+        </tr>
+        <tr>
+            <th>Client name</th>
+            <td>{{ client_name }}</td>
+        </tr>
+        <tr>
+            <th>Current User</th>
+            <td>{{ app.user }}</td>
+        </tr>
+        <tr>
+            <th>Version</th>
+            <td>{{ version }}</td>
+        </tr>
+        <tr>
+            <th>Build Revision</th>
+            <td>{{ commit }}</td>
+        </tr>
+        <tr>
+            <th>User Agent</th>
+            <td>
+                    <ul style="list-style:none;">
+                    {% for useragentrow in useragent %}
+                        <li class="well-small">
+                            <em>{{ loop.index }}.</em>
+                            <em>{{ useragentrow }} </em>
+                        </li>
+                    {% endfor %}
+                        </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>Server Date</th>
+            <td>{{ "now"|date("Y-d-m H:m:s") }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

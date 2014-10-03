@@ -715,7 +715,7 @@ class ReportEmployeeRecordsController extends Controller
 
             foreach ($results as $key => $value) {
                 $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $rows[strtolower($value['name'])]);
+                    ->setCellValue($column++.$row, str_replace('=','',$rows[strtolower($value['name'])]));
             }
 
             // Make Levels of orgunit
@@ -1007,7 +1007,7 @@ class ReportEmployeeRecordsController extends Controller
 
             foreach ($results as $key => $value) {
                 $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $rows[strtolower($value['name'])]);
+                    ->setCellValue($column++.$row, str_replace('=','',$rows[strtolower($value['name'])]));
             }
 
             // Make Levels of orgunit

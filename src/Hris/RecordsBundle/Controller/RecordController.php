@@ -24,6 +24,7 @@
  */
 namespace Hris\RecordsBundle\Controller;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Tests\Common\Annotations\True;
 use Symfony\Component\HttpFoundation\Request;
@@ -285,7 +286,6 @@ class RecordController extends Controller
             $instance .= $this->getRequest()->get($field_unique->getName());
             if($field_unique->getDataType()->getName()!="Date") $message .=$this->getRequest()->get($field_unique->getName()). " ";
         }
-        $message.="saved successfully";
 
 
         foreach ($fields as $key => $field){
@@ -321,10 +321,22 @@ class RecordController extends Controller
 
         //if ($entity->isValid()) {
         $em = $this->getDoctrine()->getManager();
-        $em->persist($entity);
-        $em->flush();
+        try {
 
-        return $this->redirect($this->generateUrl('record_new', array('id' => $form->getId(),'message'=>$message)));
+            $em->persist($entity);
+            $em->flush();
+            $message.="saved successfully";
+            $success='true';
+        } catch(DBALException $exception) {
+            $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('instance'=>$entity->getInstance()));
+            $message.=" is existing for ".$entity->getOrganisationunit()->getLongname();
+            $parent = $entity->getOrganisationunit()->getParent();
+            if(!empty($parent)) $message.= " in ".$entity->getOrganisationunit()->getParent()->getLongname()."!";
+            $message.=' <a href="'.$this->generateUrl('record_edit', array('id' => $record->getId(),'message'=>$message)).'">Click here to edit existing record</a>';
+            $success='false';
+        }
+
+        return $this->redirect($this->generateUrl('record_new', array('id' => $form->getId(),'message'=>$message,'success'=>$success)));
 
     }
 
@@ -348,6 +360,7 @@ class RecordController extends Controller
         $isEntryLevel = $user->getOrganisationunit()->getOrganisationunitStructure()->getLevel()->getDataentrylevel();
         // Workaround to send message when user is redirected from one data entry page to another.
         $message = $this->getRequest()->get('message');
+        $success = $this->getRequest()->get('success');
         $organisationunitLevels = $this->getDoctrine()->getManager()->createQueryBuilder()
                     ->select('organisationunitLevel')
                     ->from('HrisOrganisationunitBundle:organisationunitLevel','organisationunitLevel')
@@ -360,6 +373,7 @@ class RecordController extends Controller
         return array(
             'formEntity' => $formEntity,
             'message'=>$message,
+            'success'=>$success,
             'isEntryLevel'=>$isEntryLevel,
             'user'=>$user,
             'message'=>$message,
@@ -584,6 +598,22 @@ class RecordController extends Controller
             }
 
         }
+//
+//        // Check instance uniqueness
+//        $formId = $this->getRequest()->get('formid');
+//
+//        $form = $em->getRepository('HrisFormBundle:Form')->find($formId);
+//
+//        $uniqueFields = $form->getUniqueRecordFields();
+//        $fields = $form->getSimpleField();
+//
+//        $instance = '';
+//        foreach($uniqueFields as $key => $field_unique){
+//            echo "name:".$field_unique->getName()."<br/>";
+//            $instance .= $this->getRequest()->get('unique_'.$field_unique->getUid());
+//        }
+//        print_r($instance);
+//        die();
 
 
         $output = $recordsResults->setMaxResults(1)->getQuery()->getResult();
