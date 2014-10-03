@@ -25,6 +25,7 @@ use Hris\OrganisationunitBundle\Entity\Organisationunit;
 use Doctrine\ORM\EntityManager;
 use Hris\DataQualityBundle\Entity\Validation;
 use JMS\SecurityExtraBundle\Annotation\Secure;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Validation controller.
@@ -94,9 +95,10 @@ class ValidationRunController extends Controller
             }
 
             //getting the forms object
+            $formIds = "";
             foreach($forms as $key=>$formObjects){
                 $formObject = $formObjects;
-                $formIds[] = $formObjects->getId();
+                $formIds .= "_".$formObjects->getId();
             }
 
             //getting the Validation object
@@ -107,11 +109,6 @@ class ValidationRunController extends Controller
             //title of the Validation
             $title = "Data Validation Report for Employees directly under " . $organisationUnitObject->getLongname();
 
-
-            //Getting all the fields
-            $fieldObjects = $entityManager->getRepository('HrisFormBundle:Field')->findAll();
-
-
             /*
              * getting all fields for use with the title:
               */
@@ -119,50 +116,6 @@ class ValidationRunController extends Controller
             $leftExpTitle = '';
             $validationFault = null;
             $rightExpTitle = '';
-            foreach ($selectedValidations as $keyValue => $validation) {
-
-                $getLeftExpression = $validation->getLeftExpression();
-                $getRightExpression = $validation->getRightExpression();
-
-
-                foreach ($fieldObjects as $key => $fieldObj) {
-
-                    $param = "#{" . $fieldObj->getName() . "}";
-
-
-                    /*
-                 * Left Expression title
-                 */
-                    if (strstr($getLeftExpression, $param)) {
-                        $leftExpTitle = $fieldObj->getCaption();
-                    }
-                    /*
-                     * right Expression title
-                     */
-                    if (strstr($getRightExpression, $param)) {
-                        $rightExpTitle = $fieldObj->getCaption();
-                    }
-
-
-                    /*
-                    * Extracting the first, last name and date of birth Ids
-                    */
-                    if ($fieldObj->getName() == 'firstname') {
-                        $firstNameUid = $fieldObj->getUid();
-                    }
-                    if ($fieldObj->getName() == 'surname') {
-                        $lastNameUid = $fieldObj->getUid();
-                    }
-                    if ($fieldObj->getName() == 'dob') {
-                        $birthDateUid = $fieldObj->getUid();
-                    }
-
-                }
-                $validationTitle[$validation->getId()] = array('leftExpression' => $leftExpTitle, 'rightExpression' => $rightExpTitle);
-                $rightExpTitle = "";
-                $leftExpTitle = "";
-
-            }
 
             /*
             * Getting Fields with Compulsory Elements
@@ -175,20 +128,6 @@ class ValidationRunController extends Controller
                 }
             }
 
-
-            $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
-            $hrhisValues = $queryBuilder->select('record')
-                ->from('HrisRecordsBundle:Record', 'record')
-                ->join('record.organisationunit', 'organisationunit')
-                ->join('record.form', 'form')
-                ->where($queryBuilder->expr()->in('organisationunit.id', $orgunitIds))
-                ->andWhere($queryBuilder->expr()->in('form.id', $formIds))
-                ->getQuery()->getResult();
-
-
-            $postData = $request->request->get('hris_recordsbundle_validationtype');
-            $validationUnit = $postData['validations'];
-
             //Retrive all validations
             foreach ($selectedValidations as $selectedValidation) {
                 $getValidation[] = $entityManager->getRepository('HrisDataQualityBundle:Validation')->findOneBy(array('id' => $selectedValidation));
@@ -196,266 +135,167 @@ class ValidationRunController extends Controller
 
             $count = 0;
             $emptyFields = '';
-            if (empty($hrhisValues)) {
-                $emptyCategory = "There is no data in this category";
-            } else {
-                $emptyCategory = NULL;
-            }
-
-            foreach ($hrhisValues as $key => $dataValue) {
-                $count++;
-                $values = $dataValue->getValue();
-
-                foreach ($getValidation as $keyValue => $validation) {
-                    /*
-                     * getting title of the validation
-                     */
-
-                    $specificValidationTitle = $validation->getName();
-
-                    /*
-                     * Getting the expressions;
-                     */
-                    $getLeftExpression = $validation->getLeftExpression();
-                    $getRightExpression = $validation->getRightExpression();
-
-                    if (is_array($values))
-                        foreach ($values as $field => $value) {
-
-                            /*
-                             * Setting the Parameters and getting the name of the employee
-                             */
-
-                            $tempField = $entityManager->getRepository('HrisFormBundle:Field')->findOneBy(array('uid' => $field));
-                            if(empty($tempField)){
-                                continue;
-                            }
-                            $param = "#{" . $tempField->getName() . "}";
 
 
-                            if ($field == $firstNameUid) {
-                                $firstname = $value;
-                            }
-                            if ($field == $lastNameUid) {
-                                $lastname = $value;
-                            }
-                            if ($field == $birthDateUid) {
-                                if (is_array($value)) {
-                                    $bdate = $value['date'];
-                                }
-                            }
-
-                            $count = 0;
-                            $emptyFields = '';
-
-
-                            /*
-                            * Getting the Compulsory fields which are empty
-                            */
-
-                            if (isset($compulsory[$field])) {
-                                if ($value == '' || $value == NULL || empty($value)) {
-                                    $emptyFields[$dataValue->getInstance()][$compulsory[$field]] = $compulsory[$field];
-
-                                }
-                            }
-
-
-                            /*
-                             * getting and replacing the left hand expression column
-                             */
-                            //echo $getLeftExpression." - ";echo $param; echo " <br>";
-                            //$testValue=(strstr($getLeftExpression, $param));
-
-                            if (strstr($getLeftExpression, $param)) {
-
-                                if (is_array($value)) {
-                                    $validationDateFormatLeft = round(((strtotime(date("Y-m-d")) - strtotime($value['date'])) / (365 * 60 * 60 * 24)), 1);
-                                    $getLeftExpression = str_replace($param, $validationDateFormatLeft, $getLeftExpression);
-                                    $getLeftExpressionValue = new \DateTime($value['date']);
-                                    $getLeftExpressionValue = $getLeftExpressionValue->format('d/m/Y');
-
-                                }
-
-                            }
-
-
-                            /*
-                             * getting and replacing the right hand expression column
-                             */
-                            // echo $getRightExpression;echo $param;exit;
-
-                            if (strstr($getRightExpression, $param)) {
-                                if (is_array($value)) {
-
-                                    $validationDateFormatRight = round(((strtotime(date("Y-m-d")) - strtotime($value['date'])) / (365 * 60 * 60 * 24)), 1);
-                                    $getRightExpression = str_replace($param, $validationDateFormatRight, $getRightExpression);
-                                    $getRightExpressionValue = new \DateTime($value['date']);
-                                    $getRightExpressionValue = $getRightExpressionValue->format('d/m/Y');
-                                }
-                            }
-
-                        }
-
-                    /*
-                     * Calculating the values of each side
-                     */
-
-                    $leftHandValue = $this->calculator($getLeftExpression);
-                    $rightHandValue = $this->calculator($getRightExpression);
-
-                    //print $leftHandValue.'<br>';
-                    //continue;
-
-
-                    /*
-                     * Doing comparison of the sides
-                     */
-                    $operator = $validation->getOperator();
-
-                    switch ($operator) {
-                        case '==':
-                            if ($leftHandValue == $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-
-                        case '!=':
-                            if ($leftHandValue != $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-
-                        case '>':
-                            if ($leftHandValue > $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-
-                        case '<':
-                            if ($leftHandValue < $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-
-                        case '>=':
-                            if ($leftHandValue >= $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-
-                        case '<=':
-                            if ($leftHandValue <= $rightHandValue) {
-                                $validationFault[$validation->getId()][] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'leftSide' => $getLeftExpressionValue, 'rightSide' => $getRightExpressionValue, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName());
-                            }
-                            break;
-                    }
-
-
-                    $getLeftExpressionValue = '';
-                    $getRightExpressionValue = '';
-
-
-                }
-
-                /*
-                 * Constructing an array with Person details for Duplicates Validation
-                 */
-                $personInfo[] = array('instance' => $dataValue->getInstance(), 'name' => $firstname . ' ' . $lastname, 'dBirth' => $bdate, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId(), 'form' => $dataValue->getForm()->getName(), 'formId' => $dataValue->getForm()->getId());
-
-            }
-
-            /*
-             * Combining the empty compulsory with names
-             */
-
-            $person_name[$dataValue->getInstance()] = array('name' => $firstname . ' ' . $lastname, 'orgunit' => $dataValue->getOrganisationunit()->getLongname(), 'orgunitId' => $dataValue->getOrganisationunit()->getId());
-
-
-            $firstname = '';
-            $lastname = '';
-            $dob = '';
-
-
-            /*
-            * Sorting Duplicates values from the List of Employees.
-            */
-            $dupArray = null;
-            $foundIds = array();
-            $dupArray = NULL;
-            $duplicate = NULL;
-            foreach ($personInfo as $index => $person) {
-                if (isset($foundIds[$person['name']][$person['dBirth']])) {
-                    $duplicateRef = $dupArray[$foundIds[$person['name']][$person['dBirth']]];
-                    $duplicate[] = array('ref' => $person, 'dup' => $duplicateRef);
-                }
-                $foundIds[$person['name']][$person['dBirth']] = $index;
-                $dupArray[$index] = $person;
-
-            }
-
-            unset($personInfo);
 
         }
 
 
-        foreach ($getValidation as $item => $value) {
-            @@$validationReport = $validationFault[$value->getId()];
-            $validationNames[] = $value->getName();
-            $counter = 0;
-            foreach ($validationTitle[$value->getId()] as $key => $validate_title) {
-                if ($validate_title != null) {
-                    $counter++;
-
-                    $displayTitle[] = $validate_title;
-
-                }
-            }
-        }
-
-        $compulsoryInfo = NULL;
-
-        if (!empty($emptyFields)) {
-            foreach ($emptyFields as $key => $value) {
-                foreach ($value as $emptyKey => $emptyFieldName) {
-
-
-                    $nameWithEmptyField = $person_name[$key]['name'];
-
-                    $missingField = $emptyFieldName;
-                    $missingOrgunit = $person_name[$key]['orgunit'];
-                }
-                $compulsoryInfo = array(
-                    'name' => $nameWithEmptyField,
-                    'missingField' => $emptyFieldName,
-                    'missingOrgUnit' => $missingOrgunit,
-                );
-            }
-        }
 
 
         return array(
             'title' => $title,
-            'dupArray' => $dupArray,
-            'duplicate' => $duplicate,
             'form' => $formObject,
+            'forms'=>$formIds,
             'emptyFields' => $emptyFields,
-            'hrhisValues' => $hrhisValues,
-            'person_name' => $person_name,
             'compulsory' => $compulsory,
-            'specificTitle' => $specificValidationTitle,
-            'validationFault' => $validationFault,
-            'emptyCategory' => $emptyCategory,
-            'compulsoryInfo' => $compulsoryInfo,
-            'validationReport' => $validationReport,
-            'validationNames' => $validationNames,
-            'displayTitle' => $validationTitle,
             'getValidations' => $getValidation,
+            'withLowerLevel' => $withLowerLevels,
+            'organisationunitid' => $organisationUnitObject
 
         );
 
     }
 
+    /**
+     * Displays the validation results.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDVALIDATION_VALIDATE")
+     * @Route("/result/{id}", requirements={"id"="\d+"}, name="one_validation_result")
+     * @Method("GET")
+     */
+    public function ajaxAction(Request $request, $id)
+    {
+        $request = $this->get('request');
+        $forms=$request->query->get('forms');
+        $orgunit = $request->query->get('orgunit');
+        $withlowerlevel = $request->query->get('withLower');
+        $entityManager = $this->getDoctrine()->getManager();
+        $organisationUnit = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('id'=> $orgunit));
+        $resourceTableName = "_resource_all_fields";
+        $validation = $entityManager->getRepository('HrisDataQualityBundle:Validation')->findOneBy(array('id' => $id));
+        $forms = explode("_",$forms);
+        array_shift($forms);
+
+        $leftExpTitle = '';
+        $rightExpTitle = '';
+        $getLeftExpression = $validation->getLeftExpression();
+        $getRightExpression = $validation->getRightExpression();
+
+        //Getting all the fields
+        $fieldObjects = $entityManager->getRepository('HrisFormBundle:Field')->findAll();
+
+        foreach ($fieldObjects as $key => $fieldObj) {
+
+          $param = "#{" . $fieldObj->getName() . "}";
+         /*
+         * Left Expression title
+         */
+            if (strstr($getLeftExpression, $param)) {
+                $leftExpTitle = $fieldObj->getName();
+            }
+            /*
+             * right Expression title
+             */
+            if (strstr($getRightExpression, $param)) {
+                $rightExpTitle = $fieldObj->getName();
+            }
+        }
+        $getLeftExpression = $validation->getLeftExpression();
+        $getRightExpression = $validation->getRightExpression();
+        $attachquery = "";
+        $operator = $validation->getOperator();
+        if(strcspn($getLeftExpression , '0123456789') == strlen($getLeftExpression) && strcspn($getRightExpression , '0123456789') == strlen($getRightExpression)){
+            $attachquery = " AND R.".$leftExpTitle ." IS NOT NULL  AND R.".$rightExpTitle ." IS NOT NULL AND R.".$rightExpTitle ." ".$operator." R.".$leftExpTitle." ";
+        }else{
+            if(is_numeric($getRightExpression) && strcspn($getLeftExpression , '0123456789') == strlen($getLeftExpression)){
+                $attachquery =" AND EXTRACT(year FROM age(".$leftExpTitle.")) ".$operator." ".$getRightExpression;
+            }else{
+                $attachquery = " AND R.id = 0";
+            }
+
+
+        }
+
+        $leftHandValue = $this->calculator($getLeftExpression);
+        $rightHandValue = $this->calculator($getRightExpression);
+        $operator = $validation->getOperator();
+
+//        switch ($operator) {
+//            case '==':
+//                if ($leftHandValue == $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' == '$rightHandValue'";
+//                }
+//                break;
+//
+//            case '!=':
+//                if ($leftHandValue != $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' != '$rightHandValue'";
+//                }
+//                break;
+//
+//            case '>':
+//                if ($leftHandValue > $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' > '$rightHandValue'";
+//                }
+//                break;
+//
+//            case '<':
+//                if ($leftHandValue < $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' < '$rightHandValue'";
+//                }
+//                break;
+//
+//            case '>=':
+//                if ($leftHandValue >= $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' >= '$rightHandValue'";
+//                }
+//                break;
+//
+//            case '<=':
+//                if ($leftHandValue <= $rightHandValue) {
+//                    $attachquery ="'$leftHandValue' <= '$rightHandValue'";
+//                }
+//                break;
+//        }
+        //Query all lower levels units from the passed orgunit
+        if($withlowerlevel){
+            $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+            $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+            $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+            $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+        }else{
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+        }
+
+        //Query all history data and count by field option
+        $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
+        $query .= "FROM ".$resourceTableName." R ";
+        $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+        $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+        $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+        $query .= " WHERE V.form_id IN (".implode(",", $forms).")".$attachquery;
+
+        $query .= " AND (". $subQuery .")";
+        $query .= " ORDER BY R.firstname ASC";
+
+//        echo $query; die();
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+        //return $report;
+
+        if($id!=""){//if the user has written his name
+            $greeting='Hello '.$validation->getName.'. How are you today?';
+            $return=$report;
+        }
+        else{
+            $return=array("responseCode"=>400, "greeting"=>"You have to write your name!");
+        }
+
+        $return=json_encode($return);//jscon encode the array
+        return new Response($return,200,array('Content-Type'=>'application/json'));//make sure it has the correct content type
+    }
     /**
      * Get all values from specific key in a multidimensional array
      *
