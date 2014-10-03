@@ -47,12 +47,16 @@
                 html += "<th>Facility</th>";
                 html += "<th>Dob</th>";
                 html += "<th>Appointment</th>";
+                html += "<th>Last Promo</th>";
                 html += "</tr>";
                 html += "</thead><tbody>";
                 $.each( jsonFields, function( fieldKey, jsonField ) {
                     html += "<tr>";
                     html += "<td>"+jsonField.firstname+" "+  jsonField.middlename +" "+  jsonField.surname+" </td>";
                     html += "<td>"+jsonField.level5_facility+"</td>";
+                    html += "<td>"+jsonField.dob+"</td>";
+                    html += "<td>"+jsonField.first_appointment+"</td>";
+                    html += "<td>"+jsonField.last_promo+"</td>";
                     html += "</tr>";
                 });
                         html +="</tbody></table>";
