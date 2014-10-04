@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by JetBrains PhpStorm.
- * User: benny
+ * User: kelvin Mbwilo & benny
  * Date: 9/24/13
  * Time: 9:41 PM
  * To change this template use File | Settings | File Templates.
@@ -132,17 +132,10 @@ class ValidationRunController extends Controller
             foreach ($selectedValidations as $selectedValidation) {
                 $getValidation[] = $entityManager->getRepository('HrisDataQualityBundle:Validation')->findOneBy(array('id' => $selectedValidation));
             }
-
             $count = 0;
             $emptyFields = '';
 
-
-
         }
-
-
-
-
         return array(
             'title' => $title,
             'form' => $formObject,
@@ -166,6 +159,7 @@ class ValidationRunController extends Controller
      */
     public function ajaxAction(Request $request, $id)
     {
+        //getting values from url request
         $request = $this->get('request');
         $forms=$request->query->get('forms');
         $orgunit = $request->query->get('orgunit');
@@ -177,6 +171,7 @@ class ValidationRunController extends Controller
         $forms = explode("_",$forms);
         array_shift($forms);
 
+        //preparing variables to use
         $leftExpTitle = '';
         $rightExpTitle = '';
         $getLeftExpression = $validation->getLeftExpression();
@@ -186,7 +181,6 @@ class ValidationRunController extends Controller
         $fieldObjects = $entityManager->getRepository('HrisFormBundle:Field')->findAll();
 
         foreach ($fieldObjects as $key => $fieldObj) {
-
           $param = "#{" . $fieldObj->getName() . "}";
          /*
          * Left Expression title
@@ -201,63 +195,22 @@ class ValidationRunController extends Controller
                 $rightExpTitle = $fieldObj->getName();
             }
         }
-        $getLeftExpression = $validation->getLeftExpression();
-        $getRightExpression = $validation->getRightExpression();
+
+        //preparing a subquery to attach to main query
         $attachquery = "";
         $operator = $validation->getOperator();
         if(strcspn($getLeftExpression , '0123456789') == strlen($getLeftExpression) && strcspn($getRightExpression , '0123456789') == strlen($getRightExpression)){
             $attachquery = " AND R.".$leftExpTitle ." IS NOT NULL  AND R.".$rightExpTitle ." IS NOT NULL AND R.".$rightExpTitle ." ".$operator." R.".$leftExpTitle." ";
         }else{
-            if(is_numeric($getRightExpression) && strcspn($getLeftExpression , '0123456789') == strlen($getLeftExpression)){
-                $attachquery =" AND EXTRACT(year FROM age(".$leftExpTitle.")) ".$operator." ".$getRightExpression;
+            if(strpos($getRightExpression,'#{') !== false){
+//                $expressionTouse = explode("{")
+                $exp = str_replace("#{","R.",$getRightExpression);
+                $exp = str_replace("}","",$exp);
+                $attachquery =" AND R.".$leftExpTitle ." IS NOT NULL  AND R.".$rightExpTitle ." IS NOT NULL  AND ".($exp)." ".$operator." R.".$leftExpTitle;
             }else{
-                $attachquery = " AND R.id = 0";
+                $attachquery = " AND R.".$leftExpTitle ." IS NOT NULL AND ".$getRightExpression." ".$operator." R.".$leftExpTitle." ";
             }
-
-
         }
-
-        $leftHandValue = $this->calculator($getLeftExpression);
-        $rightHandValue = $this->calculator($getRightExpression);
-        $operator = $validation->getOperator();
-
-//        switch ($operator) {
-//            case '==':
-//                if ($leftHandValue == $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' == '$rightHandValue'";
-//                }
-//                break;
-//
-//            case '!=':
-//                if ($leftHandValue != $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' != '$rightHandValue'";
-//                }
-//                break;
-//
-//            case '>':
-//                if ($leftHandValue > $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' > '$rightHandValue'";
-//                }
-//                break;
-//
-//            case '<':
-//                if ($leftHandValue < $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' < '$rightHandValue'";
-//                }
-//                break;
-//
-//            case '>=':
-//                if ($leftHandValue >= $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' >= '$rightHandValue'";
-//                }
-//                break;
-//
-//            case '<=':
-//                if ($leftHandValue <= $rightHandValue) {
-//                    $attachquery ="'$leftHandValue' <= '$rightHandValue'";
-//                }
-//                break;
-//        }
         //Query all lower levels units from the passed orgunit
         if($withlowerlevel){
             $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
@@ -283,135 +236,15 @@ class ValidationRunController extends Controller
 //        echo $query; die();
         //get the records
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
-        //return $report;
 
-        if($id!=""){//if the user has written his name
-            $greeting='Hello '.$validation->getName.'. How are you today?';
+        if($id!=""){
             $return=$report;
+//            $return=array("result"=>$query);
         }
-        else{
-            $return=array("responseCode"=>400, "greeting"=>"You have to write your name!");
-        }
-
         $return=json_encode($return);//jscon encode the array
         return new Response($return,200,array('Content-Type'=>'application/json'));//make sure it has the correct content type
     }
-    /**
-     * Get all values from specific key in a multidimensional array
-     *
-     * @param $key string
-     * @param $arr array
-     * @return null|string|array
-     */
 
-     function rectify($exp, $mod = "+") {
-
-        $res = $this->recCalc($exp);
-        debug("Pre rectify", $res);
-        if ($mod == '-') {
-            $res *= - 1;
-        }
-        debug("Post rectify", $res);
-        return $res;
-    }
-
-    function do_error($str) {
-        die($str);
-        return false;
-    }
-
-    function recCalc($inp) {
-
-        $this->debug("RecCalc input", $inp);
-
-        $p = str_split($inp);
-        $level = 0;
-
-        foreach ($p as $num) {
-            if ($num == '(' && ++$level == 1) {
-                $num = 'BABRAX';
-            } elseif ($num == ')' && --$level == 0) {
-                $num = 'DEBRAX';
-            }
-            $res[] = $num;
-        }
-
-        if ($level != 0) {
-            return do_error('Chyba: špatný počet závorek');
-        }
-
-        $res = implode('', $res);
-
-        $res = preg_replace('#([\+\-]?)BABRAX(.+?)DEBRAX#e', "rectify('\\2', '\\1')", $res);
-
-        $this->debug("After parenthesis proccessing", $res);
-
-        preg_match_all('#[+-]?([^+-]+)#', $res, $ar, PREG_PATTERN_ORDER);
-
-        for ($i = 0; $i < count($ar[0]); $i++) {
-            $last = substr($ar[0][$i], -1, 1);
-            if ($last == '/' || $last == '*' || $last == '^' || $last == 'E') {
-                $ar[0][$i] = $ar[0][$i] . $ar[0][$i + 1];
-                unset($ar[0][$i + 1]);
-            }
-        }
-
-        $result = 0;
-        foreach ($ar[0] as $num) {
-            $result += $this->multi($num);
-        }
-        $this->debug("RecCalc output", $result);
-        return $result;
-    }
-
-    function multi($inp) {
-        $this->debug("Multi input", $inp);
-
-        $inp = explode(' ', preg_replace('/([\*\/\^])/', ' \\1 ', $inp));
-
-        foreach ($inp as $va) {
-            if ($va != '*' && $va != '/' && $va != '^') {
-                $v[] = (float) $va;
-            } else {
-                $v[] = $va;
-            }
-        }
-        $inp = $v;
-        //predpokladame, ze prvni prvek je cislo, ktere budeme dale nasobit
-        $res = $inp[0];
-        for ($i = 1; $i < count($inp); $i++) {
-
-            if ($inp[$i] == '*') {
-                $res *= $inp[$i + 1];
-            } elseif ($inp[$i] == '/') {
-                if ($inp[$i + 1] == 0)
-                    do_error('mathematical error');
-
-                $res /= $inp[$i + 1];
-            } elseif ($inp[$i] == '^') {
-                $res = pow($res, $inp[$i + 1]);
-            }
-        }
-        $this->debug("Multi output", $res);
-        return $res;
-    }
-
-    function debug($msg, $var) {
-        if (isset($_POST['out']) && $_POST['out'] == '1') {
-            echo "\n" . $msg . ": " . $var;
-        }
-    }
-
-    function calculator($input){
-
-        $inp = preg_replace(array('/\s+/', '/Pi/', '/e/', '/T/', '/G/', '/M/', '/k/', '/m/', '/u/', '/n/', '/p/', '/f/'),
-            array('', M_PI, exp(1), '*' . 1e12, '*' . 1e9, '*' . 1e6, '*' . 1e3, '*' . 1e-3, '*' . 1e-6, '*' . 1e-9, '*' . 1e-12, '*' . 1e-15),
-            $input);
-
-        $result = $this->recCalc($inp);
-        return $result;
-
-    }
 
 }
 
