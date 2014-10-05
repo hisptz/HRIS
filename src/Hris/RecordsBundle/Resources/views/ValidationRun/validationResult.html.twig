@@ -32,6 +32,55 @@
 
         $(function () {
             $("#accordion").accordion();
+
+            {% for validation in getValidations %}
+            {#var fieldUrl = "{{ path('one_validation_result', { 'id': validation.id,'forms': forms, 'withLowerLevel': withLowerLevel,"organisationunitid":organisationunitid } ) }}";#}
+            var fieldUrl = "{{ path('one_validation_result', { 'id': validation.id } ) }}";
+            var forms = '{{ forms }}';
+            var orgunit = '{{ organisationunitid.id }}'
+            var withLower = '{{ withLowerLevel }}'
+            var getFields = $.getJSON( fieldUrl,{"forms":forms,'orgunit':orgunit,'withLower':withLower }, function( jsonFields ) {
+                var html = "<table id='table{{ validation.id }}' class='table table-bordered'>"
+                html += "<thead>";
+                html += "<tr>";
+                html += "<th>Name</th>";
+                html += "<th>Facility</th>";
+                html += "<th>Dob</th>";
+                html += "<th>Appointment</th>";
+                html += "<th>Last Promo</th>";
+                html += "</tr>";
+                html += "</thead><tbody>";
+                $.each( jsonFields, function( fieldKey, jsonField ) {
+                    html += "<tr>";
+                    html += "<td>"+jsonField.firstname+" "+  jsonField.middlename +" "+  jsonField.surname+" </td>";
+                    html += "<td>"+jsonField.level5_facility+"</td>";
+                    html += "<td>"+jsonField.dob+"</td>";
+                    html += "<td>"+jsonField.first_appointment+"</td>";
+                    html += "<td>"+jsonField.last_promo+"</td>";
+                    html += "</tr>";
+                });
+                        html +="</tbody></table>";
+                $("#collapse{{ validation.id }} .accordion-inner").html(html);
+                $("#table{{ validation.id }}").dataTable( {
+                    "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                    "oTableTools": {
+                        "aButtons": [
+                            {"sExtends":"copy","mColumns":"visible"},
+                            {"sExtends":"xls","mColumns":"visible"},
+                            {"sExtends":"pdf","mColumns":"visible"}
+                        ],
+                        "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                    },
+                    "sPdfOrientation": "landscape",
+                    "sPaginationType": "bootstrap",
+                    "oLanguage": {
+                        "sLengthMenu": "_MENU_ records per page"
+                    },
+                    "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+                });
+            });
+            {% endfor %}
+
         });
     </script>
 {% endblock javascripts %}
@@ -48,145 +97,28 @@
         <h1>
             <small>{{ title }}</small>
         </h1>
-        {% if hrhisValues is null %}
-            <h5>No data found</h5>
-        {% else %}
 
-            <div id="accordion">
-                {% for getValidation in getValidations %}
-                    {% if getValidation.id not in validationFault|keys %}
-                        <h3><a href="custom-icons.html#"><img
-                                        src="{{ asset('bundles/hrisrecords/img/Good-or-Tick-icon.png') }}"> {{ getValidation.name }}
-                            </a></h3>
-                        <div>
-                            <h5>All data are valid</h5>
+        <div class="accordion" id="accordion2">
+            {% for validation in getValidations %}
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse{{ validation.id }}">
+                        {{ validation.description }}
+                    </a>
+                </div>
+                <div id="collapse{{ validation.id }}" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <div class="progress progress-striped active">
+                            <div class="bar" style="width: 60%;"></div>
                         </div>
-                    {% else %}
-                        <h3><a href="custom-icons.html#"><img
-                                        src="{{ asset('bundles/hrisrecords/img/Error-icon.png') }}"> {{ getValidation.name }}
-                            </a></h3>
-                        <div>
-                            <table class="records_list dataTable table table-striped table-bordered table-hover"
-                                   cellpadding="0"
-                                   cellspacing="0" border="0">
-                                <thead>
-                                <th width="50" height="20">SN</th>
-                                <th width="50" height="20">Name</th>
-                                <th width="80" height="20"> {{ displayTitle[getValidation.id].leftExpression }}</th>
-                                <th width="80" height="20">{{ displayTitle[getValidation.id].rightExpression }}</th>
-                                <th width="50" height="20">Facility Name</th>
-                                {% set i=1 %}
-                                {% for validationValue in validationFault[getValidation.id] %}
-                                <tr>
-                                    <td>{{ i }}</td>
-                                    <td>{{ validationValue.name }}</td>
-                                    <td>{{ validationValue.leftSide }}</td>
-                                    <td>{{ validationValue.rightSide }}</td>
-                                    <td>{{ validationValue.orgunit }}</td>
-                                    {% set i=i+1 %}
-                                    {% endfor %}
-                                </tr>
-
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
-                {#display name validation results#}
-                {% if duplicate is null %}
-                    <h3><a href="custom-icons.html#"><img src="{{ asset('bundles/hrisrecords/img/Good-or-Tick-icon.png') }}"> Name Validation </a></h3>
-                    <div>
-                        <h5>All data are valid</h5>
+                        fetching data...
                     </div>
-                {% else %}
-                    <h3><a href="custom-icons.html#"><img
-                                    src="{{ asset('bundles/hrisrecords/img/Error-icon.png') }}"> Name Validation
-                        </a></h3>
-                    <div>
-                        <table class="records_list dataTable table table-striped table-bordered table-hover"
-                               cellpadding="0"
-                               cellspacing="0" border="0">
-                            <thead>
-                            <th width="50" height="20">SN</th>
-                            <th width="50" height="20">Instance</th>
-                            <th width="50" height="20">Name</th>
-                            <th width="50" height="20">Date of Birth</th>
-                            <th width="50" height="20">Form</th>
-                            <th width="50" height="20">Instance</th>
-                            <th width="50" height="20">Repeated Name</th>
-                            <th width="50" height="20">Date of Birth</th
-                            <th width="50" height="20">Form</th>
-                            <th width="50" height="20">Orgunit</th>
-                            {% set counter=0 %}
-                            {% for person in duplicate %}
-                            <tr>
-                                <td>{{ counter+1 }}</td>
-                                <td>{{ person.ref.instance }}</td>
-                                <td>{{ person.ref.name }}</td>
-                                <td>{{ person.ref.dBirth }}</td>
-                                <td>{{ person.ref.form }}</td>
-                                <td>{{ person.ref.instance }}</td>
-                                <td>{{ person.dup.name }}</td>
-                                <td>{{ person.dup.dBirth }}</td>
-                                <td>{{ person.dup.form }}</td>
-                                <td>{{ person.ref.orgunit }}</td>
-                                {% set counter=counter+1 %}
-                                {% endfor %}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
-
-                {#display Compulsory Field validation results#}
-                {% if compulsoryInfo is null %}
-                    <h3><a href="custom-icons.html#"><img
-                                    src="{{ asset('bundles/hrisrecords/img/Good-or-Tick-icon.png') }}"> Compulsory Field
-                            Validation
-                        </a></h3>
-                    <div>
-                        <h5>All data are valid</h5>
-                    </div>
-                {% else %}
-                    <h3><a href="custom-icons.html#"><img
-                                    src="{{ asset('bundles/hrisrecords/img/Error-icon.png') }}"> Compulsory Field
-                            Validation
-                        </a></h3>
-                    <div>
-                        <table class="records_list dataTable table table-striped table-bordered table-hover"
-                               cellpadding="0"
-                               cellspacing="0" border="0">
-                            <thead>
-                            <th width="50" height="20">SN</th>
-                            <th width="50" height="20">Name</th>
-                            <th width="50" height="20">Missing Field</th>
-                            <th width="50" height="20">Orgunit</th>
-                            {% set counter=0 %}
-                            {% for emptyValue in emptyFields %}
-
-                                <tr>
-                                    <td>{{ counter+1 }}</td>
-                                    <td>{{ compulsoryInfo.name }}</td>
-                                    <td>{compulsoryInfo.missingField}}</td>
-                                    <td>{{ compulsoryInfo.missingOrgUnit }}</td>
-                                    {% set counter=counter+1 %}
-                                </tr>
-                            {% endfor %}
-
-
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
+                </div>
             </div>
-        {% endif %}
+            {% endfor %}
+
+        </div>
+
     </div>
 {% endblock %}
 
