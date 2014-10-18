@@ -72,61 +72,84 @@
     </script>
 {% endblock javascripts %}
 {% block fos_user_content %}
-	<div class="form-signin">
-		<div class="well">
-		  <ul class="nav nav-tabs">
-			<li class="active"><a href="#login" data-toggle="tab">{{ 'security.login.login'|trans({}, 'FOSUserBundle') }}</a></li>
-			<li><a href="#create" data-toggle="tab">{{ 'security.login.create_account'|trans({}, 'FOSUserBundle') }}</a></li>
-		  </ul>
-		  <div id="myTabContent" class="tab-content">
-			<div class="tab-pane active in" id="login">
-			  <form action='{{ path("fos_user_security_check") }}' method="POST">
-			    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
-			    <label for="username">{{ 'security.login.username'|trans({}, 'FOSUserBundle') }}</label>
-			    <input type="text" placeholder="{{ 'security.login.username'|trans({}, 'FOSUserBundle') }}" id="username" name="_username" placeholder="" class="input-medium" value="{{ last_username }}">
-			    <label for="password">{{ 'security.login.password'|trans({}, 'FOSUserBundle') }}</label>
-			    <input type="password" placeholder="{{ 'security.login.password'|trans({}, 'FOSUserBundle') }}" id="password" name="_password" placeholder="" class="input-medium">
-			    <label class="checkbox">
-					<input type="checkbox" id="remember_me" name="_remember_me" value="on"> {{ 'security.login.remember_me'|trans({}, 'FOSUserBundle') }}
-					<a href="{{ path('fos_user_resetting_request') }}" class="btn btn-link">Forgot my password</a>
-				</label>
-				  <div class="control-group">
-						<div class="controls">
-							
-							<button type="submit" name="_submit" class="btn btn-success">{{ 'security.login.submit'|trans({}, 'FOSUserBundle') }}</button>
-                            <button type="reset" name="_reset" class="btn btn-primary">{{ 'security.login.reset'|trans({}, 'FOSUserBundle') }}</button>
-							<button type="button" class="btn">{{ 'security.login.help'|trans({}, 'FOSUserBundle') }}</button>
-						</div>
-				 </div>
-				 {% if error %}
-					 <div class="alert alert-error">
-						<button type="button" class="close" data-dismiss="alert">×</button>
-						<strong>{{ 'security.login.access_denied'|trans({}, 'FOSUserBundle') }}</strong> {{ error|trans({}, 'FOSUserBundle') }}
-					 </div>
-				 {% endif %}
-				</fieldset>
-			  </form>                
-			</div>
-			<div class="tab-pane fade" id="create">
-                <form action="{{ path('fos_user_registration_register') }}" {{ form_enctype(form) }}id="fos_user_registration_register" method="POST" class="fos_user_registration_register">
-                    {{ form_widget(form) }}
-                    {% if error %}
-                        <div class="alert alert-error">
-                            <button type="button" class="close" data-dismiss="alert">×</button>
-                            <strong>{{ 'security.login.access_denied'|trans({}, 'FOSUserBundle') }}</strong> {{ error|trans({}, 'FOSUserBundle') }}
-                        </div>
-                    {% endif %}
-                    <div>
-                        <input class="btn btn-primary" type="submit" value="{{ 'registration.submit'|trans({}, 'FOSUserBundle') }}" />
-                    </div>
-                </form>
+    <div class="row-fluid">
+        <div class="offset1 span5" style="padding: 20px;">
+            <p class="text-center text-info">One account is all you need to get everything in HRHIS</p>
+            <div class="control-group">
+                <p class="text-center"><span class="icon-circle-question-mark" title="Help"></span>For More info Visits the following related sites</p>
 
-			</div>
-		</div>
-	  </div>
-	  
-	   <div class="visible-phone text-center">
-            <p>© MoHSW - HRHIS</p>
+                <fieldset>
+                    <legend><h5 class="text-center"><a href="http://jhpiegodb.org/HRHIS3-1/public/index.php" target="_blank">HRHIS website</a></h5></legend>
+                    <img src="{{asset('img/front.png')}}" width="400" height="100" alt="HRHIS website">
+                    <p class="text-center"><a href="http://jhpiegodb.org/HRHIS3-1/public/index.php" target="_blank">HRHIS website</a></p>
+                    <legend><h5>Other Related links</h5></legend>
+                    <table class="table">
+                        <tr><td><a href="">About HRHIS</a></td><td><a href="http://www.moh.go.tz/" target="_blank">Ministry of health website</a></td><td><a href="">HRHIS Documentation</a></td><td><a href="">HRHIS Demo</a></td></tr>
+                    </table>
+                </fieldset>
+
+
+            </div>
+
+        </div>
+        <div class="span5">
+            <div class="form-signin">
+                <div class="well">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#login" data-toggle="tab">{{ 'security.login.login'|trans({}, 'FOSUserBundle') }}</a></li>
+                        <li><a href="#create" data-toggle="tab">{{ 'security.login.create_account'|trans({}, 'FOSUserBundle') }}</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div class="tab-pane active in" id="login">
+                            <form action='{{ path("fos_user_security_check") }}' method="POST">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+                                <label for="username">{{ 'security.login.username'|trans({}, 'FOSUserBundle') }}</label>
+                                <input type="text" placeholder="{{ 'security.login.username'|trans({}, 'FOSUserBundle') }}" id="username" name="_username" placeholder="" class="input-medium" value="{{ last_username }}">
+                                <label for="password">{{ 'security.login.password'|trans({}, 'FOSUserBundle') }}</label>
+                                <input type="password" placeholder="{{ 'security.login.password'|trans({}, 'FOSUserBundle') }}" id="password" name="_password" placeholder="" class="input-medium">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="remember_me" name="_remember_me" value="on"> {{ 'security.login.remember_me'|trans({}, 'FOSUserBundle') }}
+                                    <a href="{{ path('fos_user_resetting_request') }}" class="btn btn-link">Forgot my password</a>
+                                </label>
+                                <div class="control-group">
+                                    <div class="controls">
+
+                                        <button type="submit" name="_submit" class="btn btn-success">{{ 'security.login.submit'|trans({}, 'FOSUserBundle') }}</button>
+                                        <button type="reset" name="_reset" class="btn btn-primary">{{ 'security.login.reset'|trans({}, 'FOSUserBundle') }}</button>
+                                        <button type="button" class="btn">{{ 'security.login.help'|trans({}, 'FOSUserBundle') }}</button>
+                                    </div>
+                                </div>
+                                {% if error %}
+                                    <div class="alert alert-error">
+                                        <button type="button" class="close" data-dismiss="alert">×</button>
+                                        <strong>{{ 'security.login.access_denied'|trans({}, 'FOSUserBundle') }}</strong> {{ error|trans({}, 'FOSUserBundle') }}
+                                    </div>
+                                {% endif %}
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="create">
+                            <form action="{{ path('fos_user_registration_register') }}" {{ form_enctype(form) }}id="fos_user_registration_register" method="POST" class="fos_user_registration_register">
+                                {{ form_widget(form) }}
+                                {% if error %}
+                                    <div class="alert alert-error">
+                                        <button type="button" class="close" data-dismiss="alert">×</button>
+                                        <strong>{{ 'security.login.access_denied'|trans({}, 'FOSUserBundle') }}</strong> {{ error|trans({}, 'FOSUserBundle') }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <input class="btn btn-primary" type="submit" value="{{ 'registration.submit'|trans({}, 'FOSUserBundle') }}" />
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visible-phone text-center">
+                    <p>© MoHSW - HRHIS</p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock fos_user_content %}
