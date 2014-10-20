@@ -200,3 +200,16 @@ table.dataentry > tbody > tr > td.whitebg {background-color:#ffffff;width:288px;
 .has-spinner.btn-large.active .spinner {
     width: 19px;
 }
+
+.site-footer-links {
+    margin: 0;
+    list-style: none;
+}
+ul.site-footer-links {
+    float: left;
+    max-width: 80%;
+}
+ul.site-footer-links li {
+    display:inline;
+    margin-left:10px;
+}
