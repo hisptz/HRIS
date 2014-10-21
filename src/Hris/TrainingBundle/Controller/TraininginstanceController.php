@@ -242,6 +242,7 @@ class TraininginstanceController extends Controller
     public function createAction(Request $request)
     {
         $id = $request->request->get("instance_id");
+        $response = null;
 
         $entity  = new Traininginstance();
         $form = $this->createForm(new TraininginstanceType(), $entity);
@@ -253,12 +254,14 @@ class TraininginstanceController extends Controller
                 $id = $entity->getId();
 
             if(isset($id)){
-                return $this->redirect($this->generateUrl('add_options', array('instance_id' => $id)));
+                $response = $this->redirect($this->generateUrl('add_options', array('instance_id' => $id)));
             }else{
-                return $this->redirect($this->generateUrl('trainingsession'));
+                $response = $this->redirect($this->generateUrl('trainingsession'));
             }
 
         }
+
+        return $response;
 
     }
 
