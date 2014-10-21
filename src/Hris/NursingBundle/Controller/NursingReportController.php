@@ -171,9 +171,9 @@ class NursingReportController extends Controller
         $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
         $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
         if(count($formArray) != 0){
-            $query .= " WHERE V.form_id IN (".implode(",", $formArray).") AND R.profession = 'Nurse' ".$cardequery.$licensequery;
+            $query .= " WHERE V.form_id IN (".implode(",", $formArray).") AND R.profession = 'Nurse' AND employment_status != 'Deceased' ".$cardequery.$licensequery;
         }else{
-            $query .= " WHERE R.profession = 'Nurse' ".$cardequery.$licensequery;
+            $query .= " WHERE R.profession = 'Nurse'  AND employment_status != 'Deceased' ".$cardequery.$licensequery;
         }
         $query .= " AND (". $subQuery .") ";
         $query .= " ORDER BY R.firstname ASC";
