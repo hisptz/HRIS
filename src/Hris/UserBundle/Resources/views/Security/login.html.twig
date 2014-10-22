@@ -20,7 +20,7 @@
 {% extends "FOSUserBundle::layout.html.twig" %}
 {% block javascripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('commons/js/jquery.validate.min.js') }}"></script>
+    <script type="text/javascript" src="{{asset('commons/js/jquery.validate.min.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             // validate the comment form when it is submitted
@@ -74,12 +74,22 @@
 {% block fos_user_content %}
     <div class="row-fluid">
         <div class="offset1 span5">
-            <div class="form-signin">
+            <div class=" form-signin form-horizontal">
                 <div class="control-group">
                     <div class="">
                         <h3>HRH data warehouse</h3>
                         <p>A software for collection, collation, storage of Human resource for health Information.</p>
-                        <img src="//ssl.gstatic.com/accounts/signup/logo_strip_sign_up_2x.png" height="24px" width="311px">
+                        <table class="table-condensed">
+                        <tr><td><a href=""><p title="Get HRHIS help"><span class="alert-dismissable fa fa-question-circle fa-2x"></span></p></p>
+                         </td><td><a href=""><p title="Like our Page"><span class="alert-info fa fa-facebook fa-2x"></span></p></a></td>
+                         <td><a href=""><p title="Search HRHIS data"><span class="alert-success fa fa-search-plus fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Subscribe our Service"><span class="alert-error fa fa-rss fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Follow us on Twitter"><span class="alert-success fa fa-twitter fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Follow us on Google"><span class="alert-danger fa fa-google-plus fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Follow us on Youtube"><span class="alert-danger fa fa-youtube-play fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Follow us on Linkedin"><span class="alert-info fa fa-linkedin fa-2x"></span></p></a></td>
+                            <td><a href=""><p title="Fork on Github to get source code"><span class="alert-dismissable fa fa-github-alt fa-2x"></span></p></a></td>
+                              </tr></table>
                         <h3> Acess it it from anywhere</h3>
                         <p>Switch between devices, and pick up wherever you left off.</p>
                         <img src="{{asset('img/devices_28x.png')}}" height="172px" width="300px">

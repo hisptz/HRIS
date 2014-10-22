@@ -19,12 +19,11 @@
 #}
 
 {% extends '::base.html.twig' %}
-
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('bundles/hrisuser/css/login.css') }}" /></style>
+    <link rel="stylesheet" href="{{ asset('bundles/hrisuser/css/font-awesome.min.css') }}" /></style>
+     <link rel="stylesheet" href="{{ asset('bundles/hrisuser/css/login.css') }}" /></style>
 {% endblock stylesheets %}
-
 {% block title %} {{ parent() }} - Login {% endblock %}
 
 {% block navigation_bar %}
