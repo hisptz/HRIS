@@ -3,7 +3,7 @@ parameters:
     database_driver: pdo_pgsql
     database_host: localhost
     database_port: 5432
-    database_name: symfony_hris3
+    database_name: symfony_hrhis3
     database_user: symfony
     database_password: symfony
     mailer_transport: smtp
