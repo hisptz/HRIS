@@ -540,7 +540,8 @@ class ReportOrganisationunitCompletenessController extends Controller
         if($levelBelowSelected > $lowestLevel) {
             $this->organisationunitLevel = $this->organisationunit->getOrganisationunitStructure()->getLevel();
             $this->sameLevel = True;
-        }else {
+        }elseif(empty($this->organisationunitLevel)) {
+            // Default to level immediately below selected orgunit if no organisationunit level was selected
             $this->organisationunitLevel = $this->getDoctrine()->getManager()->getRepository('HrisOrganisationunitBundle:OrganisationunitLevel')->findOneBy(array('level' => ($this->organisationunit->getOrganisationunitStructure()->getLevel()->getLevel()+1) ));
         }
 
