@@ -350,7 +350,6 @@ class LeaveReportController extends Controller
         $leaveTypes = $entityManager -> getConnection() -> executeQuery(
             "select * from hris_leave_type"
         )->fetchAll();
-        var_dump($leaveTypes);exit;
         $leaves = array();
         foreach($leaveTypes as $leave){
             $leaves[] = $leave['name'];
@@ -402,7 +401,6 @@ class LeaveReportController extends Controller
             $query .= " AND (". $subQuery .") ".$datequery;
             $query .= " ORDER BY R.firstname ASC";
         //get the records
-        echo $query;exit;
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
         return $report;
     }
