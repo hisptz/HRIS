@@ -89,6 +89,7 @@ class LeaveReportController extends Controller
         $formsId = $forms->getId();
         if($reportType == "leaveReport"){
            $results = $this->recordsWithLeave($organisationUnit, $forms, "", $withLowerLevels,$leaveArray,$startdate,$enddate,$professionArray);
+
             return $this->render(
                 'HrisLeaveBundle:LeaveReport:employeeleave.html.twig',
                 array(
@@ -347,8 +348,9 @@ class LeaveReportController extends Controller
 
         //generating the fields which are concerned with leave only.
         $leaveTypes = $entityManager -> getConnection() -> executeQuery(
-            "SELECT L.name FROM hris_leave_type L"
-        ) -> fetchAll();
+            "select * from hris_leave_type"
+        )->fetchAll();
+        var_dump($leaveTypes);exit;
         $leaves = array();
         foreach($leaveTypes as $leave){
             $leaves[] = $leave['name'];
@@ -400,6 +402,7 @@ class LeaveReportController extends Controller
             $query .= " AND (". $subQuery .") ".$datequery;
             $query .= " ORDER BY R.firstname ASC";
         //get the records
+        echo $query;exit;
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
         return $report;
     }
