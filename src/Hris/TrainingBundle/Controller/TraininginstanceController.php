@@ -247,7 +247,7 @@ class TraininginstanceController extends Controller
         $entity  = new Traininginstance();
         $form = $this->createForm(new TraininginstanceType(), $entity);
         $form->bind($request);
-        if ($form->isValid()) {
+        //if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
@@ -259,7 +259,7 @@ class TraininginstanceController extends Controller
                 $response = $this->redirect($this->generateUrl('trainingsession'));
             }
 
-        }
+        //}
 
         return $response;
 
