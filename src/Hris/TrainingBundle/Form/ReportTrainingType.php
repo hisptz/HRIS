@@ -102,21 +102,21 @@ class ReportTrainingType extends AbstractType
                     new NotBlank(),
                 )
             ))
-            ->add('ProduceByDateRange','checkbox',array(
-                'required'=>False,
-            ))
-            ->add('startdate','date',array(
-                'required'=>false,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'attr' => array('class' => 'date')
-            ))
-            ->add('enddate','date',array(
-                'required'=>false,
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'attr' => array('class' => 'date')
-            ))
+//            ->add('ProduceByDateRange','checkbox',array(
+//                'required'=>False,
+//            ))
+//            ->add('startdate','date',array(
+//                'required'=>false,
+//                'widget' => 'single_text',
+//                'format' => 'dd/MM/yyyy',
+//                'attr' => array('class' => 'date')
+//            ))
+//            ->add('enddate','date',array(
+//                'required'=>false,
+//                'widget' => 'single_text',
+//                'format' => 'dd/MM/yyyy',
+//                'attr' => array('class' => 'date')
+//            ))
             ->add('Generate Report','submit',array(
                 'attr' => array('class' => 'btn'),
             ));

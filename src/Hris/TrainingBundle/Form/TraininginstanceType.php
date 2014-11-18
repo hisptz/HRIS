@@ -27,7 +27,7 @@ class TraininginstanceType extends AbstractType
                 'query_builder' => function(EntityRepository $repo){
                         return $repo->createQueryBuilder('q')
                             ->where('q.parent = :parent')
-                            ->setParameter('parent',1161);
+                            ->setParameter('parent',1161);// hard coded, has to be changed as soon as possible
 
                 }))
             ->add('district')
