@@ -74,9 +74,18 @@ class DeceasedNursesController extends Controller
 
         //creating array of selected professionals
         $formsArray = array();
+        $formString="";
         foreach($forms as $form){
             $formsArray[] = $form->getId();
+            $formString .= $form->getId()."_";
         }
+
+        //creating carde string for excel export
+        $cardetring= "";
+        $cardetring .= $NursingCadre;
+        //creating licence string for excel export
+        $licencestring= "";
+        $licencestring .= $licence;
 
         //craeting a title
         $licensetitle = "";
@@ -95,16 +104,21 @@ class DeceasedNursesController extends Controller
         }
         //Get the Id for the form
 //        $formsId = $forms->getId();
+
         $results = $this->nursingRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$NursingCadre,$licence);
         return $this->render(
-            'HrisNursingBundle:NursingReport:employee.html.twig',
+            'HrisNursingBundle:DeceasedNurses:employee.html.twig',
             array(
                 'results' => $results,
                 'organisationUnit' => $organisationUnit,
-                'forms'   => $forms,
+                'forms'   => $formString,
                 'withLowerLevels' => $withLowerLevels,
                 'title'   => $title,
-                'licensetitle' => $licensetitle
+                'licensetitle' => $licensetitle,
+                'startdate'  => $startdate,
+                'enddate'  => $enddate,
+                'carde'    => $cardetring,
+                'licence'  => $licencestring
             ));
 
     }
@@ -182,6 +196,183 @@ class DeceasedNursesController extends Controller
         return $report;
     }
 
+    /**
+     * Download history reports by Cadre
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOADBYCADRE")
+     * @Route("/records", name="report_nursing_download_records")
+     * @Method("GET")
+     * @Template()
+     */
+    public function recordsAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
 
+        $organisationUnitid =$request->query->get('organisationUnit');
+        $formsId = $request->query->get('forms');
+        $title = $request->query->get('title');
+        $withLowerLevels =$request->query->get('withLowerLevels');
+        $startdate = $request->query->get('startdate');
+        $enddate = $request->query->get('enddate');
+        $licence = $request->query->get('licence');
+        $carde = $request->query->get('carde');
+
+
+        //Get the objects from the the variables
+
+        $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
+        //create a form array
+        $formsArray = explode("_",$formsId);
+        array_pop($formsArray);
+        $results = $this->nursingRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$carde,$licence);
+        //$results = $this->recordsEngine($organisationUnit, $forms, $profession, $leaves, $withLowerLevels,$reportType,$startdate,$enddate);
+
+        //create the title
+         $subtitle = $title;
+
+
+        $title = $subtitle. "  ".$organisationUnit->getLongname();
+
+        if($withLowerLevels){
+            $title .= " with lower levels";
+        }
+
+
+        // ask the service for a Excel5
+        $excelService = $this->get('phpexcel')->createPHPExcelObject();
+        $excelService->getProperties()->setCreator("HRHIS3")
+            ->setLastModifiedBy("HRHIS3")
+            ->setTitle($title)
+            ->setSubject("Office 2005 XLSX Test Document")
+            ->setDescription("Test document for Office 2005 XLSX, generated using PHP classes.")
+            ->setKeywords("office 2005 openxml php")
+            ->setCategory("Test result file");
+
+        //write the header of the report
+        $column = 'A';
+        $row  = 1;
+        $date = "Date: ".date("jS F Y");
+        $excelService->getActiveSheet()->getDefaultRowDimension()->setRowHeight(15);
+        $excelService->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
+        $excelService->setActiveSheetIndex(0)
+            ->setCellValue($column.$row++, $title)
+            ->setCellValue($column.$row, $date);
+        //add style to the header
+        $heading_format = array(
+            'font' => array(
+                'bold' => true,
+                'color' => array('rgb' => '3333FF'),
+            ),
+            'alignment' => array(
+                'wrap'       => true,
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+            ),
+        );
+        //add style to the Value header
+        $header_format = array(
+            'font' => array(
+                'bold' => true,
+                'color' => array('rgb' => 'FFFFFF'),
+            ),
+            'alignment' => array(
+                'wrap'       => true,
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => '000099') ,
+            ),
+        );
+        //add style to the text to display
+        $text_format1 = array(
+            'font' => array(
+                'bold' => false,
+                'color' => array('rgb' => '000000'),
+            ),
+            'alignment' => array(
+                'wrap'       => true,
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+            ),
+        );
+        //add style to the Value header
+        $text_format2 = array(
+            'font' => array(
+                'bold' => false,
+                'color' => array('rgb' => '000000'),
+            ),
+            'alignment' => array(
+                'wrap'       => true,
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+            ),
+            'fill' => array(
+                'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => 'E0E0E0') ,
+            ),
+        );
+
+        $excelService->getActiveSheet()->getRowDimension('1')->setRowHeight(30);
+        $excelService->getActiveSheet()->getRowDimension('2')->setRowHeight(20);
+
+        //reset the colomn and row number
+        $column == 'A';
+        $row += 2;
+
+
+        //apply the styles
+        $excelService->getActiveSheet()->getStyle('A1:H2')->applyFromArray($heading_format);
+        $excelService->getActiveSheet()->mergeCells('A1:H1');
+        $excelService->getActiveSheet()->mergeCells('A2:H2');
+
+        //write the table heading of the values
+        $excelService->getActiveSheet()->getStyle('A4:H4')->applyFromArray($header_format);
+        $excelService->setActiveSheetIndex(0)
+            ->setCellValue($column++.$row, 'SN')
+            ->setCellValue($column++.$row, 'Name')
+            ->setCellValue($column++.$row, 'Date Of Birth')
+            ->setCellValue($column++.$row, 'Gender')
+            ->setCellValue($column++.$row, 'Education Level')
+            ->setCellValue($column++.$row, 'Check Number')
+            ->setCellValue($column++.$row, 'Department')
+            ->setCellValue($column.$row, 'Duty Post');
+
+        //write the values
+        $i =1; //count the row
+        foreach($results as $result){
+            $column = 'A';//return to the 1st column
+            $row++; //increment one row
+
+            //format of the row
+            if (($row % 2) == 1)
+                $excelService->getActiveSheet()->getStyle($column.$row.':I'.$row)->applyFromArray($text_format1);
+            else
+                $excelService->getActiveSheet()->getStyle($column.$row.':I'.$row)->applyFromArray($text_format2);
+            $excelService->setActiveSheetIndex(0)
+                ->setCellValue($column++.$row, $i++)
+                ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
+                ->setCellValue($column++.$row, $result['dob'])
+                ->setCellValue($column++.$row, $result['sex'])
+                ->setCellValue($column++.$row, $result['edu_evel'])
+                ->setCellValue($column++.$row, $result['check_no'])
+                ->setCellValue($column++.$row, $result['department'])
+                ->setCellValue($column.$row, $result['level5_facility']);
+        }
+
+        $excelService->getActiveSheet()->setTitle('List of Records');
+
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $excelService->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($excelService, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(" ","_",$title).'.xls');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        //$response->sendHeaders();
+        return $response;
+    }
 }
 

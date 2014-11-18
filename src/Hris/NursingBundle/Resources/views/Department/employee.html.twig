@@ -65,14 +65,13 @@
             </div>
 
         <div style="text-align: right">
-            <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+            <a class="btn" href="{{ path('department_download', {'organisationUnit': organisationUnit.id, 'forms':forms, 'withLowerLevels': withLowerLevels,'licencetitle':'licensetitle' , 'title': title , 'startdate': startdate , 'enddate': enddate , 'carde': carde , 'licence': licence  }) }}">
                 Export to Excel
             </a>
-            <a class="btn" href="{{ path('report_substansive_nurse_download', {'organisationUnit': organisationUnit.id,'withLowerLevels': withLowerLevels,'reportType':'table' , 'result': results  }) }}">
+            <a class="btn" href="{{ path('department_nursing_download_records', {'organisationUnit': organisationUnit.id, 'forms':forms, 'withLowerLevels': withLowerLevels,'licencetitle':'licensetitle' , 'title': title , 'startdate': startdate , 'enddate': enddate , 'carde': carde , 'licence': licence  }) }}">
                 Export Records By Cadre
             </a>
         </div>
-    </div>
 
 
 {% endblock %}
