@@ -203,7 +203,6 @@ class ValidationRunController extends Controller
                     $query .= " ORDER BY R.firstname ASC";
 
                     $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
-                    var_dump($report); exit;
                     $columnArray[$fieldObj->getName()] = $report;
                 }elseif($fieldObj->getDataType() == "Integer"){
                     $partyQuery = " AND R.".$fieldObj->getName()." is null ";
