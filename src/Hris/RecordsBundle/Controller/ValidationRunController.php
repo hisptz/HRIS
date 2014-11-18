@@ -154,6 +154,95 @@ class ValidationRunController extends Controller
      * Displays the validation results.
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDVALIDATION_VALIDATE")
+     * @Route("/required", name="required_validation_result")
+     * @Method("GET")
+     */
+    public function ajaxAction1(Request $request)
+    {
+        //getting values from url request
+        $request = $this->get('request');
+        $forms=$request->query->get('forms');
+        $orgunit = $request->query->get('orgunit');
+        $withlowerlevel = $request->query->get('withLower');
+        $entityManager = $this->getDoctrine()->getManager();
+        $organisationUnit = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('id'=> $orgunit));
+        $resourceTableName = "_resource_all_fields";
+        $forms = explode("_",$forms);
+        array_shift($forms);
+        /*
+            * Getting Fields with Compulsory Elements
+            */
+        $compulsoryFields = $entityManager->getRepository('HrisFormBundle:Field')->findBy(array('compulsory' => 'TRUE'));
+        $count = 0;
+        $columnString = "";
+        $whereString = "";
+        $columnArray = array();
+        //Query all lower levels units from the passed orgunit
+        if($withlowerlevel){
+            $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+            $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+            $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+            $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+        }else{
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+        }
+
+        if (!empty($compulsoryFields)) {
+            foreach ($compulsoryFields as $key => $fieldObj) {
+
+                if($fieldObj->getDataType() == "Date"){
+                    $partyQuery = " AND R.".$fieldObj->getName()." is null ";
+                    $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
+                    $query .= "FROM ".$resourceTableName." R ";
+                    $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+                    $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+                    $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+                    $query .= " WHERE V.form_id IN (".implode(",", $forms).") ".$partyQuery;
+                    $query .= " AND (". $subQuery .")";
+                    $query .= " ORDER BY R.firstname ASC";
+
+                    $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+                    var_dump($report); exit;
+                    $columnArray[$fieldObj->getName()] = $report;
+                }elseif($fieldObj->getDataType() == "Integer"){
+                    $partyQuery = " AND R.".$fieldObj->getName()." is null ";
+                    $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
+                    $query .= "FROM ".$resourceTableName." R ";
+                    $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+                    $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+                    $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+                    $query .= " WHERE V.form_id IN (".implode(",", $forms).") ".$partyQuery;
+                    $query .= " AND (". $subQuery .")";
+                    $query .= " ORDER BY R.firstname ASC";
+                    $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+                    $columnArray[$fieldObj->getName()] = $report;
+                }else{
+                    $partyQuery = " AND R.".$fieldObj->getName()." = '' ";
+                    $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
+                    $query .= "FROM ".$resourceTableName." R ";
+                    $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+                    $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+                    $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+                    $query .= " WHERE V.form_id IN (".implode(",", $forms).") ".$partyQuery;
+                    $query .= " AND (". $subQuery .")";
+                    $query .= " ORDER BY R.firstname ASC";
+                    $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+                    $columnArray[$fieldObj->getName()] = $report;
+                }
+               //Query all history data and count by field option
+
+            }
+
+        }
+        $return=json_encode($columnArray);//jscon encode the array
+        return new Response($return,200,array('Content-Type'=>'application/json'));//make sure it has the correct content type
+    }
+
+/**
+     * Displays the validation results.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDVALIDATION_VALIDATE")
      * @Route("/result/{id}", requirements={"id"="\d+"}, name="one_validation_result")
      * @Method("GET")
      */
