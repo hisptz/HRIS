@@ -333,6 +333,62 @@ class ValidationRunController extends Controller
         return new Response($return,200,array('Content-Type'=>'application/json'));//make sure it has the correct content type
     }
 
+    /**
+     * Displays the validation results for name validation.
+     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDVALIDATION_VALIDATE")
+     * @Route("/namevalidation", name="name_validation_result")
+     * @Method("GET")
+     */
+    public function ajaxAction2(Request $request)
+    {
+        //getting values from url request
+        $request = $this->get('request');
+        $forms=$request->query->get('forms');
+        $orgunit = $request->query->get('orgunit');
+        $withlowerlevel = $request->query->get('withLower');
+        $entityManager = $this->getDoctrine()->getManager();
+        $organisationUnit = $entityManager->getRepository('HrisOrganisationunitBundle:Organisationunit')->findOneBy(array('id'=> $orgunit));
+        $resourceTableName = "_resource_all_fields";
+        $forms = explode("_",$forms);
+        array_shift($forms);
+        //Query all lower levels units from the passed orgunit
+        if($withlowerlevel){
+            $allChildrenIds = "SELECT hris_organisationunitlevel.level ";
+            $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+            $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+            $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+        }else{
+            $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+        }
+
+        //Query all history data and count by field option
+//        $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
+//        $query .= "FROM ".$resourceTableName." R ";
+//        $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+//        $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+//        $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+//        $query .= " WHERE V.form_id IN (".implode(",", $forms).")";
+//
+//        $query .= " AND (". $subQuery .")";
+//        $query .= " ORDER BY R.firstname ASC";
+
+        $query1 = "SELECT R.firstname,R.middlename,R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility  FROM _resource_all_fields R ";
+        $query1 .= "INNER JOIN hris_record as V on V.instance = R.instance ";
+        $query1 .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+        $query1 .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+        $query1 .=" WHERE (R.firstname,R.middlename,R.surname,R.dob) IN ";
+        $query1 .= "(SELECT firstname,middlename,surname,dob FROM _resource_all_fields m2 GROUP BY firstname,middlename,surname,dob HAVING COUNT(*) > 1) ";
+        $query1 .= "AND V.form_id IN (".implode(",", $forms).") ";
+        $query1 .= "AND (". $subQuery .")";
+        $query1 .= "ORDER BY R.firstname,R.middlename,R.surname ASC";
+
+        //get the records
+        $report = $entityManager -> getConnection() -> executeQuery($query1) -> fetchAll();
+        $return = json_encode($report);
+        return new Response($return,200,array('Content-Type'=>'application/json'));//make sure it has the correct content type
+    }
 
 }
 

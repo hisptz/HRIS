@@ -89,6 +89,7 @@
 
             //setting up compulsory fields
             var CompulsoryUrl = "{{ path('required_validation_result' ) }}";
+            var NameUrl = "{{ path('name_validation_result' ) }}";
             var forms = '{{ forms }}';
             var orgunit = '{{ organisationunitid.id }}';
             var withLower = '{{ withLowerLevel }}';
@@ -158,6 +159,55 @@
                     $("#accordioncomp").parent().parent().parent().find(".accordion-heading a").prepend("<img src='../../../bundles/hrisrecords/img/Error-icon.png'>");
                 }
             });
+
+            //name validation
+            alert("nimefika")
+             $.getJSON( NameUrl,{"forms":forms,'orgunit':orgunit,'withLower':withLower }, function( jsonFields ) {
+                var html = "<table id='tableName' class='table table-bordered'>"
+                html += "<thead>";
+                html += "<tr>";
+                html += "<th>Name</th>";
+                html += "<th>Facility</th>";
+                html += "<th>Dob</th>";
+                html += "<th>Appointment</th>";
+                html += "<th>Last Promo</th>";
+                html += "</tr>";
+                html += "</thead><tbody>";
+                $.each( jsonFields, function( fieldKey, jsonField ) {
+                    html += "<tr>";
+                    html += "<td>"+jsonField.firstname+" "+  jsonField.middlename +" "+  jsonField.surname+" </td>";
+                    html += "<td>"+jsonField.level5_facility+"</td>";
+                    html += "<td>"+jsonField.dob+"</td>";
+                    html += "<td>"+jsonField.first_appointment+"</td>";
+                    html += "<td>"+jsonField.last_promo+"</td>";
+                    html += "</tr>";
+                });
+                html +="</tbody></table>";
+                $("#collapseName .accordion-inner").html(html);
+                $("#tableName").dataTable( {
+                    "sDom": "<'span12'<'span6'TRl><'span6'f>r>t<'span12'<'span6'i><'span6'p>>",
+                    "oTableTools": {
+                        "aButtons": [
+                            {"sExtends":"copy","mColumns":"visible"},
+                            {"sExtends":"xls","mColumns":"visible"},
+                            {"sExtends":"pdf","mColumns":"visible"}
+                        ],
+                        "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                    },
+                    "sPdfOrientation": "landscape",
+                    "sPaginationType": "bootstrap",
+                    "oLanguage": {
+                        "sLengthMenu": "_MENU_ records per page"
+                    },
+                    "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]]
+                });
+
+                if($("#tableName").find("td:first").text() === "No data available in table"){
+                    $("#tableName").parent().parent().parent().parent().find(".accordion-heading a").prepend("<img src='../../../bundles/hrisrecords/img/Good-or-Tick-icon.png'>");
+                }else{
+                    $("#tableName").parent().parent().parent().parent().find(".accordion-heading a").prepend("<img src='../../../bundles/hrisrecords/img/Error-icon.png'>");
+                }
+            });
         });
     </script>
 {% endblock javascripts %}
@@ -199,6 +249,23 @@
                     </a>
                 </div>
                 <div id="collapseComp" class="accordion-body collapse" >
+                    <div class="accordion-inner" style="margin-right: 10px">
+                        <div class="progress progress-striped active">
+                            <div class="bar" style="width: 60%;"></div>
+                        </div>
+                        fetching data...
+                    </div>
+                </div>
+            </div>
+
+            {#name validation#}
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseName">
+                        Name Validation
+                    </a>
+                </div>
+                <div id="collapseName" class="accordion-body collapse" >
                     <div class="accordion-inner" style="margin-right: 10px">
                         <div class="progress progress-striped active">
                             <div class="bar" style="width: 60%;"></div>
