@@ -106,7 +106,7 @@ class Traininginstance
      * @var \DateTime $startdate
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="startdate", type="datetime", length=255)
+     * @ORM\Column(name="startdate", type="datetime", length=255,nullable=true)
      */
     private $startdate;
 
@@ -117,7 +117,7 @@ class Traininginstance
      * @var \DateTime $enddate
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="enddate", type="datetime", length=255)
+     * @ORM\Column(name="enddate", type="datetime", length=255,nullable=true)
      */
     private $enddate;
 
