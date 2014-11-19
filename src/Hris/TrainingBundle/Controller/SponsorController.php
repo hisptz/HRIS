@@ -44,9 +44,9 @@ class SponsorController extends Controller
     }
 
     /**
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/addSponsor",name="addSponsor")
-     * Method("GET")
+     * @Method("GET")
      * @Template()
      */
     public function addSponsorAction(Request $request)
@@ -61,7 +61,7 @@ class SponsorController extends Controller
             );    }
 
     /**
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/createSponsor",name="createSponsor")
      * @Method("POST")
      */
@@ -83,7 +83,7 @@ class SponsorController extends Controller
     /**
     * Displays a form to edit an existing Report entity.
     *
-    * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+    * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
     * @Route("/{id}/editSponsor", requirements={"id"="\d+"}, name="editSponsor")
     * @Method("GET")
     * @Template()
@@ -113,7 +113,7 @@ class SponsorController extends Controller
     /**
      * Edits an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/updateSponsor", requirements={"id"="\d+"}, name="updateSponsor")
      * @Method("PUT")
      * @Template()
@@ -152,7 +152,7 @@ class SponsorController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/deleteSponsor", requirements={"id"="\d+"}, name="deleteSponsor")
      * @Method("DELETE")
      */

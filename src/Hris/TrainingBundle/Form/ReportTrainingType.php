@@ -95,28 +95,40 @@ class ReportTrainingType extends AbstractType
             ->add('graphType','choice',array(
                 'choices'=>array(
                     'bar'=>'Bar Chart',
-                    'line'=>'Line Chart',
-                    'pie'=>'Pie Chart'
+                    'line'=>'Line Chart'
                 ),
                 'constraints'=>array(
                     new NotBlank(),
                 )
             ))
-//            ->add('ProduceByDateRange','checkbox',array(
-//                'required'=>False,
-//            ))
-//            ->add('startdate','date',array(
-//                'required'=>false,
-//                'widget' => 'single_text',
-//                'format' => 'dd/MM/yyyy',
-//                'attr' => array('class' => 'date')
-//            ))
-//            ->add('enddate','date',array(
-//                'required'=>false,
-//                'widget' => 'single_text',
-//                'format' => 'dd/MM/yyyy',
-//                'attr' => array('class' => 'date')
-//            ))
+            ->add('from','choice',array(
+                'choices'=>array(
+                    '2008'=>'2008',
+                    '2009'=>'2009',
+                    '2010'=>'2010',
+                    '2011'=>'2011',
+                    '2012'=>'2012',
+                    '2013'=>'2013',
+                    '2014'=>'2014'
+                ),
+                'constraints'=>array(
+                    new NotBlank(),
+                )
+            ))
+            ->add('to','choice',array(
+                'choices'=>array(
+                    '2008'=>'2008',
+                    '2009'=>'2009',
+                    '2010'=>'2010',
+                    '2011'=>'2011',
+                    '2012'=>'2012',
+                    '2013'=>'2013',
+                    '2014'=>'2014'
+                ),
+                'constraints'=>array(
+                    new NotBlank(),
+                )
+            ))
             ->add('Generate Report','submit',array(
                 'attr' => array('class' => 'btn'),
             ));

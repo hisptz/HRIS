@@ -17,6 +17,7 @@ use JMS\SecurityExtraBundle\Annotation\Secure;
 class VenueController extends Controller
 {
     /**
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_LIST")
      * @Route("/venues", name="venues")
      * @Method("GET")
      * @Template()
@@ -59,7 +60,7 @@ class VenueController extends Controller
     /**
      * Displays a form to edit an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/editVenue", requirements={"id"="\d+"}, name="venues_edit")
      * @Method("GET")
      * @Template()
@@ -87,7 +88,7 @@ class VenueController extends Controller
     /**
      * Displays a form to create a new Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_CREATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/newVenue", name="venues_new")
      * @Method("GET")
      * @Template()
@@ -105,7 +106,7 @@ class VenueController extends Controller
 
     /**
      * Creates a new trainers entity.
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/createVenue", name="venue_create")
      * @Method("POST")
      *
@@ -132,7 +133,7 @@ class VenueController extends Controller
     /**
      * Edits an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/Venue", requirements={"id"="\d+"}, name="venue_update")
      * @Method("PUT")
      * @Template()
@@ -169,7 +170,7 @@ class VenueController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/deleteVenue", requirements={"id"="\d+"}, name="venues_delete")
      * @Method("DELETE")
      */

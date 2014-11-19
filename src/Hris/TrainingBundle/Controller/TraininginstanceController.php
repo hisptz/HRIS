@@ -69,7 +69,7 @@ class TraininginstanceController extends Controller
     /**
      * Lists all Records by forms.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORD_LIST")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_LIST")
      * @Route("/viewrecords/{formid}/form", requirements={"formid"="\d+"}, defaults={"formid"=0}, name="record_viewrecords")
      * @Method("GET")
      * @Template()
@@ -191,7 +191,7 @@ class TraininginstanceController extends Controller
     /**
      * Edits an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}", requirements={"id"="\d+"}, name="trainingsession_update")
      * @Method("PUT")
      *
@@ -234,7 +234,7 @@ class TraininginstanceController extends Controller
 
     /**
      * Creates a new Training instance entity.
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/create", name="trainingsession_create")
      * @Method("POST")
      *
@@ -247,7 +247,7 @@ class TraininginstanceController extends Controller
         $entity  = new Traininginstance();
         $form = $this->createForm(new TraininginstanceType(), $entity);
         $form->bind($request);
-        //if ($form->isValid()) {
+        if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
@@ -259,7 +259,7 @@ class TraininginstanceController extends Controller
                 $response = $this->redirect($this->generateUrl('trainingsession'));
             }
 
-        //}
+        }
 
         return $response;
 
@@ -270,8 +270,7 @@ class TraininginstanceController extends Controller
 
     /**
      * Displays a form to create a new Report entity.
-     *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_CREATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/new", name="trainingsession_new")
      * @Method("GET")
      * @Template()
@@ -295,7 +294,7 @@ class TraininginstanceController extends Controller
     /**
      * Displays a form to edit an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/edit", requirements={"id"="\d+"}, name="trainingsession_edit")
      * @Method("GET")
      * @Template()
@@ -325,7 +324,7 @@ class TraininginstanceController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/trainingsession_delete", requirements={"id"="\d+"}, name="trainingsession_delete")
      * @Method("DELETE")
      */
@@ -405,7 +404,7 @@ class TraininginstanceController extends Controller
     /**
      * Returns Employee records json.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTRECORDS_LIST")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_LIST")
      * @Route("/records/{_format}/{formid}/{instance_id}/{tabId}", requirements={"_format"="json|"}, defaults={"_format"="json"}, name="records_ajax")
      * @Method("GET")
      * @Template()
@@ -566,7 +565,7 @@ class TraininginstanceController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/{instance_id}/instanceParticipantdelete", requirements={"id"="\d+"}, name="instanceParticipantdelete")
      * @Method("GET")
      */
@@ -612,7 +611,7 @@ class TraininginstanceController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/{instance_id}/instanceFacilitatordelete", requirements={"id"="\d+"}, name="instanceFacilitatordelete")
      * @Method("GET")
      */
@@ -660,7 +659,7 @@ class TraininginstanceController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/{instance_id}/instanceTrainersdelete", requirements={"id"="\d+"}, name="instanceTrainers_delete")
      * @Method("DELETE")
      */

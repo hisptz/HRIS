@@ -33,6 +33,7 @@ use Hris\TrainingBundle\Entity\Training;
 use Hris\TrainingBundle\Form\TrainingType;
 use JMS\SecurityExtraBundle\Annotation\Secure;
 use Hris\RecordsBundle;
+
 /**
  * Report controller.
  *
@@ -72,7 +73,7 @@ class TrainingController extends Controller
     }
     /**
      * Creates a new Training entity.
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/create", name="trainings_create")
      * @Method("POST")
      *
@@ -95,7 +96,7 @@ class TrainingController extends Controller
     /**
      * Displays a form to create a new Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_CREATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/new", name="trainings_new")
      * @Method("GET")
      * @Template()
@@ -110,14 +111,12 @@ class TrainingController extends Controller
             'form' => $form->createView(),
         ));
 
-
-
     }
 //
     /**
      * Finds and displays a Report entity.
      *
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_SHOW")
      * @Route("/",name="trainings_show")
      * @Method("GET|POST")
      * @Template()
@@ -130,7 +129,7 @@ class TrainingController extends Controller
     /**
      * Displays a form to edit an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/edit", requirements={"id"="\d+"}, name="trainings_edit")
      * @Method("GET")
      * @Template()
@@ -159,17 +158,15 @@ class TrainingController extends Controller
     /**
      * Edits an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/trainings_update", requirements={"id"="\d+"}, name="trainings_update")
      * @Method("PUT")
-     * @Template()
      */
     public function updateAction(Request $request, $id)
     {
-
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
-
+//
         $entity = $em->getRepository('HrisTrainingBundle:Training')->find($id);
 
         if (!$entity) {
@@ -178,16 +175,14 @@ class TrainingController extends Controller
         $entity->setCoursename($entity->getCoursename());
         $entity->setTrainingCategory($entity->getTrainingCategory());
         $entity->setTrainingInstruction($entity->getTrainingInstruction());
-        $entity->setSponsor($entity->getSponsor());
+//        $entity->setSponsor($entity->getSponsor());echo $entity->getSponsor()."-->";
         $entity->setCuriculum($entity->getCuriculum());
-
         $editForm = $this->createForm(new TrainingType(), $entity);
         $editForm->bind($request);
-
+//
         if ($editForm->isValid()) {
             $em->persist($entity);
             $em->flush();
-
             return $this->redirect($this->generateUrl('trainings'));
         }
 
@@ -195,11 +190,12 @@ class TrainingController extends Controller
             'entity'      => $entity,
             'edit_form'   => $editForm->createView(),
         );
+
     }
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/training_delete", requirements={"id"="\d+"}, name="trainings_delete")
      * @Method("DELETE")
      */

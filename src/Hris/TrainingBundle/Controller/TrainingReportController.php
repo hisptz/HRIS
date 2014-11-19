@@ -89,10 +89,9 @@ class TrainingReportController extends Controller
             $reportType = $historytrainingFormData['reportType'];
             $withLowerLevels = $historytrainingFormData['withLowerLevels'];
             $graphType = $historytrainingFormData['graphType'];
-            $startdate = $historytrainingFormData['startdate'];
-            $enddate =  $historytrainingFormData['enddate'];
+            $startdate = $historytrainingFormData['from'];
+            $enddate =  $historytrainingFormData['to'];
             $trainings = $historytrainingFormData['Trainings'];
-
 
             $groups = Array('0'=>00);
 
@@ -112,42 +111,56 @@ class TrainingReportController extends Controller
 
         }
 
-
-
       if($reportType =="facilitators" || $reportType == "participants" || $reportType == "trainings"){
           $groups_results = $this->aggregationEngine($organisationUnit,$groups, $formIds,$reportType, $withLowerLevels,$startdate,$enddate);
+          $perfectArray =  $this->reportGroupArray($groups,$startdate,$enddate);
 
             $groups_series = array();
             $categories = array();
 
-            foreach($groups_results as $results){
+          foreach($perfectArray as $results){
+              $data = array();
+              foreach($groups_results as $resforgroups){
+                  if($resforgroups[0] == $results[0]){
 
-                $data = array();
-                if(count($results[1])>0){
+                        $containedDataArray = array();
 
-                    foreach($results[1] as $result){
+                      foreach($resforgroups[1] as $resforgroup){
+                          $containedDataArray[$resforgroup['data']] = $resforgroup['total'];
+                      }
 
-                        $categories[] = $result['data'];
-                        $data[] =  json_decode('[' . $result['total'] . ']', true);
+                      foreach($results[1] as $result){
 
-                        if($graphType == 'pie'){
-                            $piedata[] = array('name' => $result['data'],'y' => $result['total']);
-                        }
-                    }
+                          $categories[] = json_decode('[' . $result['data'] . ']', true);//$result['data'];
+                          if(array_key_exists($result['data'],$containedDataArray)){
+                              $data[] =  json_decode('[' . $containedDataArray[$result['data']] . ']', true);
+                          }else{
 
-                }else{
+                              $data[] =  $result['total'];
+                          }
 
-                }
-
-
-                $groups_series[] =
-                array(
-                    'name'  => $results[0],
-                    'data'  => $data,
-                );
+                          if($graphType == 'pie'){
+                              $piedata[] = array('name' => $result['data'],'y' => $result['total']);
+                          }
 
 
-            }
+                      }
+
+
+
+                  }
+              }
+
+              $groups_series[] =
+                  array(
+                      'name'  => $results[0],
+                      'data'  => $data,
+                  );
+
+
+          }
+
+
 
           $cats = array_map("unserialize", array_unique(array_map("serialize", $categories)));
           $categories = array();
@@ -155,7 +168,6 @@ class TrainingReportController extends Controller
               $categories[] = $cat;
           }
 
-      //   echo $categories = json_encode($categories);die();
 
             $series = $groups_series;
             if ($withLowerLevels){
@@ -191,7 +203,6 @@ class TrainingReportController extends Controller
         }
         //set the title and sub title
         $title = $subtitle." Distribution Report";
-
 
         $yData = array(
             array(
@@ -261,6 +272,8 @@ class TrainingReportController extends Controller
             'withLowerLevels' => $withLowerLevels,
             'title'=> $title,
             'result2'=>$result,
+            'startdate'=>$startdate,
+            'enddate'=>$enddate,
         );
     }
 
@@ -319,7 +332,7 @@ class TrainingReportController extends Controller
                 $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
                 $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
                 $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "where V.form_id  in (".implode(",",$forms).")  ".$organisation_unit_clause." and   I.training_id =".$individual_group."  GROUP BY I.startdate";
+                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and (date_part('year',I.startdate) between ".$startdate." and ".$enddate." )  and I.training_id =".$individual_group."  GROUP BY  date_part('year',I.startdate)";
 
 
                 $results[0] = $groups[1][$i];
@@ -355,7 +368,7 @@ class TrainingReportController extends Controller
                 $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
                 $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
                 $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
+                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause."  and (date_part('year',I.startdate) between ".$startdate." and ".$enddate." )   and I.training_id =".$individual_group."  GROUP BY I.startdate";
 
 
                 $results[0] = $groups[1][$i];
@@ -364,20 +377,20 @@ class TrainingReportController extends Controller
                 $i++;
 
             }
-//echo json_encode($groups_results);die();
+
         }
 
         if ($reportType == "trainings") {
 
             //Query all lower levels units from the passed orgunit
             if($withLowerLevels){
-                $allChildrenIds  = "SELECT hris_organisationunitlevel.level ";
-                $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
-                $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
-                $subQuery  = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
-                $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
+                  $allChildrenIds  = "SELECT hris_organisationunitlevel.level ";
+                  $allChildrenIds .= "FROM hris_organisationunitlevel , hris_organisationunitstructure ";
+                  $allChildrenIds .= "WHERE hris_organisationunitlevel.id = hris_organisationunitstructure.level_id AND hris_organisationunitstructure.organisationunit_id = ". $organisationUnit->getId();
+                  $subQuery  = "V.organisationunit_id = ". $organisationUnit->getId() . " OR ";
+                  $subQuery .= " ( L.level >= ( ". $allChildrenIds .") AND S.level".$organisationUnit->getOrganisationunitStructure()->getLevel()->getLevel()."_id =".$organisationUnit->getId()." )";
             }else{
-                $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
+                  $subQuery = "V.organisationunit_id = ". $organisationUnit->getId();
             }
 
             $groups_results = array();
@@ -387,68 +400,26 @@ class TrainingReportController extends Controller
                   $query  = "SELECT  count(training_id) as total , date_part('year',startdate) as data ";
                   $query .= "FROM hris_traininginstance I ";
                   $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
-//                $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
-//                $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
-//                $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-//                $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-//                $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-//                $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and I.training_id =".$individual_group."  GROUP BY I.startdate";
+                  $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
+                  $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
+                  $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+                  $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+                  $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
                   $query .= $organisation_unit_clause;
-                  $query .= " where  I.training_id = ".$individual_group;
-                  $query .= " GROUP BY I.startdate";
+                  $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and (date_part('year',I.startdate) between ".$startdate." and ".$enddate." )  and I.training_id =".$individual_group."  GROUP BY  date_part('year',I.startdate)";
+
                   $results[0] = $groups[1][$i];
                   $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
                   $groups_results[] = $results;
                   $i++;
 
+
             }
 
 
         }
 
-//        // purify data
-//        $availableyears = array();
-//        $i = 0;
-//        foreach($groups_results as $results){
-//            foreach($results[1] as $innerResult){
-//                $availableyears[$i]=$innerResult['data'];
-//                $i++;
-//            }
-//
-//        }
-//
-//        $availableyears = array_unique ( $availableyears,SORT_NUMERIC );
-//        sort ( $availableyears,SORT_REGULAR );
-//
-//
-//$arrayNewGroupResults = array();
-//            foreach($groups_results as $results){
-//                $counter = 0;
-//                foreach($results[1] as $innerResult){
-//                    foreach($availableyears as $catYears){
-//                        $counter = 0;
-//                   if(in_array($catYears,$innerResult)){
-//echo json_encode($innerResult);
-//                   }else{
-////                       echo $innerResult['data']." ==> ".$catYears;
-////                       echo "</br></br>";
-//////                       echo $innerResult['data']." ==> ".$catYears;
-//                       array_push($results[1],array("total"=>"0","data"=>$catYears));
-//                   }
-//
-//
-//                }
-//                    $counter++;
-//
-//                }
-//
-//                array_push($arrayNewGroupResults,$results);
-//
-//            }
-//
-////       echo  json_encode($arrayNewGroupResults);
-//        die();
 
         //get the records
         return $groups_results;
@@ -501,11 +472,10 @@ class TrainingReportController extends Controller
             $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
             $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
             $query .= "where V.form_id  in (".implode(",",$forms).")";
-            $query .="and I.training_id in (".implode(",",$groups[0]).") ".$organisation_unit_clause."  GROUP BY T.coursename,I.region,I.district,I.venue,I.startdate,I.enddate ORDER BY I.startdate DESC";
+            $query .="and I.training_id in (".implode(",",$groups[0]).") ".$organisation_unit_clause." and (date_part('year',startdate) between ".$startdate." and ".$enddate." ) GROUP BY T.coursename,I.region,I.district,I.venue,I.startdate,I.enddate ORDER BY I.startdate DESC";
 
 
-
-                $results = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+            $results = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
 
 //            }
@@ -541,6 +511,7 @@ class TrainingReportController extends Controller
 
 
         }
+
         if ($reportType == "facilitators") {
 
             //Query all lower levels units from the passed orgunit
@@ -593,8 +564,8 @@ class TrainingReportController extends Controller
         $reportType = $request->query->get('reportType');
         $withLowerLevels =$request->query->get('withLowerLevels');
         $trainings = $request->query->get('Trainings');
-        $startdate = "";
-        $enddate   = "";
+        $startdate = $request->query->get('startdate');
+        $enddate   = $request->query->get('enddate');
 
 
         //Get the objects from the the variables
@@ -941,7 +912,7 @@ class TrainingReportController extends Controller
         $response->headers->set('Content-Disposition', 'attachment;filename='.str_replace(" ","_",$title).'.xls');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        //$response->sendHeaders();
+
         return $response;
 
     }
@@ -965,8 +936,8 @@ class TrainingReportController extends Controller
         $withLowerLevels =$request->query->get('withLowerLevels');
 //        $fieldsId   =$request->query->get('fields');
         $groups     =$request->query->get('groups');
-        $startdate ="";
-        $enddate="";
+        $startdate =$request->query->get('startdate');
+        $enddate=$request->query->get('enddate');
         //Get the objects from the the variables
 
         $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
@@ -1282,16 +1253,22 @@ class TrainingReportController extends Controller
         );
     }
 
-//    /**
-//     * Records Engine
-//     *
-//     * @param $soltableArray
-//     * @return mixed
-//     */
-//   private  function SortMultArray($soltableArray)
-//    {
-//      //$soltableArray is $result[1]
-//        array_multisort($soltableArray, SORT_ASC, SORT_NUMERIC,$soltableArray,SORT_NUMERIC, SORT_DESC);
-//    }
+    public function reportGroupArray($groupArray,$startdate,$enddate){
+        $resultedArray = Array();
+        $groupsArray = Array();
+        $dataArray = Array();
+        $p = 0;
+        foreach($groupArray[1] as $group){
+            $groupsArray[0] = $group;
+            for($i=0;$i<=($enddate-$startdate);$i++){
+                $dataArray[$i] = Array("total"=>0,"data"=>($startdate+$i));
+            }
+            $groupsArray[1] = $dataArray;
+            $resultedArray[$p] = $groupsArray;
+            $p++;
+        }
+
+        return $resultedArray;
+    }
 
 }

@@ -17,10 +17,10 @@
 
     <div id="chart_placeholder_historytraining" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
     <div style="text-align: right">
-        <a class="btn" href="{{ path('report_training_download', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups }) }}">
+        <a class="btn" href="{{ path('report_training_download', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups,'startdate':startdate,'enddate':enddate  }) }}">
             Export Statistics to Excel
         </a>
-        <a class="btn" href="{{ path('report_training_download_cadre', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups }) }}">
+        <a class="btn" href="{{ path('report_training_download_cadre', { 'organisationUnit': organisationUnit.id, 'forms': formIds, 'reportType': reportType, 'withLowerLevels': withLowerLevels,'groups':groups,'startdate':startdate,'enddate':enddate }) }}">
             Export Records By Cadre
         </a>
     </div>

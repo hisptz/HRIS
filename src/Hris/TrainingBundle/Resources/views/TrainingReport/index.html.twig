@@ -68,14 +68,15 @@
             yearRange:'c-60:c+60'
         });
         $( document ).ready(function() {
+
             // validate signup form on keyup and submit
             $("#historytrainingForm").validate({ ignore:[] });
             var reportType='#hris_reportsbundle_reporthistorytrainingtype_reportType';
             var forms='#hris_reportsbundle_reporthistorytrainingtype_forms';
             var fields='#hris_reportsbundle_reporthistorytrainingtype_fields';
             var trainings='#hris_reportsbundle_reporthistorytrainingtype_Trainings';
-            var startdate="#hris_reportsbundle_reporthistorytrainingtype_startdate";
-            var enddate="#hris_reportsbundle_reporthistorytrainingtype_enddate";
+            var startdate="#hris_reportsbundle_reporthistorytrainingtype_from";
+            var enddate="#hris_reportsbundle_reporthistorytrainingtype_to";
             var graphTypeId='#hris_reportsbundle_reporthistorytrainingtype_graphType';
             var fieldsUrl = '{{ path('report_formfields',{'_format':'json'}) }}';
             var daterange = '#hris_reportsbundle_reporthistorytrainingtype_ProduceByDateRange';
@@ -91,18 +92,30 @@
             // Disable fields and forms
             $(forms).attr('disabled', 'true');
             $(fields).attr('disabled', 'true');
-            $(startdate).parent().fadeOut();
-            $(enddate).parent().fadeOut();
-            $(daterange).change(function(){
-                if($(daterange).is(":checked")){
-                    $(startdate).parent().fadeIn();
-                    $(enddate).parent().fadeIn();
-
-                }else{
-                    $(startdate).parent().fadeOut();
-                    $(enddate).parent().fadeOut();
+            //Handles Years Selection
+//            $(startdate).html(produceYears());
+//            $(enddate).html(produceYears());
+                window.selectedStart = 0;
+                window.selectedEnd = 0;
+            $(startdate).change(function(){
+                window.selectedStart = $(this).val();
+                if(window.selectedEnd!=0){
+                    if(window.selectedStart>window.selectedEnd){
+                        alert("Invalid Year Range:- (From: "+window.selectedStart+", To :"+window.selectedEnd+")");
+                    }
                 }
             });
+
+            $(enddate).change(function(){
+                window.selectedEnd = $(this).val();
+                if(window.selectedStart!=0){
+                    if(window.selectedStart>window.selectedEnd){
+                        alert("Invalid Year Range:- (From: "+window.selectedEnd+", To :"+window.selectedStart+")");
+                    }
+                }
+            });
+
+
             // On Selecting Report Type, enable Forms
             $(reportType).on('change', function() {
                 // enable forms
@@ -120,25 +133,7 @@
                     $(startdate).removeAttr('disabled');
                     $(enddate).removeAttr('disabled');
                 }else{
-//                    $(startdate).attr('disabled', 'true');
-//                    $(enddate).attr('disabled', 'true');
                 }
-
-//                if( $(reportType).val() == 'trainings' || $(reportType).val() == 'participants') {
-//                   $(graphTypeId).attr('disabled', 'true');
-//                }else{
-//                    $(graphTypeId).removeAttr('disabled');
-//                }
-            });
-
-            //Check startdate should always be less than end date
-            $(enddate).on('change', function(){
-                var startdateValue = $(startdate).val();
-                var enddateValue = $(enddate).val();
-//                if( Date.parse(startdateValue) > Date.parse(enddateValue) ){
-//                    alert("End date can not be before startdate. Please enter correct value");
-//                    $(enddate).val("");
-//                }
             });
 
             //Change options of fields based on selected form
@@ -202,5 +197,17 @@
     {{ form_end(historytrainingForm) }}
 
 
-
+    <script>
+        function produceYears(){
+            var theBegining = 2008;
+            var dates = new Date();
+            var thisYear = dates.getFullYear();
+            var opt = "<option disabled>-- select year --</option>";
+            opt+= "<option value='2008'>2008</option>";
+            for(var counter = 0;counter<(thisYear-theBegining);counter++){
+                opt+= "<option value='"+(theBegining+counter+1)+"'>"+(theBegining+counter+1)+"</option>";
+            }
+            return opt;
+        }
+    </script>
 {% endblock %}

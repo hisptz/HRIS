@@ -87,7 +87,7 @@ class TrainersController extends Controller
     /**
      * Displays a form to edit an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/edit", requirements={"id"="\d+"}, name="trainers_edit")
      * @Method("GET")
      * @Template()
@@ -115,7 +115,7 @@ class TrainersController extends Controller
     /**
      * Displays a form to create a new Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_CREATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/newTrainer", name="trainers_new")
      * @Method("GET")
      * @Template()
@@ -134,7 +134,7 @@ class TrainersController extends Controller
 
     /**
      * Displays a form to create a new Report entity.
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/trainer_details/{id}", requirements={"id"="\d+"}, name="trainer_details")
      * @Method("GET")
      * @Template()
@@ -162,7 +162,7 @@ class TrainersController extends Controller
 
     /**
      * Creates a new trainers entity.
-     *
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/add_to_instance", name="trainer_add_to_event")
      * @Method("GET|POST")
      *
@@ -193,7 +193,7 @@ class TrainersController extends Controller
     }
 /**
      * Creates a new trainers entity.
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_CREATE")
      * @Route("/create", name="trainers_create")
      * @Method("POST")
      *
@@ -223,7 +223,7 @@ class TrainersController extends Controller
     /**
      * Edits an existing Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_UPDATE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_UPDATE")
      * @Route("/{id}/trainer", requirements={"id"="\d+"}, name="trainers_update")
      * @Method("PUT")
      * @Template("HrisTrainingBundle:Trainers:edit.html.twig")
@@ -276,7 +276,7 @@ class TrainersController extends Controller
     /**
      * Deletes a Report entity.
      *
-     * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTSHARING_DELETE")
+     * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/delete", requirements={"id"="\d+"}, name="trainers_delete")
      * @Method("DELETE")
      */

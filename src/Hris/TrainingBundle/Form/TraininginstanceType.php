@@ -41,13 +41,13 @@ class TraininginstanceType extends AbstractType
             ->add('startdate','date',array(
                 'required' =>True,
                 'widget' => 'single_text',
-                'format' => 'dd/MM/yy',
+                'format' => 'yy-MM-dd',
                 'attr' => array('class' => 'date')
             ))
             ->add('enddate','date',array(
                 'required' =>True,
                 'widget' => 'single_text',
-                'format' => 'dd/MM/yy',
+                'format' => 'yy-MM-dd',
                 'attr' => array('class' => 'enddate')
             ))
 //            ->add('trainer')
