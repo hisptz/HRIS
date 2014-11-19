@@ -74,9 +74,19 @@ class SubstantivePositionsController extends Controller
 
         //creating array of selected professionals
         $formsArray = array();
+        $formString="";
         foreach($forms as $form){
             $formsArray[] = $form->getId();
+            $formString .= $form->getId()."_";
         }
+
+        //creating carde string for excel export
+        $cardetring= "";
+        $cardetring .= $NursingCadre;
+        //creating licence string for excel export
+        $licencestring= "";
+        $licencestring .= $licence;
+
 
         //craeting a title
         $licensetitle = "";
@@ -105,38 +115,46 @@ class SubstantivePositionsController extends Controller
                 array(
                     'results' => $results,
                     'organisationUnit' => $organisationUnit,
-                    'forms'   => $forms,
-                    'withLowerLevels' => $lowertitle,
+                    'forms'   => $formString,
+                    'withLowerLevels' => $withLowerLevels,
                     'title'   => $title,
-                    'licensetitle' => $licensetitle
+                    'licensetitle' => $licensetitle,
+                    'startdate'  => $startdate,
+                    'enddate'  => $enddate,
+                    'carde'    => $cardetring,
+                    'licence'  => $licencestring
                 ));
 
         }else{
-        $results = $this->nursingRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$NursingCadre,$licence);
-        $serializer = $this->container->get('serializer');
-        $departmentName = array();
-        $departmentData = array();
-        foreach($results as $result){
-            $departmentName[] = $result['data'];
-            $departmentData[] = $result['total'];
+            $results = $this->nursingRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$NursingCadre,$licence);
+            $serializer = $this->container->get('serializer');
+            $departmentName = array();
+            $departmentData = array();
+            foreach($results as $result){
+                $departmentName[] = $result['data'];
+                $departmentData[] = $result['total'];
+            }
+
+            return $this->render(
+                'HrisNursingBundle:SubstantivePositions:employee.html.twig',
+                array(
+                    'results' => $results,
+                    'organisationUnit' => $organisationUnit,
+                    'forms'   => $formString,
+                    'withLowerLevels' => $lowertitle,
+                    'title'   => $title,
+                    'licensetitle' => $licensetitle,
+                    'departmentName' => $serializer->serialize($departmentName,'json'),
+                    'departmentData' => $serializer->serialize($departmentData,'json'),
+                    'chatType'     => $chatType,
+                    'licensetitle' => $licensetitle,
+                    'startdate'  => $startdate,
+                    'enddate'  => $enddate,
+                    'carde'    => $cardetring,
+                    'licence'  => $licencestring
+                ));
         }
-
-        return $this->render(
-            'HrisNursingBundle:SubstantivePositions:employee.html.twig',
-            array(
-                'results' => $results,
-                'organisationUnit' => $organisationUnit,
-                'forms'   => $forms,
-                'withLowerLevels' => $lowertitle,
-                'title'   => $title,
-                'licensetitle' => $licensetitle,
-                'departmentName' => $serializer->serialize($departmentName,'json'),
-                'departmentData' => $serializer->serialize($departmentData,'json'),
-                'chatType'     => $chatType,
-            ));
     }
-    }
-
     /**
      * return nursing records
      *
@@ -285,33 +303,31 @@ class SubstantivePositionsController extends Controller
      * Download Leave reports
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOAD")
-     * @Route("/download", name="report_substansive_nurse_download")
+     * @Route("/download", name="report_nurse_position_download")
      * @Method("GET")
      * @Template()
      */
     public function downloadAction(Request $request)
     {
-        echo "";exit;
         $em = $this->getDoctrine()->getManager();
 
         $organisationUnitid =$request->query->get('organisationUnit');
-        $reportType = $request->query->get('reportType');
+        $formsId = $request->query->get('forms');
+        $title = $request->query->get('title');
         $withLowerLevels =$request->query->get('withLowerLevels');
-        $results = $request->query->get('results');
+        $startdate = $request->query->get('startdate');
+        $enddate = $request->query->get('enddate');
+        $licence = $request->query->get('licence');
+        $carde = $request->query->get('carde');
 
-        echo $results;exit;
+
+        //Get the objects from the the variables
 
         $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
-
-
-            $subtitle = "";
-
-
-        $title = $subtitle. "  ".$organisationUnit->getLongname();
-
-        if($withLowerLevels){
-            $title .= " with lower levels";
-        }
+        //create a form array
+        $formsArray = explode("_",$formsId);
+        array_pop($formsArray);
+        $results = $this->nursingRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$carde,$licence);
 
         // ask the service for a Excel5
         $excelService = $this->get('phpexcel')->createPHPExcelObject();
@@ -392,119 +408,37 @@ class SubstantivePositionsController extends Controller
         $column == 'A';
         $row += 2;
         //Start populating excel with data
-        if ($reportType == "leaveSummary") {
+        //apply the styles
+        $excelService->getActiveSheet()->getStyle('A1:C2')->applyFromArray($heading_format);
+        $excelService->getActiveSheet()->mergeCells('A1:C1');
+        $excelService->getActiveSheet()->mergeCells('A2:C2');
 
-            //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:G2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:G1');
-            $excelService->getActiveSheet()->mergeCells('A2:G2');
+        //write the table heading of the values
+        $excelService->getActiveSheet()->getStyle('A4:C4')->applyFromArray($header_format);
+        $excelService->setActiveSheetIndex(0)
+            ->setCellValue($column++.$row, 'SN')
+            ->setCellValue($column++.$row, 'Organization Unit')
+            ->setCellValue($column.$row, 'Nurses');
 
-            //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:G4')->applyFromArray($header_format);
+        //write the values
+        $i =1; //count the row
+        foreach($results as $result){
+            $column = 'A';//return to the 1st column
+            $row++; //increment one row
+
+            //format of the row
+            if (($row % 2) == 1)
+                $excelService->getActiveSheet()->getStyle($column.$row.':C'.$row)->applyFromArray($text_format1);
+            else
+                $excelService->getActiveSheet()->getStyle($column.$row.':C'.$row)->applyFromArray($text_format2);
             $excelService->setActiveSheetIndex(0)
-                ->setCellValue($column++.$row, 'SN')
-                ->setCellValue($column++.$row, 'Name')
-                ->setCellValue($column++.$row, 'Profession')
-                ->setCellValue($column++.$row, 'Leave')
-                ->setCellValue($column++.$row, 'Last Leave')
-                ->setCellValue($column++.$row, 'Days Spent')
-                ->setCellValue($column.$row, 'Duty Post');
-
-            //write the values
-            $i =1; //count the row
-            foreach($results as $result){
-                $column = 'A';//return to the 1st column
-                $row++; //increment one row
-
-                //format of the row
-                if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format1);
-                else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format2);
-                $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $i++)
-                    ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
-                    ->setCellValue($column++.$row, $result['profession'])
-                    ->setCellValue($column++.$row, $result['history'])
-                    ->setCellValue($column++.$row, $this->LastLeaveDay1($result['record_id'],$result['history']))
-                    ->setCellValue($column++.$row, $this->leaveDaysCaluculator1($result['record_id'],$result['history']))
-                    ->setCellValue($column.$row, $result['level5_facility']);
-            }
+                ->setCellValue($column++.$row, $i++)
+                ->setCellValue($column++.$row, $result['data'])
+                ->setCellValue($column.$row, $result['total']);
 
         }
-        elseif ($reportType == "onLeaveReport") {
 
-            //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:G2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:G1');
-            $excelService->getActiveSheet()->mergeCells('A2:G2');
-
-            //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:G4')->applyFromArray($header_format);
-            $excelService->setActiveSheetIndex(0)
-                ->setCellValue($column++.$row, 'SN')
-                ->setCellValue($column++.$row, 'Name')
-                ->setCellValue($column++.$row, 'Profession')
-                ->setCellValue($column++.$row, 'Leave')
-                ->setCellValue($column++.$row, 'Start Date')
-                ->setCellValue($column++.$row, 'End Date')
-                ->setCellValue($column.$row, 'Duty Post');
-
-            //write the values
-            $i =1; //count the row
-            foreach($results as $result){
-                $column = 'A';//return to the 1st column
-                $row++; //increment one row
-
-                //format of the row
-                if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format1);
-                else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':G'.$row)->applyFromArray($text_format2);
-                $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $i++)
-                    ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
-                    ->setCellValue($column++.$row, $result['profession'])
-                    ->setCellValue($column++.$row, $result['history'])
-                    ->setCellValue($column++.$row, $result['startdate'])
-                    ->setCellValue($column++.$row, $result['enddate'])
-                    ->setCellValue($column.$row, $result['level5_facility']);
-            }
-
-        }
-        elseif ($reportType == "leaveSummary" ){
-            //apply the styles
-            $excelService->getActiveSheet()->getStyle('A1:C2')->applyFromArray($heading_format);
-            $excelService->getActiveSheet()->mergeCells('A1:C1');
-            $excelService->getActiveSheet()->mergeCells('A2:C2');
-
-            //write the table heading of the values
-            $excelService->getActiveSheet()->getStyle('A4:C4')->applyFromArray($header_format);
-            $excelService->setActiveSheetIndex(0)
-                ->setCellValue($column++.$row, 'SN')
-                ->setCellValue($column++.$row, 'Year')
-                ->setCellValue($column.$row, 'Value');
-
-            //write the values
-            $i =1; //count the row
-            foreach($results as $result){
-                $column = 'A';//return to the 1st column
-                $row++; //increment one row
-
-                //format of the row
-                if (($row % 2) == 1)
-                    $excelService->getActiveSheet()->getStyle($column.$row.':C'.$row)->applyFromArray($text_format1);
-                else
-                    $excelService->getActiveSheet()->getStyle($column.$row.':C'.$row)->applyFromArray($text_format2);
-                $excelService->setActiveSheetIndex(0)
-                    ->setCellValue($column++.$row, $i++)
-                    ->setCellValue($column++.$row, $result['data'])
-                    ->setCellValue($column.$row, $result['total']);
-
-            }
-        }
-
-        $excelService->getActiveSheet()->setTitle('Leave Report');
+        $excelService->getActiveSheet()->setTitle($title);
 
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -522,11 +456,12 @@ class SubstantivePositionsController extends Controller
         return $response;
 
     }
+
     /**
      * Download history reports by Cadre
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_REPORTHISTORY_DOWNLOADBYCADRE")
-     * @Route("/records", name="report_substansive_nurse_download_records")
+     * @Route("/records", name="position_nursing_download_records")
      * @Method("GET")
      * @Template()
      */
@@ -535,31 +470,27 @@ class SubstantivePositionsController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $organisationUnitid =$request->query->get('organisationUnit');
-        $formsId = $request->query->get('formsId');
-        $reportType = $request->query->get('reportType');
+        $formsId = $request->query->get('forms');
+        $title = $request->query->get('title');
         $withLowerLevels =$request->query->get('withLowerLevels');
-        $profession =$request->query->get('profession');
-        $leaves = $request->query->get('leaves');
         $startdate = $request->query->get('startdate');
         $enddate = $request->query->get('enddate');
+        $licence = $request->query->get('licence');
+        $carde = $request->query->get('carde');
+
 
         //Get the objects from the the variables
 
         $organisationUnit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($organisationUnitid);
-        $forms = $em->getRepository('HrisFormBundle:Form')->find($formsId);
-
-        $results = $this->recordsEngine($organisationUnit, $forms, $profession, $leaves, $withLowerLevels,$reportType,$startdate,$enddate);
+        //create a form array
+        $formsArray = explode("_",$formsId);
+        array_pop($formsArray);
+        $results = $this->tableRecords($organisationUnit, $formsArray,$withLowerLevels,$startdate,$enddate,$carde,$licence);
+        //$results = $this->recordsEngine($organisationUnit, $forms, $profession, $leaves, $withLowerLevels,$reportType,$startdate,$enddate);
 
         //create the title
-        if ($reportType == "onLeaveReport"){
-            $subtitle = "Staff On Leave Reports ";
-        }
-        elseif( $reportType = "leaveSummary"){
-            $subtitle = "Leave Summary Report";
-        }
-        elseif( $reportType = "leaveReport"){
-            $subtitle = "Leave Entitlement Report";
-        }
+        $subtitle = $title;
+
 
         $title = $subtitle. "  ".$organisationUnit->getLongname();
 
@@ -658,11 +589,11 @@ class SubstantivePositionsController extends Controller
         $excelService->setActiveSheetIndex(0)
             ->setCellValue($column++.$row, 'SN')
             ->setCellValue($column++.$row, 'Name')
-            ->setCellValue($column++.$row, 'Profession')
-            ->setCellValue($column++.$row, 'Leave')
-            ->setCellValue($column++.$row, 'Start Date')
-            ->setCellValue($column++.$row, 'End Date')
-            ->setCellValue($column++.$row, 'Leave Benefit')
+            ->setCellValue($column++.$row, 'Date Of Birth')
+            ->setCellValue($column++.$row, 'Gender')
+            ->setCellValue($column++.$row, 'Education Level')
+            ->setCellValue($column++.$row, 'Check Number')
+            ->setCellValue($column++.$row, 'Department')
             ->setCellValue($column.$row, 'Duty Post');
 
         //write the values
@@ -679,14 +610,12 @@ class SubstantivePositionsController extends Controller
             $excelService->setActiveSheetIndex(0)
                 ->setCellValue($column++.$row, $i++)
                 ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
-                ->setCellValue($column++.$row, $result['profession'])
-                ->setCellValue($column++.$row, $result['history'])
-                ->setCellValue($column++.$row, $result['startdate'])
-                ->setCellValue($column++.$row, $result['enddate'])
-                ->setCellValue($column++.$row, $result['entitled_payment'])
+                ->setCellValue($column++.$row, $result['dob'])
+                ->setCellValue($column++.$row, $result['sex'])
+                ->setCellValue($column++.$row, $result['edu_evel'])
+                ->setCellValue($column++.$row, $result['check_no'])
+                ->setCellValue($column++.$row, $result['department'])
                 ->setCellValue($column.$row, $result['level5_facility']);
-
-
         }
 
         $excelService->getActiveSheet()->setTitle('List of Records');
@@ -706,8 +635,7 @@ class SubstantivePositionsController extends Controller
         //$response->sendHeaders();
         return $response;
     }
-
-
 }
+
 
 

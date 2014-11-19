@@ -72,6 +72,31 @@ class LeaveController extends Controller
     public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
+        $initial_leaves = $em -> getConnection() -> executeQuery(
+            "SELECT * FROM hris_fieldoption WHERE field_id=136 AND hastraining=TRUE"
+        ) -> fetchAll();
+        $inleaves = array();
+//        foreach($initial_leaves as $leave){
+//            $leaveTypes = $em -> getConnection() -> executeQuery(
+//                "SELECT * FROM hris_leave_type"
+//            ) -> fetchAll();
+//            $leaves = array();
+//            foreach($leaveTypes as $leave1){
+//                $leaves[] = $leave1['field_id'];
+//            }
+////            var_dump($leaves);exit;
+//            if(in_array($leave['id'],$leaves)){
+//                $inleaves[] = $leave['value'];
+//            }else{
+//                $date = date("Y-m-d H:i:s");
+//                $id = count($leaves)+1;
+//                $em -> getConnection() -> executeQuery(
+//                    "INSERT INTO hris_leave_type VALUES($id,{$leave['id']},'{$leave['value']}','{$leave['uid']}',0,'Not Applicable','{$leave['value']}','Not Applicable','{$date}','{$date}')"
+//                );
+//            }
+//
+//
+//        }
 
         $entities = $em->getRepository('HrisLeaveBundle:LeaveType')->findAll();
         $delete_forms = array();
