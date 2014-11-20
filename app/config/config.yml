@@ -39,10 +39,12 @@ twig:
             project: "Human Resource for Health Information System"
             project_code: "HRHIS3"
             project_site: "https://github.com/hrisproject/hris"
+            project_doc_site: "http://hris.readthedocs.org/"
             version: "3.0"
             copyright: "Human Resource Information System 2012"
             client_name: "Ministry of Health and Social Welfare"
             client_code: "MOHSW"
+            client_website: "http://moh.go.tz/"
 
     cache:                     "%kernel.cache_dir%/twig"
     charset:                   "%kernel.charset%"
