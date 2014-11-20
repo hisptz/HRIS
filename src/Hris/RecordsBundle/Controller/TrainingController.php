@@ -58,8 +58,8 @@ class TrainingController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         if(!empty($recordid)){
-           // $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
-           // $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
+            $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
+            $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
         }
 
 //        $delete_forms = array();
@@ -68,6 +68,7 @@ class TrainingController extends Controller
 //            $delete_forms[$entity->getId()] = $delete_form->createView();
 //        }
 //
+
 
         return array(
             'entities' => "",

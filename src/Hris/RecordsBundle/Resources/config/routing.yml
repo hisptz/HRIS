@@ -6,6 +6,10 @@ record:
     resource: "@HrisRecordsBundle/Controller/RecordController.php"
     type: annotation
 
+training:
+    resource: "@HrisRecordsBundle/Controller/TrainingController.php"
+    type: annotation
+
 validation_run:
     resource: "@HrisRecordsBundle/Controller/ValidationRunController.php"
     type: annotation
