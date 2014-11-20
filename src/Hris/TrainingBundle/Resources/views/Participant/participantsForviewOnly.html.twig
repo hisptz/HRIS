@@ -115,7 +115,7 @@
                                             <h4 class="modal-title"><i class="icon-circle-remove icon-largest" title="Delete"></i>Deleting {{ "Participant" | capitalize }}</h4>
                                         </div>
                                         <div class="modal-body" >
-                                            Are you sure you want to delete <strong>This Participant</strong> that was created on {{ record.datecreated|date('d/m/Y') }}
+                                            Are you sure you want to delete <strong>Participant</strong> that was created on {{ record.datecreated|date('d/m/Y') }}
                                             {% if record.lastUpdated %}
                                                 and last updated on {{ record.lastUpdated|date('H:i:s d/m/Y') }} ??
                                             {% else %}
@@ -123,12 +123,12 @@
                                             {% endif %}
                                         </div>
                                         <div class="modal-footer">
-                                            {#<form action="{{ path('recorddelete', { 'id': record.id }) }}" method="post">#}
-                                                {#<input type="hidden" name="_method" value="DELETE" />#}
-                                                {#{{ form_widget(delete_forms[record.id] ) }}#}
-                                                {#<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
-                                                {#<button type="submit" class="btn btn-danger">Delete</button>#}
-                                            {#</form>#}
+                                                <form action="{{ path('instanceParticipantdelete',{'id':record.id,'instance_id':queryParams['instance_id']}) }}" method="post">
+                                                    <input type="hidden" name="_method" value="DELETE" />
+                                                    {#{{ form_widget(delete_forms[queryParams['instance_id']][record.id] ) }}#}
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
                                         </div>
                                         </span>
                         </td>

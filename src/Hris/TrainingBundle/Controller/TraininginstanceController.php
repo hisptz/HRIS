@@ -567,7 +567,7 @@ class TraininginstanceController extends Controller
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/{instance_id}/instanceParticipantdelete", requirements={"id"="\d+"}, name="instanceParticipantdelete")
-     * @Method("GET")
+     * @Method("DELETE")
      */
     public function instanceRecorddelete(Request $request,$id,$instance_id)
     {
@@ -613,7 +613,7 @@ class TraininginstanceController extends Controller
      *
      * @Secure(roles="ROLE_SUPER_USER,ROLE_RECORDTRAINING_DELETE")
      * @Route("/{id}/{instance_id}/instanceFacilitatordelete", requirements={"id"="\d+"}, name="instanceFacilitatordelete")
-     * @Method("GET")
+     * @Method("DELETE")
      */
     public function instanceFacilitatorsdelete(Request $request,$id,$instance_id)
     {
