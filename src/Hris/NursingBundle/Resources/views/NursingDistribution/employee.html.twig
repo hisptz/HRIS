@@ -142,7 +142,7 @@
             <a class="btn" href="{{ path('report_nurse_distribution_download', {'levelchoice':levelchoice ,'forms':forms, 'regionString': regionString, 'title': title , 'carde': carde , 'licence': licence  }) }}">
                 Export to Excel
             </a>
-            <a class="btn" href="{{ path('report_nursing_download_records', {'organisationUnit': organisationUnit.id, 'forms':forms, 'withLowerLevels': withLowerLevels,'licencetitle':'licensetitle' , 'title': title , 'startdate': startdate , 'enddate': enddate , 'carde': carde , 'licence': licence  }) }}">
+            <a class="btn" href="{{ path('distribution_nursing_download_records', {'levelchoice':levelchoice ,'forms':forms, 'regionString': regionString, 'title': title , 'carde': carde , 'licence': licence  }) }}">
                 Export Records By Cadre
             </a>
         </div>
