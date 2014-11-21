@@ -295,10 +295,16 @@ class TrainingReportController extends Controller
 
         /// check for selected organisation unit
         $organisation_unit_clause = "";
-        if($organisationUnit->getLongName()==="Ministry Of Health"){
+        if($organisationUnit->getLongName()==="Ministry Of Health"  || $organisationUnit->getLongName()==="Ministry Of Health" || $organisationUnit->getLongName()==="Mohsw Agencies" || $organisationUnit->getLongName()==="Mohsw Departments" || $organisationUnit->getLongName()==="Referral Hospitals"){
             $organisation_unit_clause = "";
         }else{
-            $organisation_unit_clause = "and I.region= '".$organisationUnit->getLongName()."'";
+            $long_name_array = explode(" ",$organisationUnit->getLongName());
+            if(in_array("Region",$long_name_array)){
+                $organisation_unit_clause = "and I.region= '".$organisationUnit->getLongName()."'";
+
+            }else{
+
+            }
         }
 
         if($startdate !=NULL && $enddate !=NULL){
@@ -396,18 +402,26 @@ class TrainingReportController extends Controller
             $groups_results = array();
             $i=0;
             foreach($groups[0] as $individual_group){
-
-                  $query  = "SELECT  count(training_id) as total , date_part('year',startdate) as data ";
-                  $query .= "FROM hris_traininginstance I ";
-                  $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
-                  $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
-                  $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
-                  $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
-                  $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
-                  $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
-                  $query .= $organisation_unit_clause;
-                  $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and (date_part('year',I.startdate) between ".$startdate." and ".$enddate." )  and I.training_id =".$individual_group."  GROUP BY  date_part('year',I.startdate)";
-
+//                 echo "SELECT v.id FROM hris_record as v,hris_organisationunitstructure as S,hris_organisationunitlevel as L,hris_organisationunit as O WHERE S.organisationunit_id = v.organisationunit_id AND L.id = S.level_id AND S.organisationunit_id = v.organisationunit_id AND L.id = S.level_id AND v.form_id in (".implode(",",$forms).") ";die();
+//                  $query  = "SELECT  count(training_id) as total , date_part('year',startdate) as data ";
+//                  $query .= "FROM hris_traininginstance I , hris_instance_records F";
+//                  $query .= "INNER JOIN hris_trainings as T on T.id = I.training_id ";
+//                  $query .= "INNER JOIN hris_instance_records as F on F.instance_id = I.id ";
+//                  $query .= "INNER JOIN hris_record as V on V.id = F.record_id ";
+//                  $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
+//                  $query .= "INNER JOIN hris_organisationunitlevel as L on L.id = S.level_id ";
+//                  $query .= "INNER JOIN hris_organisationunit as O on O.longname = I.region ";
+//                  $query .= $organisation_unit_clause;
+//                 echo $query .= "where V.form_id  in (".implode(",",$forms).") ".$organisation_unit_clause." and (date_part('year',I.startdate) between ".$startdate." and ".$enddate." )  and I.training_id =".$individual_group."  GROUP BY  date_part('year',I.startdate)";
+//die();
+                  $query  = "SELECT COUNT(I.training_id) as total, date_part('year',I.startdate) as data ";
+                  $query .= "FROM hris_traininginstance I INNER JOIN hris_instance_records as F on I.id = F.instance_id ";
+                  $query .= "WHERE I.id in (SELECT F.instance_id FROM hris_instance_records as F WHERE F.record_id in ";
+                  $query .= "(SELECT v.id FROM hris_record as v,hris_organisationunitstructure as S,hris_organisationunitlevel as L,hris_organisationunit as O ";
+                  $query .= "WHERE S.organisationunit_id = v.organisationunit_id AND L.id = S.level_id AND ";
+                  $query .= "S.organisationunit_id = v.organisationunit_id AND L.id = S.level_id AND v.form_id in (".implode(",",$forms).") )) ";
+                  $query .= "AND (date_part('year',I.startdate) between ".$startdate." and ".$enddate." ) and I.training_id =".$individual_group." ".$organisation_unit_clause." GROUP BY date_part('year',I.startdate);";
+//                 die();
                   $results[0] = $groups[1][$i];
                   $results[1] = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
