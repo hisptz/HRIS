@@ -88,6 +88,7 @@ class HistoryController extends Controller
     public function createAction(Request $request, $recordid = NULL)
     {
         $entity  = new History();
+
         $form = $this->createForm(new HistoryType(), $entity);
         $form->bind($request);
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -206,6 +207,7 @@ class HistoryController extends Controller
     public function newAction( $recordid=NULL )
     {
         $entity = new History();
+
         $form   = $this->createForm(new HistoryType(), $entity);
 
         if(!empty($recordid)) {

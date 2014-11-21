@@ -81,17 +81,10 @@ class ConfigureMenuListener
                   'attributes'=> array('class'=>'accordion-group'),
             )
         );
-        $nursingModule->addChild('Nurse Patient Ratio',
-            array('route'=>'deceased_nursing_report',
+        $nursingModule->addChild('Patient/Population Indicator per Nurse',
+            array('route'=>'population_distribution_report',
                   'extras'=>array('tag'=>'div'),
-                  'name'=>'Deceased Nurses Reports',
-                  'attributes'=> array('class'=>'accordion-group'),
-            )
-        );
-        $nursingModule->addChild('Population Indicator per Nurse',
-            array('route'=>'deceased_nursing_report',
-                  'extras'=>array('tag'=>'div'),
-                  'name'=>'Deceased Nurses Reports',
+                  'name'=>'Population Indicator per Nurse',
                   'attributes'=> array('class'=>'accordion-group'),
             )
         );

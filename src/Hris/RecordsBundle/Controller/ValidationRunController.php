@@ -190,9 +190,10 @@ class ValidationRunController extends Controller
 
         if (!empty($compulsoryFields)) {
             foreach ($compulsoryFields as $key => $fieldObj) {
-
+                if(strtolower($fieldObj->getName()) == "retirementdate"){}
+                else{
                 if($fieldObj->getDataType() == "Date"){
-                    $partyQuery = " AND R.".$fieldObj->getName()." is null ";
+                    $partyQuery = " AND R.".strtolower($fieldObj->getName())." is null ";
                     $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
                     $query .= "FROM ".$resourceTableName." R ";
                     $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
@@ -205,7 +206,7 @@ class ValidationRunController extends Controller
                     $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
                     $columnArray[$fieldObj->getName()] = $report;
                 }elseif($fieldObj->getDataType() == "Integer"){
-                    $partyQuery = " AND R.".$fieldObj->getName()." is null ";
+                    $partyQuery = " AND R.".strtolower($fieldObj->getName())." is null ";
                     $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
                     $query .= "FROM ".$resourceTableName." R ";
                     $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
@@ -217,7 +218,7 @@ class ValidationRunController extends Controller
                     $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
                     $columnArray[$fieldObj->getName()] = $report;
                 }else{
-                    $partyQuery = " AND R.".$fieldObj->getName()." = '' ";
+                    $partyQuery = " AND R.".strtolower($fieldObj->getName())." = '' ";
                     $query = "SELECT R.firstname, R.middlename, R.surname,R.dob,R.first_appointment,R.last_promo, R.level5_facility ";
                     $query .= "FROM ".$resourceTableName." R ";
                     $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
@@ -230,7 +231,7 @@ class ValidationRunController extends Controller
                     $columnArray[$fieldObj->getName()] = $report;
                 }
                //Query all history data and count by field option
-
+            }
             }
 
         }

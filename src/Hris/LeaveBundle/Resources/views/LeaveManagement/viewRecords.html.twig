@@ -68,7 +68,7 @@
                 <td>
                     <ul class="inline" style="width:70px; margin-left: 5px">
                         <li>
-                            <a href="{{ path('history_new', { 'recordid': record.id }) }}"><i class="icon-plus icon-large" title="Add Leave" style="color: #002a80"></i></a>
+                            <a href="{{ path('history_new', { 'recordid': record.id,'leave':'set' }) }}"><i class="icon-plus icon-large" title="Add Leave" style="color: #002a80"></i></a>
                         </li>
                         <li>
                             <a href="{{ path('history_list_byrecord', { 'recordid': record.id }) }}"><i class="icon-list icon-large" title="View Leave History" style="color: #017ebc"></i></a>
