@@ -1,0 +1,105 @@
+{% extends '::base.html.twig' %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.ZeroClipboard.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/jquery.dataTables.TableTools.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('commons/js/dt_settings.js') }}"></script>
+        <script type="text/javascript">
+                $(document).ready(function() {
+                    $('.records_list').dataTable( {
+                        "sDom": "<'row'<'span6'TRl><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                        "oTableTools": {
+                            "aButtons": [
+                                {"sExtends":"copy","mColumns":"visible"},
+                                {"sExtends":"xls","mColumns":"visible"},
+                                {"sExtends":"pdf","mColumns":"visible"}
+                            ],
+                            "sSwfPath": "{{ asset('commons/swf/copy_cvs_xls_pdf.swf') }}"
+                        },
+                        "sPdfOrientation": "landscape",
+                        "sPaginationType": "bootstrap",
+                        "oLanguage": {
+                            "sLengthMenu": "_MENU_ records per page"
+                        },
+                        "aLengthMenu": [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]],
+                        "order": [[ 1, "asc" ]]
+                    } );
+                } );
+        </script>
+    {%  endblock %}
+
+{% block right_content -%}
+    <div class="container">
+
+        {% if report == 'attendance' %}
+            <h1><small>{{ licensetitle }} {{ title }}  Nurse Patient Ratio {{ year }}</small></h1><br>
+        <table class="records_list dataTable table table-striped table-bordered table-hover" style="margin-top: 10px">
+            <thead>
+            <tr>
+                <th>Sn.</th>
+                <th>Administrative Unit</th>
+                <th>Nurses</th>
+                <th>Patients</th>
+                <th>Patient Ratio</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set incr=0 %}
+            {% for result in attendance %}
+                {% set incr = incr+1 %}
+                {% set sum = result.value / result.nurses %}
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ result.area }}  </td>
+                    <td>{{ result.nurses }}  </td>
+                    <td>{{ result.value }}</td>
+                    <td>{{ sum|round }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+        {% endif %}
+{% if report == 'population' %}
+    <h1><small>{{ licensetitle }} {{ title }}  Population Indicator Per Nurse {{ year }}</small></h1><br>
+        <table class="records_list dataTable table table-striped table-bordered table-hover" style="margin-top: 10px">
+            <thead>
+            <tr>
+                <th>Sn.</th>
+                <th>Administrative Unit</th>
+                <th>Nurses</th>
+                <th>Population</th>
+                <th>Population Indicator<smal>(population/nurses)</smal></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% set incr=0 %}
+            {% for result in population %}
+                {% set incr = incr+1 %}
+                {% set sum = result.value / result.nurses %}
+                <tr>
+                    <td>{{ incr }}</td>
+                    <td>{{ result.area }}  </td>
+                    <td>{{ result.nurses }}  </td>
+                    <td>{{ result.value }}</td>
+                    <td>{{ sum | round}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+{% endif %}
+        <div style="text-align: right">
+            <a class="btn" href="{{ path('report_nurse_distribution_download', {'levelchoice':levelchoice ,'forms':forms, 'regionString': regionString, 'title': title , 'carde': carde , 'licence': licence  }) }}">
+                Export to Excel
+            </a>
+            <a class="btn" href="{{ path('distribution_nursing_download_records', {'levelchoice':levelchoice ,'forms':forms, 'regionString': regionString, 'title': title , 'carde': carde , 'licence': licence  }) }}">
+                Export Records By Cadre
+            </a>
+        </div>
+    </div>
+
+
+{% endblock %}

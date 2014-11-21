@@ -17,3 +17,7 @@ nursingsubstantivepositionsreport:
 nursingdistributionreport:
     resource: "@HrisNursingBundle/Controller/NursingDistributionController.php"
     type: annotation
+
+populationreport:
+    resource: "@HrisNursingBundle/Controller/PopulationController.php"
+    type: annotation

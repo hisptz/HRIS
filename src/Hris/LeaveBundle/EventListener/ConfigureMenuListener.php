@@ -57,7 +57,7 @@ class ConfigureMenuListener
         $leaveModule->addChild('Leave Management',
             array('route'=>'record_form_list_leaverecords',
                   'extras'=>array('tag'=>'div'),
-                  'name'=>'Leave Management',
+                  'name'=>'Leave Administration',
                   'attributes'=> array('class'=>'accordion-group'),
             )
         );
