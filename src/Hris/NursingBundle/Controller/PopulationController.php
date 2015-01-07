@@ -81,8 +81,8 @@ class PopulationController extends Controller
             $forms = $nursingReportFormData['forms'];
             $licence = $nursingReportFormData['NursesLicencing'];
             $NursingCadre = $nursingReportFormData['NursingCadre'];
-        $year = $request->request->get('hris_nursingbundle_departmenttype')["Year"];
-        $reportType = $request->request->get('hris_nursingbundle_departmenttype')["IndicatorType"];
+        $year = $nursingReportFormData["Year"];
+        $reportType = $nursingReportFormData["IndicatorType"];
         //creating forms array
         $formsArray = array();
         $formString="";
