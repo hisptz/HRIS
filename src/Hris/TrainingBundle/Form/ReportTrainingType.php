@@ -109,7 +109,8 @@ class ReportTrainingType extends AbstractType
                     '2011'=>'2011',
                     '2012'=>'2012',
                     '2013'=>'2013',
-                    '2014'=>'2014'
+                    '2014'=>'2014',
+                    '2015'=>'2015'
                 ),
                 'constraints'=>array(
                     new NotBlank(),
@@ -123,7 +124,8 @@ class ReportTrainingType extends AbstractType
                     '2011'=>'2011',
                     '2012'=>'2012',
                     '2013'=>'2013',
-                    '2014'=>'2014'
+                    '2014'=>'2014',
+                    '2015'=>'2015'
                 ),
                 'constraints'=>array(
                     new NotBlank(),
