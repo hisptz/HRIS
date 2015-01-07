@@ -354,7 +354,6 @@ class LeaveReportController extends Controller
         foreach($leaveTypes as $leave){
             $leaves[] = $leave['name'];
         }
-
         //checking if date range is selected
         if($startdate != "" && $enddate != ""){
             $datequery = " AND H.startdate between '".$startdate."' and '".$enddate."' "." OR H.enddate between '".$startdate."' and '".$enddate."'";
@@ -402,6 +401,7 @@ class LeaveReportController extends Controller
             $query .= " ORDER BY R.firstname ASC";
         //get the records
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
+
         return $report;
     }
 
@@ -1264,8 +1264,12 @@ class LeaveReportController extends Controller
         $report = $entityManager -> getConnection() -> executeQuery($query) -> fetchAll();
 
         foreach($report as $dates){
-           $lastleavedate = date('j, M Y',strtotime($dates['startdate']));
+            if($dates['startdate'] != ""){
+                $lastleavedate = date('j, M Y',strtotime($dates['startdate']));
+            }
+
         }
+//        echo $lastleavedate;
         return new Response($lastleavedate);
     }
 

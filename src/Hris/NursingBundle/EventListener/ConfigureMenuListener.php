@@ -53,13 +53,13 @@ class ConfigureMenuListener
                 'attributes'=> array('class'=>'accordion-group'),
             )
         );
-        $nursingModule->addChild('Nurse Distribution',
-            array('route'=>'nursing_distribution_report',
-                  'extras'=>array('tag'=>'div'),
-                  'name'=>'Nurse Distribution',
-                  'attributes'=> array('class'=>'accordion-group'),
-            )
-        );
+//        $nursingModule->addChild('Nurse Distribution',
+//            array('route'=>'nursing_distribution_report',
+//                  'extras'=>array('tag'=>'div'),
+//                  'name'=>'Nurse Distribution',
+//                  'attributes'=> array('class'=>'accordion-group'),
+//            )
+//        );
         $nursingModule->addChild('Superlative Substantive Positions',
             array('route'=>'nursing_substantive_positions_report',
                   'extras'=>array('tag'=>'div'),
