@@ -178,7 +178,7 @@ class NursingReportController extends Controller
         }
 
         //Query all history data and count by field option
-        $query = "SELECT R.firstname, R.middlename, R.surname, R.designation,R.dob, R.sex, R.edu_evel, R.check_no, R.department, R.employment_status, R.level5_facility ,R.retirementdistribution ";
+        $query = "SELECT R.firstname, R.middlename, R.surname, R.designation,R.dob, R.sex, R.edu_evel, R.check_no, R.department, R.employment_status, R.level5_facility ,R.level3_regions_departments_institutions_referrals ,R.level4_districts_reg_hospitals ,R.retirementdistribution ";
         $query .= "FROM ".$resourceTableName." R ";
         $query .= "INNER JOIN hris_record as V on V.instance = R.instance ";
         $query .= "INNER JOIN hris_organisationunitstructure as S on S.organisationunit_id = V.organisationunit_id ";
@@ -320,12 +320,12 @@ class NursingReportController extends Controller
 
 
         //apply the styles
-        $excelService->getActiveSheet()->getStyle('A1:H2')->applyFromArray($heading_format);
-        $excelService->getActiveSheet()->mergeCells('A1:H1');
-        $excelService->getActiveSheet()->mergeCells('A2:H2');
+        $excelService->getActiveSheet()->getStyle('A1:K2')->applyFromArray($heading_format);
+        $excelService->getActiveSheet()->mergeCells('A1:K1');
+        $excelService->getActiveSheet()->mergeCells('A2:K2');
 
         //write the table heading of the values
-        $excelService->getActiveSheet()->getStyle('A4:H4')->applyFromArray($header_format);
+        $excelService->getActiveSheet()->getStyle('A4:K4')->applyFromArray($header_format);
         $excelService->setActiveSheetIndex(0)
             ->setCellValue($column++.$row, 'SN')
             ->setCellValue($column++.$row, 'Name')
@@ -334,6 +334,9 @@ class NursingReportController extends Controller
             ->setCellValue($column++.$row, 'Education Level')
             ->setCellValue($column++.$row, 'Check Number')
             ->setCellValue($column++.$row, 'Department')
+            ->setCellValue($column++.$row, 'Country')
+            ->setCellValue($column++.$row, 'Region')
+            ->setCellValue($column++.$row, 'District')
             ->setCellValue($column.$row, 'Duty Post');
 
         //write the values
@@ -344,9 +347,9 @@ class NursingReportController extends Controller
 
             //format of the row
             if (($row % 2) == 1)
-                $excelService->getActiveSheet()->getStyle($column.$row.':I'.$row)->applyFromArray($text_format1);
+                $excelService->getActiveSheet()->getStyle($column.$row.':K'.$row)->applyFromArray($text_format1);
             else
-                $excelService->getActiveSheet()->getStyle($column.$row.':I'.$row)->applyFromArray($text_format2);
+                $excelService->getActiveSheet()->getStyle($column.$row.':K'.$row)->applyFromArray($text_format2);
             $excelService->setActiveSheetIndex(0)
                 ->setCellValue($column++.$row, $i++)
                 ->setCellValue($column++.$row, $result['firstname']." ".$result['middlename']." ".$result['surname'])
@@ -355,6 +358,9 @@ class NursingReportController extends Controller
                 ->setCellValue($column++.$row, $result['edu_evel'])
                 ->setCellValue($column++.$row, $result['check_no'])
                 ->setCellValue($column++.$row, $result['department'])
+                ->setCellValue($column++.$row,'Tanzania')
+                ->setCellValue($column++.$row, $result['level3_regions_departments_institutions_referrals'])
+                ->setCellValue($column++.$row, $result['level4_districts_reg_hospitals'])
                 ->setCellValue($column.$row, $result['level5_facility']);
         }
 
