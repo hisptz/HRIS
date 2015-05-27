@@ -18,14 +18,8 @@ class SponsorType extends AbstractType
         $builder
 
             ->add('sponsorName')
-            ->add('region', 'entity', array(
-                'class' => 'Hris\OrganisationunitBundle\Entity\Organisationunit',
-                'query_builder' => function(EntityRepository $repo){
-                        return $repo->createQueryBuilder('q')
-                            ->where('q.parent = :parent')
-                            ->setParameter('parent',1161);
-
-                    }))
+            ->add('description')
+            ->add('phone')
             ->add('email')
             ->add('box')
             ->add('description')

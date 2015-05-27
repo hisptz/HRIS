@@ -135,6 +135,77 @@ textarea {
   overflow: auto;
   vertical-align: top;
 }
+
+
+@-ms-viewport {
+    width: device-width;
+}
+
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+.visible-phone {
+    display: none !important;
+}
+
+.visible-tablet {
+    display: none !important;
+}
+
+.hidden-desktop {
+    display: none !important;
+}
+
+.visible-desktop {
+    display: inherit !important;
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+    .hidden-desktop {
+        display: inherit !important;
+    }
+    .visible-desktop {
+        display: none !important ;
+    }
+    .visible-tablet {
+        display: inherit !important;
+    }
+    .hidden-tablet {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .hidden-desktop {
+        display: inherit !important;
+    }
+    .visible-desktop {
+        display: none !important;
+    }
+    .visible-phone {
+        display: inherit !important;
+    }
+    .hidden-phone {
+        display: none !important;
+    }
+}
+
+.visible-print {
+    display: none !important;
+}
+
+@media print {
+    .visible-print {
+        display: inherit !important;
+    }
+    .hidden-print {
+        display: none !important;
+    }
+}
+
+
 @media print {
   * {
     text-shadow: none !important;
@@ -4352,11 +4423,11 @@ input[type="submit"].btn.btn-mini {
 .modal-backdrop.fade {
   opacity: 0;
 }
-.modal-backdrop,
-.modal-backdrop.fade.in {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
-}
+/*.modal-backdrop,*/
+/*.modal-backdrop.fade.in {*/
+  /*opacity: 0.8;*/
+  /*filter: alpha(opacity=80);*/
+/*}*/
 .modal {
   position: fixed;
   top: 10%;

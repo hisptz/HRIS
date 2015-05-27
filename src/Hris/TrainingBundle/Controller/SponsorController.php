@@ -28,6 +28,7 @@ class SponsorController extends Controller
 
         $sponsors = $em->getRepository('HrisTrainingBundle:Sponsor')->getAllSponsors(); // Get the repository
         $delete_forms = NULL;
+        $AssociateArray = NULL;
         foreach($sponsors as $entity) {
             $delete_form= $this->createDeleteForm($entity->getId());
             $delete_forms[$entity->getId()] = $delete_form->createView();
@@ -130,7 +131,7 @@ class SponsorController extends Controller
             throw $this->createNotFoundException('Unable to find Sponsor entity.');
         }
         $entity->setSponsorName($entity->getSponsorName());
-        $entity->setRegion($entity->getRegion());
+        $entity->setDescription($entity->getDescription());
         $entity->setPhone($entity->getPhone());
         $entity->setEmail($entity->getEmail());
         $entity->setBox($entity->getBox());
