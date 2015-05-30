@@ -40,13 +40,13 @@ class Sponsor
      */
     private $sponsorName;
 
-    /**
-     * @var string $region
-     *
-     * @Gedmo\Versioned
-     * @ORM\Column(name="region", type="string", length=255)
-     */
-    private $region;
+//    /**
+//     * @var string $region
+//     *
+//     * @Gedmo\Versioned
+//     * @ORM\Column(name="region", type="string", length=255)
+//     */
+//    private $region;
 
     /**
      * @var string $phone
@@ -71,6 +71,13 @@ class Sponsor
      */
     private $box;
 
+    /**
+     * @var string $description
+     *
+     * @Gedmo\Versioned
+     * @ORM\Column(name="description", type="string", length=255)
+     */
+    private $descripton;
 
     /**
      * @var \DateTime $datecreated
@@ -121,28 +128,6 @@ class Sponsor
         return $this->uid;
     }
 
-    /**
-     * Set region
-     *
-     * @param string $region
-     * @return Sponsor
-     */
-    public function setRegion($region)
-    {
-        $this->region = $region;
-    
-        return $this;
-    }
-
-    /**
-     * Get region
-     *
-     * @return string 
-     */
-    public function getRegion()
-    {
-        return $this->region;
-    }
 
     /**
      * Set phone
@@ -295,5 +280,28 @@ class Sponsor
         $this->uid = uniqid();
 
 
+    }
+
+    /**
+     * Set descripton
+     *
+     * @param string $descripton
+     * @return Sponsor
+     */
+    public function setDescripton($descripton)
+    {
+        $this->descripton = $descripton;
+    
+        return $this;
+    }
+
+    /**
+     * Get descripton
+     *
+     * @return string 
+     */
+    public function getDescripton()
+    {
+        return $this->descripton;
     }
 }

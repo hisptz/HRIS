@@ -46,7 +46,7 @@
     </ul>
 
     <table class="table sponsor_list table-striped table-bordered table-hover">
-        <thead><th>#</th><th>Sponsor Name</th><th>Region</th><th>Phone</th><th>Email</th><th>Box</th><th>Action</th></thead>
+        <thead><th>#</th><th>Sponsor Name</th><th>Phone</th><th>Email</th><th>Box</th><th>Description</th><th>Action</th></thead>
         <tbody>
         <?php $count = 0 ?>
 
@@ -59,10 +59,10 @@
                 <td>{{ incr }}</td>
 
                 <td>{{ sponsor.sponsorName }}</td>
-                <td>{{ sponsor.region }}</td>
                 <td>{{ sponsor.phone }}</td>
                 <td>{{ sponsor.email }}</td>
                 <td>{{ sponsor.box }}</td>
+                <td>{{ sponsor.descripton }}</td>
                 <td>
                     {#<span class="btn-group">#}
                         {#<a href="{{ path("editSponsor",{'id':sponsor.id,'active':1} ) }}" class="" style="color:black;font-weight: bolder;" title="edit"><i class="icon-edit icon-large"></i>&nbsp;<!--edit--></a>#}

@@ -26,9 +26,9 @@ class SponsorType extends AbstractType
                             ->setParameter('parent',1161);
 
                     }))
-            ->add('phone')
             ->add('email')
             ->add('box')
+            ->add('description')
         ;
     }
     
