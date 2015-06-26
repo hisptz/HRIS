@@ -43,6 +43,7 @@ class ExportDataCommand extends ContainerAwareCommand
         $this
             ->setName('hris:export:data')
             ->setDescription('Generate events data')
+            ->addArgument('year', InputArgument::OPTIONAL, 'Year of analysis')
             ->addArgument('name', InputArgument::OPTIONAL, 'Resourcetable name')
             ->addOption('json', null, InputOption::VALUE_NONE, 'If set, then output will be in json format')
             ->addOption('xml', null, InputOption::VALUE_NONE,'If set, then output will be in xml format')
@@ -58,6 +59,12 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $capturedYear = $input->getArgument('year');
+        if(!empty($capturedYear)) {
+            $year= $capturedYear;
+        }else {
+            $year = (date("Y")-1);
+        }
         $hr_prefix="hr_";
         $normalizer = new GetSetMethodNormalizer();
         //Setup Custom dropdown fields
@@ -92,7 +99,7 @@ EOT
 
 		$filename="events";
 		$destination="/tmp/";
-        $csvFile = $destination.$filename.".csv";
+        $csvFile = $destination.$filename."_".$year.".csv";
 
         //$normalizer->setIgnoredAttributes(array('age'));
 
@@ -108,7 +115,9 @@ EOT
 
 
         $resourceTableName = ResourceTable::getStandardResourceTableName();
-        $query="SELECT ResourceTable.*,hris_organisationunit.dhisuid FROM ".$resourceTableName." ResourceTable INNER JOIN hris_organisationunit ON hris_organisationunit.id= ResourceTable.organisationunit_id WHERE hris_organisationunit.dhisuid IS NOT NULL";
+        $query="SELECT ResourceTable.*,hris_organisationunit.dhisuid FROM ".$resourceTableName." ResourceTable INNER JOIN hris_organisationunit ON hris_organisationunit.id= ResourceTable.organisationunit_id WHERE hris_organisationunit.dhisuid IS NOT NULL AND ResourceTable.first_appointment_year<=".$year." AND ResourceTable.retirementdate_year>=".$year." AND ResourceTable.employment_status !='Resigned' AND ResourceTable.employment_status !='Deceased' AND ResourceTable.employment_status !='Retired' AND ResourceTable.employment_status !='Abscondent' AND ResourceTable.employment_status !='Off Duty'";
+        echo $query;
+        echo "\n";
         $hrRecords = $em -> getConnection() -> executeQuery($query) -> fetchAll();
 
         $csvContents = "event,status,program,programStage,enrollment,orgUnit,eventDate,dueDate,latitude,longitude,dataElement,value,storedBy,providedElsewhere\n";
@@ -130,7 +139,7 @@ EOT
                 //Fill in value for a data row
                 $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                     .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                    .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                    .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                     ."F".substr($field->getUid(),3).","
                     ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName())])."\"".",mukulu,false"."\n";
 
@@ -138,13 +147,13 @@ EOT
 
                     $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                         .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                        .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                        .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                         ."Fmt".substr($field->getUid(),5).","
                         ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName()).'_month_text'])."\"".",mukulu,false"."\n";
 
                     $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                         .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                        .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                        .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                         ."Fyr".substr($field->getUid(),5).","
                         ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName()).'_year'])."\"".",mukulu,false"."\n";
                 }
@@ -152,19 +161,19 @@ EOT
                 if($field->getHashistory()) {
                     $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                         .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                        .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                        .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                         ."Flu".substr($field->getUid(),5).","
                         ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName()).'_last_updated'])."\"".",mukulu,false"."\n";
 
                     $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                         .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                        .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                        .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                         ."Fhmt".substr($field->getUid(),6).","
                         ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName()).'_last_updated_month_text'])."\"".",mukulu,false"."\n";
 
                     $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                         .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                        .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                        .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                         ."Fhyr".substr($field->getUid(),6).","
                         ."\"".str_replace("\"","`",$hrRecord[strtolower($field->getName()).'_last_updated_year'])."\"".",mukulu,false"."\n";
                 }
@@ -177,7 +186,7 @@ EOT
                 $organisationunitLevelName = "level".$organisationunitLevel->getLevel()."_".str_replace(',','_',str_replace('.','_',str_replace('/','_',str_replace(' ','_',$organisationunitLevel->getName())))) ;
                 $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                     .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                    .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                    .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                     ."Lvl".$organisationunitLevel->getLevel().substr($organisationunitLevel->getUid(),6).","
                     ."\"".str_replace("\"","`",$hrRecord[strtolower($organisationunitLevelName)])."\"".",mukulu,false"."\n";
 
@@ -187,20 +196,20 @@ EOT
             foreach($organisationunitGroupsets as $organisationunitGroupsetKey=>$organisationunitGroupset) {
                 $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                     .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                    .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                    .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                     ."Grp".substr($organisationunitGroupset->getUid(),5).","
                     ."\"".str_replace("\"","`",$hrRecord[strtolower($organisationunitGroupset->getName())])."\"".",mukulu,false"."\n";
             }
 
             $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                 .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                 ."OrgunitName".","
                 ."\"".str_replace("\"","`",$hrRecord[strtolower('Organisationunit_name')])."\"".",mukulu,false"."\n";
 
             $csvContents.="I".substr($hrRecord["instance"],strlen($hrRecord["instance"])-10)
                 .",ACTIVE,Gcghe0W76Ms,NHIu1snluiZ,,"
-                .$hrRecord["dhisuid"].",".$hrRecord["lastupdated"].",,,,"
+                .$hrRecord["dhisuid"].",".$year.substr($hrRecord["lastupdated"],4,strlen($hrRecord["lastupdated"])).",,,,"
                 ."HrhFormName".","
                 ."\"".str_replace("\"","`",$hrRecord[strtolower('Form_name')])."\"".",mukulu,false"."\n";
 

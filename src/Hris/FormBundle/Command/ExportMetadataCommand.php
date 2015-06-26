@@ -117,6 +117,7 @@ EOT
         $dataElements = array();
         $programStageDataElements = array();
         $optionSets = array();
+        $allOptions = array();
         $sensitiveFields = array("firstname","middlename","surname","file_no","reg_no","check_no","salary","religion","next_kin","contact_of_next_of_kin");
 
 
@@ -125,6 +126,7 @@ EOT
 		$monthOptionSet = array();
 		$monthOptionSet["name"] =$hr_prefix.'Month_text';
 		$monthOptionSet["code"] ='Month_text';
+        $monthOptionSet["id"] ="o".substr(md5($monthOptionSet["name"]),0,10);
 		//$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
 		//$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
 		$monthOptionSet["externalAccess"]="false";
@@ -137,10 +139,12 @@ EOT
 			$option = array();
 			$option["name"]=$month;
 			$option["code"]=$month;
+            $option["id"] ="o".substr(md5($option["name"]),0,10);
 			//$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
 			//$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
 			$option["externalAccess"]="false";
 			$options[]=$option;
+            $allOptions[]=$option;
 			unset($option);
 		}
 		$monthOptionSet["options"]=$options;
@@ -172,7 +176,7 @@ EOT
             $programStageDataElement["allowFutureDate"]= "false";
             $programStageDataElements[]=$programStageDataElement;
             //continue with preparting dataElement
-            $dataElement["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName())),0,49);
+            $dataElement["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName())),0,49);
             $dataElement["domainType"]="TRACKER";
             $dataElement["aggregationOperator"]="sum";
 
@@ -208,7 +212,7 @@ EOT
                 $programStageDataElement["allowFutureDate"]= "false";
                 $programStageDataElements[]=$programStageDataElement;
                 //continue with preparting dataElement
-                $dataElementMonthText["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName().'_month_text')),0,49);
+                $dataElementMonthText["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName().'_month_text')),0,49);
                 $dataElementMonthText["domainType"]="TRACKER";
                 $dataElementMonthText["aggregationOperator"]="sum";
                 $dataElementMonthText["type"]="string";
@@ -235,7 +239,7 @@ EOT
                 $programStageDataElement["allowFutureDate"]= "false";
                 $programStageDataElements[]=$programStageDataElement;
                 //continue with preparting dataElement
-                $dataElementYear["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName().'_year')),0,49);
+                $dataElementYear["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName().'_year')),0,49);
                 $dataElementYear["domainType"]="TRACKER";
                 $dataElementYear["aggregationOperator"]="sum";
                 $dataElementYear["type"]="int";
@@ -249,6 +253,7 @@ EOT
                 $optionSet = array();
                 $optionSet["name"] =$hr_prefix.$field->getName();
                 $optionSet["code"] =substr(str_replace("_","",str_replace(" ","",$field->getName())),0,49);
+                $optionSet["id"] ="o".substr(md5($optionSet["name"]),0,10);
                 //$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                 //$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                 $optionSet["externalAccess"]="false";
@@ -269,10 +274,12 @@ EOT
                         if(!empty($fieldOptionsResult)) {
                             $option["name"]=$fieldOptionsResult;
                             $option["code"]=$fieldOptionsResult;
+                            $option["id"] ="o".substr(md5($option["name"]),0,10);
                             //$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                             //$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                             $option["externalAccess"]="false";
                             $options[]=$option;
+                            $allOptions[]=$option;
                             unset($option);
                         }
                     }
@@ -283,8 +290,10 @@ EOT
 					$option = array();
 					$option["name"]=$fieldOptionsResults;
 					$option["code"]=$fieldOptionsResults;
+                    $option["id"] ="o".substr(md5($option["name"]),0,10);
 					$option["externalAccess"]="false";
 					$options[]=$option;
+                    $allOptions[]=$option;
 					unset($option);
 					$optionSet["options"]=$options;
                     $optionSets[]=$optionSet;
@@ -316,7 +325,7 @@ EOT
                 $programStageDataElement["allowFutureDate"]= "false";
                 $programStageDataElements[]=$programStageDataElement;
                 //continue with preparting dataElement
-                $dataElementHistoryLastUpdated["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated')),0,49);
+                $dataElementHistoryLastUpdated["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated')),0,49);
                 $dataElementHistoryLastUpdated["domainType"]="TRACKER";
                 $dataElementHistoryLastUpdated["aggregationOperator"]="sum";
                 $dataElementHistoryLastUpdated["type"]="date";
@@ -342,7 +351,7 @@ EOT
                 $programStageDataElement["allowFutureDate"]= "false";
                 $programStageDataElements[]=$programStageDataElement;
                 //continue with preparting dataElement
-                $dataElementHistoryLastUpdatedMonthText["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated_month_text')),0,49);
+                $dataElementHistoryLastUpdatedMonthText["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated_month_text')),0,49);
                 $dataElementHistoryLastUpdatedMonthText["domainType"]="TRACKER";
                 $dataElementHistoryLastUpdatedMonthText["aggregationOperator"]="sum";
                 $dataElementHistoryLastUpdatedMonthText["type"]="string";
@@ -370,7 +379,7 @@ EOT
                 $programStageDataElement["allowFutureDate"]= "false";
                 $programStageDataElements[]=$programStageDataElement;
                 //continue with preparting dataElement
-                $dataElementHistoryLastUpdatedYear["shortName"] = substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated_year')),0,49);
+                $dataElementHistoryLastUpdatedYear["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$field->getName().'_last_updated_year')),0,49);
                 $dataElementHistoryLastUpdatedYear["domainType"]="TRACKER";
                 $dataElementHistoryLastUpdatedYear["aggregationOperator"]="sum";
                 $dataElementHistoryLastUpdatedYear["type"]="int";
@@ -405,7 +414,7 @@ EOT
             $programStageDataElement["allowFutureDate"]= "false";
             $programStageDataElements[]=$programStageDataElement;
             //continue with preparting dataElement
-            $dataElementOrgunitLevel["shortName"] = substr(str_replace("_","",str_replace(" ","",$organisationunitLevelName)),0,49);
+            $dataElementOrgunitLevel["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$organisationunitLevelName)),0,49);
             $dataElementOrgunitLevel["domainType"]="TRACKER";
             $dataElementOrgunitLevel["aggregationOperator"]="sum";
             $dataElementOrgunitLevel["type"]="string";
@@ -414,6 +423,7 @@ EOT
             $optionSet = array();
             $optionSet["name"] =$hr_prefix.$organisationunitLevelName;
             $optionSet["code"] =substr(str_replace("_","",str_replace(" ","",$organisationunitLevelName)),0,49);
+            $optionSet["id"] ="o".substr(md5($optionSet["name"]),0,10);
             //$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
             //$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
             $optionSet["externalAccess"]="false";
@@ -435,10 +445,12 @@ EOT
                     if(!empty($fieldOptionsResult)) {
                         $option["name"]=$fieldOptionsResult;
                         $option["code"]=$fieldOptionsResult;
+                        $option["id"] ="o".substr(md5($option["name"]),0,10);
                         //$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                         //$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                         $option["externalAccess"]="false";
                         $options[]=$option;
+                        $allOptions[]=$option;
                         unset($option);
                     }
                 }
@@ -449,8 +461,10 @@ EOT
 				$option = array();
 				$option["name"]=$fieldOptionsResults;
 				$option["code"]=$fieldOptionsResults;
+                $option["id"] ="o".substr(md5($option["name"]),0,10);
 				$option["externalAccess"]="false";
 				$options[]=$option;
+                $allOptions[]=$option;
 				unset($option);
 				$optionSet["options"]=$options;
                 $optionSets[]=$optionSet;
@@ -481,7 +495,7 @@ EOT
             $programStageDataElement["allowFutureDate"]= "false";
             $programStageDataElements[]=$programStageDataElement;
             //continue with preparting dataElement
-            $dataElementOrgunitGroupset["shortName"] = substr(str_replace("_","",str_replace(" ","",$organisationunitGroupset->getName())),0,49);
+            $dataElementOrgunitGroupset["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",$organisationunitGroupset->getName())),0,49);
             $dataElementOrgunitGroupset["domainType"]="TRACKER";
             $dataElementOrgunitGroupset["aggregationOperator"]="sum";
             $dataElementOrgunitGroupset["type"]="string";
@@ -490,6 +504,7 @@ EOT
             $optionSet = array();
             $optionSet["name"] =$hr_prefix.$organisationunitGroupset->getName();
             $optionSet["code"] =substr(str_replace("_","",str_replace(" ","",$organisationunitGroupset->getName())),0,49);
+            $optionSet["id"] ="o".substr(md5($optionSet["name"]),0,10);
             //$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
             //$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
             $optionSet["externalAccess"]="false";
@@ -510,10 +525,12 @@ EOT
                     if(!empty($fieldOptionsResult)) {
                         $option["name"]=$fieldOptionsResult;
                         $option["code"]=$fieldOptionsResult;
+                        $option["id"] ="o".substr(md5($option["name"]),0,10);
                         //$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                         //$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                         $optionSet["externalAccess"]="false";
                         $options[]=$option;
+                        $allOptions[]=$option;
                         unset($option);
                     }
                 }
@@ -524,8 +541,10 @@ EOT
 				$option = array();
 				$option["name"]=$fieldOptionsResults;
 				$option["code"]=$fieldOptionsResults;
+                $option["id"] ="o".substr(md5($option["name"]),0,10);
 				$optionSet["externalAccess"]="false";
 				$options[]=$option;
+                $allOptions[]=$option;
 				unset($option);
 				$optionSet["options"]=$options;
                 $optionSets[]=$optionSet;
@@ -554,7 +573,7 @@ EOT
         $programStageDataElement["allowFutureDate"]= "false";
         $programStageDataElements[]=$programStageDataElement;
         //continue with preparting dataElement
-        $dataElementOrgunitName["shortName"] = substr(str_replace("_","",str_replace(" ","",'Organisationunit_name')),0,49);
+        $dataElementOrgunitName["shortName"] = $hr_prefix.substr(str_replace("_","",str_replace(" ","",'Organisationunit_name')),0,49);
         $dataElementOrgunitName["domainType"]="TRACKER";
         $dataElementOrgunitName["aggregationOperator"]="sum";
         $dataElementOrgunitName["type"]="string";
@@ -563,6 +582,7 @@ EOT
         $optionSet = array();
         $optionSet["name"] =$dataElementOrgunitName["name"];
         $optionSet["code"] =substr(str_replace("_","",str_replace(" ","",'Organisationunit_name')),0,49);
+        $optionSet["id"] ="o".substr(md5($optionSet["name"]),0,10);
         ///$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
         //$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
         $optionSet["externalAccess"]="false";
@@ -583,10 +603,12 @@ EOT
                 if(!empty($fieldOptionsResult)) {
                     $option["name"]=$fieldOptionsResult;
                     $option["code"]=$fieldOptionsResult;
+                    $option["id"] ="o".substr(md5($option["name"]),0,10);
                     //$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                     //$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                     $optionSet["externalAccess"]="false";
                     $options[]=$option;
+                    $allOptions[]=$option;
                     unset($option);
                 }
             }
@@ -597,8 +619,10 @@ EOT
 			$option = array();
 			$option["name"]=$fieldOptionsResults;
 			$option["code"]=$fieldOptionsResults;
+            $option["id"] ="o".substr(md5($option["name"]),0,10);
 			$optionSet["externalAccess"]="false";
 			$options[]=$option;
+            $allOptions[]=$option;
 			unset($option);
 			$optionSet["options"]=$options;
             $optionSets[]=$optionSet;
@@ -624,7 +648,7 @@ EOT
         $programStageDataElement["allowFutureDate"]= "false";
         $programStageDataElements[]=$programStageDataElement;
         //continue with preparting dataElement
-        $dataElementHrhFormName["shortName"] = 'Form_name';
+        $dataElementHrhFormName["shortName"] = $hr_prefix.'Form_name';
         $dataElementHrhFormName["domainType"]="TRACKER";
         $dataElementHrhFormName["aggregationOperator"]="sum";
         $dataElementHrhFormName["type"]="string";
@@ -633,6 +657,7 @@ EOT
         $optionSet = array();
         $optionSet["name"] =$dataElementHrhFormName["name"];
         $optionSet["code"] =substr(str_replace("_","",str_replace(" ","",$dataElementHrhFormName["name"])),0,49);
+        $optionSet["id"] ="o".substr(md5($optionSet["name"]),0,10);
         //$optionSet["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
         //$optionSet["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
         $optionSet["externalAccess"]="false";
@@ -653,10 +678,12 @@ EOT
                 if(!empty($fieldOptionsResult)) {
                     $option["name"]=$fieldOptionsResult;
                     $option["code"]=$fieldOptionsResult;
+                    $option["id"] ="o".substr(md5($option["name"]),0,10);
                     //$option["created"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                     //$option["lastUpdated"]=(new \DateTime('now'))->format('Y-m-d\TH:i:s.000O');
                     $option["externalAccess"]="false";
                     $options[]=$option;
+                    $allOptions[]=$option;
                     unset($option);
                 }
             }
@@ -667,8 +694,10 @@ EOT
 			$option = array();
 			$option["name"]=$fieldOptionsResults;
 			$option["code"]=$fieldOptionsResults;
+            $option["id"] ="o".substr(md5($option["name"]),0,10);
 			$option["externalAccess"]="false";
 			$options[]=$option;
+            $allOptions[]=$option;
 			unset($option);
 			$optionSet["options"]=$options;
             $optionSets[]=$optionSet;
@@ -695,7 +724,7 @@ EOT
         $programStageDataElement["allowFutureDate"]= "false";
         $programStageDataElements[]=$programStageDataElement;
         //continue with preparting dataElement
-        $dataElementInstance["shortName"] = 'instance';
+        $dataElementInstance["shortName"] = $hr_prefix.'instance';
         $dataElementInstance["domainType"]="TRACKER";
         $dataElementInstance["aggregationOperator"]="sum";
         $dataElementInstance["type"]="string";
@@ -753,6 +782,7 @@ EOT
         $humanResourceProgram["programStages"]=array($humanResourceProgramStage);
         $programs[]=$humanResourceProgram;
         $metaData["programs"]=$programs;
+        $metaData["options"]=$allOptions;
         $metaData["optionSets"]=$optionSets;
 
         $serializer = new Serializer(array($normalizer), array($encoder));
