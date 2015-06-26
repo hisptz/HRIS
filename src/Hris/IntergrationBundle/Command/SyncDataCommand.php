@@ -43,6 +43,7 @@ class SyncDataCommand extends ContainerAwareCommand
             ->setDescription('Sync HRHIS Data to DHIS')
             ->addArgument('id', InputArgument::OPTIONAL, 'Intergration Connection Id')
             ->addArgument('year', InputArgument::OPTIONAL, 'Year of analysis')
+            ->addArgument('orgunitid', InputArgument::OPTIONAL, 'Organisation unit id')
             ->setHelp(<<<EOT
 The <info>hris:dhisintegration:syncdata</info> command generates xml with aggregate data to be sent to dhis
 
@@ -55,6 +56,9 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $logger = $this->getContainer()->get('logger');
+
         $year = (date("Y")-1);
         $interval=20;
         $stopwatch = new Stopwatch();
@@ -62,6 +66,13 @@ EOT
 
         $id = $input->getArgument('id');
         $capturedYear = $input->getArgument('year');
+        $orgunitid = $input->getArgument('orgunitid');
+        $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($id);
+        if(!empty($orgunitid)) {
+            $orgunit = $em->getRepository('HrisOrganisationunitBundle:Organisationunit')->find($orgunitid);
+        }else {
+            $orgunit=$entity->getParentOrganisationunit();
+        }
         if(!empty($capturedYear)) $year= $capturedYear;
         if ($id) {
             $this->dhisConnectionId = $id;
@@ -69,14 +80,11 @@ EOT
             throw new NotFoundHttpException("Data connection not found!");
         }
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $logger = $this->getContainer()->get('logger');
 
         $this->xmlContents = "<?xml version='1.0' encoding='UTF-8'?>
 <dataValueSet xmlns=\"http://dhis2.org/schema/dxf/2.0\">";
 
-        $entity = $em->getRepository('HrisIntergrationBundle:DHISDataConnection')->find($id);
-        $xmlFile = "/tmp/hrhis_data_".str_replace(' ','_',$entity->getParentOrganisationunit()).".xml";
+        $xmlFile = "/tmp/hrhis_data_".str_replace(' ','_',$orgunit).".xml";
         file_put_contents($xmlFile,$this->xmlContents);
 
         // Aggregate data for each orgunit in the current level.
@@ -101,13 +109,13 @@ EOT
             ->andWhere('
                         (
                             level.level >= :organisationunitLevel
-                            AND organisationunitStructure.level'.$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel().'Organisationunit=:levelOrganisationunit
+                            AND organisationunitStructure.level'.$orgunit->getOrganisationunitStructure()->getLevel()->getLevel().'Organisationunit=:levelOrganisationunit
                         ) AND organisationunit.dhisUid is not null
                         AND organisationunit.id IN ( SELECT DISTINCT(recordOrganisationunit.id) FROM HrisRecordsBundle:Record record INNER JOIN record.organisationunit recordOrganisationunit )'
             )
             ->setParameters(array(
-                'levelOrganisationunit'=>$entity->getParentOrganisationunit(),
-                'organisationunitLevel'=>$entity->getParentOrganisationunit()->getOrganisationunitStructure()->getLevel()->getLevel()
+                'levelOrganisationunit'=>$orgunit,
+                'organisationunitLevel'=>$orgunit->getOrganisationunitStructure()->getLevel()->getLevel()
             ))
             ->getQuery()->getResult();
 
@@ -286,7 +294,7 @@ EOT
         }
         $output->writeln("Data Syncing completed in ". $durationMessage .".\n\n");
 
-        $this->messageLog = "Sync aggregation for ".$entity->getParentOrganisationunit()->getLongname()." operation is complete";
+        $this->messageLog = "Sync aggregation for ".$orgunit->getLongname()." operation is complete";
 
         $output->writeln($this->messageLog);
     }
