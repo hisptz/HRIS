@@ -54,7 +54,7 @@ class Organisationunit
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $uid
@@ -62,7 +62,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="uid", type="string", length=13, unique=true)
      */
-    private $uid;
+    protected $uid;
     
     /**
      * @var string $dhisUid
@@ -70,7 +70,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="dhisUid", type="string", length=11, unique=true, nullable=true)
      */
-    private $dhisUid;
+    protected $dhisUid;
 
     /**
      * @var OrganisationunitGroup $organisationunitGroup
@@ -78,7 +78,7 @@ class Organisationunit
      * @ORM\ManyToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitGroup", mappedBy="organisationunit")
      * @ORM\OrderBy({"name" = "ASC"})
      */
-    private $organisationunitGroup;
+    protected $organisationunitGroup;
 
     /**
      * @var string $code
@@ -86,7 +86,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="code", type="string", length=25, nullable=true, unique=true)
      */
-    private $code;
+    protected $code;
 
     /**
      * @var \Hris\OrganisationunitBundle\Entity\Organisationunit $parent
@@ -97,7 +97,7 @@ class Organisationunit
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     /**
      * @var string $shortname
@@ -105,7 +105,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="shortname", type="string", length=20, unique=true)
      */
-    private $shortname;
+    protected $shortname;
 
     /**
      * @var string $longname
@@ -113,7 +113,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="longname", type="string", length=64)
      */
-    private $longname;
+    protected $longname;
 
     /**
      * @var boolean $active
@@ -121,7 +121,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="active", type="boolean", nullable=true)
      */
-    private $active;
+    protected $active;
 
     /**
      * @var \DateTime $openingdate
@@ -129,7 +129,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="openingdate", type="date", nullable=true)
      */
-    private $openingdate;
+    protected $openingdate;
 
     /**
      * @var \DateTime $closingdate
@@ -137,7 +137,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="closingdate", type="date", nullable=true)
      */
-    private $closingdate;
+    protected $closingdate;
 
     /**
      * @var string $geocode
@@ -145,7 +145,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="geocode", type="string", length=255, nullable=true)
      */
-    private $geocode;
+    protected $geocode;
 
     /**
      * @var string $coordinates
@@ -153,7 +153,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="coordinates", type="text", nullable=true)
      */
-    private $coordinates;
+    protected $coordinates;
 
     /**
      * @var string $featuretype
@@ -161,7 +161,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="featuretype", type="string", length=20, nullable=true)
      */
-    private $featuretype;
+    protected $featuretype;
 
     /**
      * @var string $address
@@ -169,7 +169,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="address", type="text", nullable=true)
      */
-    private $address;
+    protected $address;
 
     /**
      * @var string $email
@@ -177,7 +177,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="email", type="string", length=150, nullable=true)
      */
-    private $email;
+    protected $email;
 
     /**
      * @var string $phonenumber
@@ -185,7 +185,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="phonenumber", type="string", length=150, nullable=true)
      */
-    private $phonenumber;
+    protected $phonenumber;
 
     /**
      * @var string $contactperson
@@ -193,7 +193,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="contactperson", type="string", length=150, nullable=true)
      */
-    private $contactperson;
+    protected $contactperson;
 
     /**
      * @var string $description
@@ -201,7 +201,7 @@ class Organisationunit
      * @Gedmo\Versioned
      * @ORM\Column(name="description", type="text", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @var DHISDataConnection $dhisDataConnection
@@ -209,7 +209,7 @@ class Organisationunit
      * @ORM\OneToMany(targetEntity="Hris\IntergrationBundle\Entity\DHISDataConnection", mappedBy="parentOrganisationunit",cascade={"ALL"})
      * @ORM\OrderBy({"name" = "ASC"})
      */
-    private $dhisDataConnection;
+    protected $dhisDataConnection;
 
     /**
      * @var OrganisationunitCompleteness
@@ -217,7 +217,7 @@ class Organisationunit
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitCompleteness", mappedBy="organisationunit",cascade={"ALL"})
      * @ORM\OrderBy({"expectation" = "ASC"})
      */
-    private $organisationunitCompleteness;
+    protected $organisationunitCompleteness;
 
     /**
      * @var User $user
@@ -225,56 +225,56 @@ class Organisationunit
      * @ORM\OneToMany(targetEntity="Hris\UserBundle\Entity\User", mappedBy="organisationunit",cascade={"ALL"})
      * @ORM\OrderBy({"longname" = "ASC"})
      */
-    private $user;
+    protected $user;
 
     /**
      * @var OrganisationunitStructure $organisationunitStructure
      *
      * @ORM\OneToOne(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="organisationunit",cascade={"ALL"})
      */
-    private $organisationunitStructure;
+    protected $organisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level1OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level1Organisationunit",cascade={"ALL"})
      */
-    private $level1OrganisationunitStructure;
+    protected $level1OrganisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level2OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level2Organisationunit",cascade={"ALL"})
      */
-    private $level2OrganisationunitStructure;
+    protected $level2OrganisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level3OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level3Organisationunit",cascade={"ALL"})
      */
-    private $level3OrganisationunitStructure;
+    protected $level3OrganisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level4OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level4Organisationunit",cascade={"ALL"})
      */
-    private $level4OrganisationunitStructure;
+    protected $level4OrganisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level5OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level5Organisationunit",cascade={"ALL"})
      */
-    private $level5OrganisationunitStructure;
+    protected $level5OrganisationunitStructure;
 
     /**
      * @var OrganisationunitStructure $level6OrganisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level6Organisationunit",cascade={"ALL"})
      */
-    private $level6OrganisationunitStructure;
+    protected $level6OrganisationunitStructure;
 
     /**
      * @var \DateTime $datecreated
@@ -282,7 +282,7 @@ class Organisationunit
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="datecreated", type="datetime")
      */
-    private $datecreated;
+    protected $datecreated;
 
     /**
      * @var \DateTime $lastupdated
@@ -290,7 +290,7 @@ class Organisationunit
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="lastupdated", type="datetime", nullable=true)
      */
-    private $lastupdated;
+    protected $lastupdated;
 
 
     /**

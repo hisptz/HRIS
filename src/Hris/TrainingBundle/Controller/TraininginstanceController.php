@@ -543,6 +543,7 @@ class TraininginstanceController extends Controller
         $ary =  $request->request->get("ary");
         $instance_id = $request->request->get("instance_id");
         $recordIds = explode( ',', $ary );
+        var_dump($recordIds);
         try{
             foreach($recordIds as $recordId){
                 $instaRec = new instanceRecord();

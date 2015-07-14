@@ -47,7 +47,7 @@ class OrganisationunitLevel
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $uid
@@ -55,7 +55,7 @@ class OrganisationunitLevel
      * @Gedmo\Versioned
      * @ORM\Column(name="uid", type="string", length=13, unique=true)
      */
-    private $uid;
+    protected $uid;
 
     /**
      * @var integer $level
@@ -63,7 +63,7 @@ class OrganisationunitLevel
      * @Gedmo\Versioned
      * @ORM\Column(name="level", type="integer", unique=true)
      */
-    private $level;
+    protected $level;
 
     /**
      * @var string $name
@@ -71,7 +71,7 @@ class OrganisationunitLevel
      * @Gedmo\Versioned
      * @ORM\Column(name="name", type="string", length=128, unique=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $description
@@ -79,7 +79,7 @@ class OrganisationunitLevel
      * @Gedmo\Versioned
      * @ORM\Column(name="description", type="text", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @var boolean $dataentrylevel
@@ -87,14 +87,14 @@ class OrganisationunitLevel
      * @Gedmo\Versioned
      * @ORM\Column(name="dataentrylevel", type="boolean")
      */
-    private $dataentrylevel;
+    protected $dataentrylevel;
     
     /**
      * @var OrganisationunitStructure $organisationunitStructure
      *
      * @ORM\OneToMany(targetEntity="Hris\OrganisationunitBundle\Entity\OrganisationunitStructure", mappedBy="level",cascade={"ALL"})
      */
-    private $organisationunitStructure;
+    protected $organisationunitStructure;
 
     /**
      * @var \DateTime $datecreated
@@ -102,7 +102,7 @@ class OrganisationunitLevel
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="datecreated", type="datetime")
      */
-    private $datecreated;
+    protected $datecreated;
 
     /**
      * @var \DateTime $lastupdated
@@ -110,7 +110,7 @@ class OrganisationunitLevel
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="lastupdated", type="datetime", nullable=true)
      */
-    private $lastupdated;
+    protected $lastupdated;
     
     /**
      * Get id

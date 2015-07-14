@@ -50,7 +50,7 @@ class Traininginstance
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $uid
@@ -58,7 +58,7 @@ class Traininginstance
      * @Gedmo\Versioned
      * @ORM\Column(name="uid", type="string", length=13, unique=false)
      */
-    private $uid;
+    protected $uid;
 
     /**
      * @var String $course
@@ -67,7 +67,7 @@ class Traininginstance
      * @ORM\JoinColumn(name="training_id", referencedColumnName="id", onDelete="CASCADE")
      *
      */
-    private $course;
+    protected $course;
 
      /**
      * @var string $region
@@ -75,7 +75,7 @@ class Traininginstance
      * @Gedmo\Versioned
      * @ORM\Column(name="region", type="string", length=100, unique=false)
      */
-    private $region;
+    protected $region;
 
      /**
      * @var string $district
@@ -83,23 +83,23 @@ class Traininginstance
      * @Gedmo\Versioned
      * @ORM\Column(name="district", type="string", length=100, unique=false)
      */
-    private $district;
+    protected $district;
 
      /**
      * @var string $venue
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="venue", type="string", length=100, unique=false)
+     * @ORM\Column(name="venue", type="string", length=100, unique=false,nullable=true)
      */
-    private $venue;
+    protected $venue;
 
      /**
      * @var string $sponsor
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="sponsor", type="string", length=100, unique=false)
+     * @ORM\Column(name="sponsor", type="string", length=100, unique=false,nullable=true)
      */
-    private $sponsor;
+    protected $sponsor;
 
 
     /**
@@ -108,7 +108,7 @@ class Traininginstance
      * @Gedmo\Versioned
      * @ORM\Column(name="startdate", type="datetime", length=255,nullable=true)
      */
-    private $startdate;
+    protected $startdate;
 
 
 
@@ -119,7 +119,7 @@ class Traininginstance
      * @Gedmo\Versioned
      * @ORM\Column(name="enddate", type="datetime", length=255,nullable=true)
      */
-    private $enddate;
+    protected $enddate;
 
 
     /**
@@ -128,14 +128,14 @@ class Traininginstance
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="datecreated", type="datetime", nullable=false)
      */
-    private $datecreated;
+    protected $datecreated;
 
     /**
      * @var \DateTime $lastupdated
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="lastupdated", type="datetime", nullable=true)
      */
-    private $lastupdated;
+    protected $lastupdated;
 
 
     /**

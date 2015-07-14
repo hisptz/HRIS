@@ -75,9 +75,9 @@ class Sponsor
      * @var string $description
      *
      * @Gedmo\Versioned
-     * @ORM\Column(name="description", type="string", length=255)
+     * @ORM\Column(name="description", type="text", length=255)
      */
-    private $descripton;
+    private $description;
 
     /**
      * @var \DateTime $datecreated
@@ -282,26 +282,27 @@ class Sponsor
 
     }
 
+
     /**
      * Set descripton
      *
-     * @param string $descripton
+     * @param string $description
      * @return Sponsor
      */
-    public function setDescripton($descripton)
+    public function setDescription($description)
     {
-        $this->descripton = $descripton;
+        $this->description = $description;
     
         return $this;
     }
 
     /**
-     * Get descripton
+     * Get description
      *
      * @return string 
      */
-    public function getDescripton()
+    public function getDescription()
     {
-        return $this->descripton;
+        return $this->description;
     }
 }
