@@ -76,7 +76,7 @@ class ConfigureMenuListener
                 'attributes'=> array('class'=>'accordion-group'),
             )
         );
-        $reportsModule->addChild('History & Training',
+        $reportsModule->addChild('History And Training',
             array('route'=>'report_historytraining',
                 'extras'=>array('tag'=>'div'),
                 'name'=>'History & Training',
