@@ -8,16 +8,52 @@
     <script type="text/javascript" src="{{ asset('commons/js/jquery-migrate-1.2.1.js') }}"></script>
     <script type="text/javascript" src="{{ asset('commons/js/jquery-ui-personalized-1.6rc2.min.js') }}"></script>
     <script type="text/javascript">
+
+        $(function () {
+            /**
+             * Adjust size for hidden charts
+             * @param chart highcharts
+             */
+            function adjustGraph(chart) {
+                try {
+                    if (typeof (chart === 'undefined' || chart === null) && this instanceof jQuery) { // if no obj chart and the context is set
+                        this.find('.chart-container:visible').each(function () { // for only visible charts container in the curent context
+                            $container = $(this); // context container
+                            $container.find('div[id^="chart-"]').each(function () { // for only chart
+                                $chart = $(this).highcharts(); // cast from JQuery to highcharts obj
+                                $chart.setSize($container.width(), $chart.chartHeight, doAnimation = true); // adjust chart size with animation transition
+                            });
+                        });
+                    } else {
+                        chart.setSize($('.chart-container:visible').width(), chart.chartHeight, doAnimation = true); // if chart is set, adjust
+                    }
+                } catch (err) {/* do nothing */}
+            }
+
+            $(window).resize(function () {
+                if (this.resizeTO) clearTimeout(this.resizeTO);
+                this.resizeTO = setTimeout(function () {
+                    // resizeEnd call function with pass context body
+                    adjustGraph.call($('body'));
+
+                }, 500);
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var isChart = $(this).attr('data-chart');
+                var target = $(this).attr('href');
+                if (isChart) {
+                    // call functio inside context target
+                    adjustGraph.call($(target));
+                }
+            });
+        });
         {{ chart(retirementchart) }}
         {{ chart(agechart) }}
         {%   for  entityChart in entitiesChart %}
             {{ chart(entityChart) }}
         {%  endfor %}
         {{ chart(combinationchart) }}
-        $( '.tab-content').resizable({});
-        $( ".tab-content" ).mouseout(function() {
-            $(window).trigger('resize');
-        });
     </script>
 {%  endblock %}
 
@@ -33,35 +69,46 @@
 {% endblock message_alert %}
 
 {% block right_content %}
-    <div class="tabbable">
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#employment-distribution" data-toggle="tab">Combination Report</a></li>
-            <li class=""><a href="#retirement-distribution" data-toggle="tab">Retirement Distribution</a></li>
-            <li class=""><a href="#age-distribution" data-toggle="tab">Age Distribution</a></li>
+    <div id="contentdemo">
+        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+            <li class="active"><a href="#employment-distribution" data-toggle="tab" data-chart="combinationreport">Combination Report</a></li>
+            <li class=""><a href="#retirement-distribution" data-toggle="tab" data-chart="retirementdistribution">Retirement Distribution</a></li>
+            <li class=""><a href="#age-distribution" data-toggle="tab" data-chart="agedistribution">Age Distribution</a></li>
             {% for entity in entities %}
-                <li class=""><a href="#_{{ ((entity.name)|lower)|replace({" ":"_"}) }}" data-toggle="tab">{{ entity.name }}</a></li>
+                <li class=""><a href="#_{{ ((entity.name)|lower)|replace({" ":"_"}) }}" data-toggle="tab" data-chart="{{ entity.id }}">{{ entity.name }}</a></li>
             {% endfor %}
         </ul>
-        <div class="tab-content">
+        <div id="my-tab-content" class="tab-content">
+
             <div class="tab-pane active" id="employment-distribution">
                 <h4>The Employment Distribution Chart</h4>
-                <div id="chart_placeholder" class="ui-resizable" style="min-width: 400px; width:100%; min-height:400px; height: 400px; margin: 0 auto"></div>
+                <div class="chart-container">
+                    <div id="chart_placeholder" class="ui-resizable"  style="width:100%;margin: 0 auto"></div>
+                </div>
             </div>
             <div class="tab-pane" id="retirement-distribution">
-                    <h4>Retirement Distribution Chart</h4>
-                    <div id="retirementdistribution" style="min-width: 400px; width:100%; min-height:400px; height: 400px; margin: 0 auto"></div>
+                <h4>Retirement Distribution Chart</h4>
+                <div class="chart-container">
+                    <div id="retirementdistribution"  style="width:100%;margin: 0 auto"></div>
+                </div>
             </div>
             <div class="tab-pane" id="age-distribution">
                 <h4>Age Distribution</h4>
-                <div id="agedistribution" style="min-width: 400px; width:100%; min-height:400px; height: 400px; margin: 0 auto"></div>
+                <div class="chart-container">
+                    <div id="agedistribution"  style="width:100%;margin: 0 auto"></div>
+                </div>
             </div>
             {% for entity in entities %}
                 <div class="tab-pane" id="_{{ ((entity.name)|lower)|replace({" ":"_"}) }}">
                     <h4>{{ entity.name }}</h4>
-                    <div id="{{ ((entity.name)|lower)|replace({" ":"_"}) }}" style="min-width: 400px; width:100%; min-height:400px; height: 400px; margin: 0 auto"></div>
+                    <div class="chart-container">
+                        <div id="{{ ((entity.name)|lower)|replace({" ":"_"}) }}"  style="width:100%;margin: 0 auto"></div>
+                    </div>
                 </div>
             {% endfor %}
-        </div><!-- /.tab-content -->
+
+        </div>
+    </div>
     </div>
 
 
