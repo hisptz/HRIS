@@ -182,9 +182,7 @@ class TrainingController extends Controller
      */
     public function newAction( $recordid=NULL )
     {
-//        $entity = new Traininginstance();
-//        $form   = $this->createForm(new TrainingType(), $entity);
-//
+
         $entity = new Training();
         $form   = $this->createForm(new TrainingType(), $entity);
         if(!empty($recordid)) {
