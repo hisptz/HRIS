@@ -30,6 +30,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Hris\RecordsBundle\Entity\Training;
+use Hris\TrainingBundle\Entity\Traininginstance;
 use Hris\RecordsBundle\Entity\Record;
 use Hris\RecordsBundle\Form\TrainingType;
 use JMS\SecurityExtraBundle\Annotation\Secure;
@@ -61,20 +62,20 @@ class TrainingController extends Controller
             $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
             $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
         }
-
-//        $delete_forms = array();
-//        foreach($entities as $entity) {
-//            $delete_form= $this->createDeleteForm($entity->getId());
-//            $delete_forms[$entity->getId()] = $delete_form->createView();
-//        }
+//        var_dump(json_encode($entities));die();
+        $delete_forms = array();
+        foreach($entities as $entity) {
+            $delete_form= $this->createDeleteForm($entity->getId());
+            $delete_forms[$entity->getId()] = $delete_form->createView();
+        }
 //
 
 
         return array(
-            'entities' => "",
-            'delete_forms' => "",
+            'entities' => $entities,
+            'delete_forms' => $delete_forms,
             'recordid' => $recordid,
-            'record' => "",
+            'record' => $record,
             'employeeName' => $this->getEmployeeName($recordid),
         );
     }
@@ -183,6 +184,9 @@ class TrainingController extends Controller
      */
     public function newAction( $recordid=NULL )
     {
+//        $entity = new Traininginstance();
+//        $form   = $this->createForm(new TrainingType(), $entity);
+//
         $entity = new Training();
         $form   = $this->createForm(new TrainingType(), $entity);
         if(!empty($recordid)) {
