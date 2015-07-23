@@ -62,14 +62,12 @@ class TrainingController extends Controller
             $entities = $em->getRepository('HrisRecordsBundle:Training')->findBy(array('record'=>$recordid));
             $record = $em->getRepository('HrisRecordsBundle:Record')->findOneBy(array('id'=>$recordid));
         }
-//        var_dump(json_encode($entities));die();
+
         $delete_forms = array();
         foreach($entities as $entity) {
             $delete_form= $this->createDeleteForm($entity->getId());
             $delete_forms[$entity->getId()] = $delete_form->createView();
         }
-//
-
 
         return array(
             'entities' => $entities,
