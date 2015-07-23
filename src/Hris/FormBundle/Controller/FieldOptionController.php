@@ -62,7 +62,19 @@ class FieldOptionController extends Controller
 
         if(empty($fieldid)) {
             if(!empty($uid)) {
-                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' AND fieldOption.value NOT IN ( SELECT fieldOptionMerge.removedFieldOptionValue FROM HrisFormBundle:FieldOptionMerge fieldOptionMerge INNER JOIN fieldOptionMerge.field innerField WHERE innerField.id=field.id ) ORDER BY fieldOption.value")->getArrayResult();
+//                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' AND fieldOption.value NOT IN ( SELECT fieldOptionMerge.removedFieldOptionValue FROM HrisFormBundle:FieldOptionMerge fieldOptionMerge INNER JOIN fieldOptionMerge.field innerField WHERE innerField.id=field.id ) AND fieldOption.skipInReport=TRUE ORDER BY fieldOption.value")->getArrayResult();
+//                $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value fieldUid FROM HrisFormBundle:FieldOption fieldOption")->getArrayResult();
+//                SELECT field.name  FROM HrisFormBundle:Field  field WHERE field.uid='".$uid."'
+//                $entities = $em->getRepository('HrisFormBundle:FieldOption')->findAll();
+                if($uid=="5289e934a6b16"){
+                    $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' AND fieldOption.value NOT IN ( SELECT fieldOptionMerge.removedFieldOptionValue FROM HrisFormBundle:FieldOptionMerge fieldOptionMerge INNER JOIN fieldOptionMerge.field innerField WHERE innerField.id=field.id ) AND fieldOption.hasTraining IS NULL ORDER BY fieldOption.value")->getArrayResult();
+//
+                }else{
+                    $entities = $this->getDoctrine()->getManager()->createQuery("SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE field.uid='".$uid."' AND fieldOption.value NOT IN ( SELECT fieldOptionMerge.removedFieldOptionValue FROM HrisFormBundle:FieldOptionMerge fieldOptionMerge INNER JOIN fieldOptionMerge.field innerField WHERE innerField.id=field.id ) ORDER BY fieldOption.value")->getArrayResult();
+//
+                }
+//                echo json_encode('5289e934a6b16');
+//                die();
             }else {
                 $entities = $this->getDoctrine()->getManager()->createQuery('SELECT fieldOption.id,fieldOption.uid,fieldOption.value,field.uid fieldUid FROM HrisFormBundle:FieldOption fieldOption INNER JOIN fieldOption.field field WHERE fieldOption.value NOT IN ( SELECT fieldOptionMerge.removedFieldOptionValue FROM HrisFormBundle:FieldOptionMerge fieldOptionMerge INNER JOIN fieldOptionMerge.field innerField WHERE innerField.id=field.id ) ORDER BY fieldOption.value')->getArrayResult();
             }
