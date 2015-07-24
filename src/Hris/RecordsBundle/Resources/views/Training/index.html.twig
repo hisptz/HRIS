@@ -43,15 +43,15 @@
                 </a>
             </li>
             <li>
-                <a class="btn" href="{{ path('record_viewrecords', { 'formid':""  }) }}"><!--record.form.id-->
+                <a class="btn" href="{{ path('record_viewrecords', { 'formid': record.form.id }) }}"><!--record.form.id-->
                     Back to Records
                 </a>
             </li>
             <li>
-                <a class="btn" href="{{ path('record_show', { 'id': "" }) }}"><i class="icon-user icon-large" title="Profile"></i> Profile</a><!--record.id-->
+                <a class="btn" href="{{ path('record_show', { 'id': record.id }) }}"><i class="icon-user icon-large" title="Profile"></i> Profile</a><!--record.id-->
             </li>
             <li>
-                <a class="btn" href="{{ path('history_list_byrecord', { 'recordid': "" }) }}"><i class="icon-list icon-large" title="History"></i> History</a><!--record.id-->
+                <a class="btn" href="{{ path('history_list_byrecord', { 'recordid': record.id }) }}"><i class="icon-list icon-large" title="History"></i> History</a><!--record.id-->
             </li>
         </ul>
 
