@@ -90,7 +90,10 @@
 
             var selectItems = $( "td" ).find( "select" );//Get all select fields
             $.each( selectItems, function( key, value ) {
+                console.log(value);
+//                5289e934a7bb0
                 var fieldUrl = "{{ path('api_fieldoption', { '_format': 'json'}) }}"+'?uid='+value.id;
+//                console.log(fieldUrl);
                 var getFields = $.getJSON( fieldUrl, function( jsonFields ) { //Get field options of all select fields
                     $('#'+value.id).append(new Option('--[Select '+value.name+']--', '',true,true));
                     $.each( jsonFields, function( fieldKey, jsonField ) {

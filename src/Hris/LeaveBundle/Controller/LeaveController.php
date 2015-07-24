@@ -73,7 +73,8 @@ class LeaveController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $initial_leaves = $em -> getConnection() -> executeQuery(
-            "SELECT * FROM hris_fieldoption WHERE field_id=136 AND hastraining=TRUE"
+            "SELECT * FROM hris_fieldoption WHERE field_id=136 AND hastraining IS NULL"
+//            "SELECT * FROM hris_fieldoption WHERE field_id=136 AND hastraining=TRUE"
         ) -> fetchAll();
         $inleaves = array();
 //        foreach($initial_leaves as $leave){
